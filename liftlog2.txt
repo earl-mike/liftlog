@@ -1,12 +1,821 @@
-LIFTLOG
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiftLog</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #c8ff00;
+    --accent2: #ff6b35;
+    --blue: #4fc3f7;
+    --text: #f0f0f0;
+    --muted: #555555;
+    --muted2: #888888;
+  }
 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+  }
 
-SYNCING DATA...
-LIFTLOG
-‹
-WEEK 1
-›
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
 
-LOADING
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--accent);
+  }
 
+  .logo span { color: var(--text); }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted2);
+  }
+
+  .week-nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .week-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .sync-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .sync-dot.syncing { background: var(--accent2); animation: pulse 0.8s infinite; }
+  .sync-dot.synced { background: var(--accent); }
+  .sync-dot.error { background: var(--accent2); }
+
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    padding: 8px 14px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text); border-color: var(--muted); }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 500; }
+
+  .day-panel { display: none; }
+  .day-panel.active { display: block; }
+
+  .day-header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    color: var(--muted2);
+  }
+
+  .day-header span { color: var(--text); }
+
+  .exercise-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .exercise-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 88px 128px;
+    align-items: center;
+    transition: border-color 0.15s;
+  }
+
+  .exercise-row.logged { border-color: var(--accent); }
+
+  .exercise-name {
+    padding: 11px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-right: 1px solid var(--border);
+  }
+
+  .sets-reps {
+    padding: 11px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .weight-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+  }
+
+  .weight-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    width: 62px;
+    padding: 5px 7px;
+    text-align: center;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .weight-input::-webkit-outer-spin-button,
+  .weight-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .weight-input:focus { outline: none; border-color: var(--accent); }
+
+  .unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    margin-bottom: 6px;
+  }
+
+  .progress-bar { height: 100%; background: var(--accent); transition: width 0.3s; }
+
+  .logged-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    margin-bottom: 14px;
+  }
+
+  .notes-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    padding: 12px;
+    resize: vertical;
+    min-height: 70px;
+    margin-bottom: 12px;
+  }
+
+  .notes-area:focus { outline: none; border-color: var(--accent); }
+  .notes-area::placeholder { color: var(--muted); }
+
+  .btn {
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--muted);
+    color: var(--muted2);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-outline:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-copy {
+    background: var(--blue);
+    color: #000;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-copy:hover { opacity: 0.85; }
+
+  .flash-msg {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .flash-msg.show { opacity: 1; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .recap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+  }
+
+  .recap-card .day-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .recap-card .ex-name {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .recap-card .weight-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .recap-card .w-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+  }
+
+  .export-box {
+    background: var(--surface);
+    border: 1px solid var(--blue);
+    border-left: 3px solid var(--blue);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .export-box-text {
+    font-size: 13px;
+    color: var(--muted2);
+    line-height: 1.5;
+  }
+
+  .export-box-text strong { color: var(--blue); font-weight: 500; }
+
+  .ai-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .ai-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .ai-content {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--muted2);
+  }
+
+  .ai-content p { margin-bottom: 10px; }
+  .ai-content p:last-child { margin-bottom: 0; }
+  .ai-content strong { color: var(--text); font-weight: 500; }
+
+  .recap-section { margin-bottom: 28px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 999;
+  }
+
+  .load-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    color: var(--accent);
+  }
+
+  .dot-loader {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .dot-loader span {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+
+  .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+
+  .autosave-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 480px) {
+    .exercise-row { grid-template-columns: 1fr 76px 110px; }
+    .exercise-name { font-size: 12px; padding: 10px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="load-logo">LIFT<span style="color:#f0f0f0">LOG</span></div>
+  <div class="dot-loader"><span></span><span></span><span></span></div>
+  <div style="font-family:'DM Mono',monospace;font-size:11px;color:#555;letter-spacing:1px;margin-top:4px;">SYNCING DATA...</div>
+</div>
+
+<header>
+  <div class="logo">LIFT<span>LOG</span></div>
+  <div class="header-right">
+    <div class="week-nav">
+      <button onclick="changeWeek(-1)">&#8249;</button>
+      <span id="weekLabel">WEEK 1</span>
+      <button onclick="changeWeek(1)">&#8250;</button>
+    </div>
+    <div class="sync-row">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">LOADING</span>
+    </div>
+  </div>
+</header>
+
+<div class="tabs" id="tabBar"></div>
+<div id="panels"></div>
+
+<script>
+const API_KEY = '$2a$10$QR7R9tSqbovZw0xKejAUp.T.cXbKEAQTtpEl.pVh9GFMiN3G1at2y';
+const BIN_ID = '69cc5e04aaba882197b1af4d';
+
+let cloudData = { weeks: {} };
+let saveTimer = null;
+
+const PROGRAM = [
+  {
+    id:1, label:"D1 · CHEST+TRI", full:"CHEST + TRICEPS",
+    exercises:[
+      {name:"Barbell Bench Press",sets:4,reps:"6–8"},
+      {name:"Incline Barbell Press",sets:3,reps:"8–10"},
+      {name:"Cable Pec Fly",sets:3,reps:"12–15"},
+      {name:"EZ-Bar Skullcrusher",sets:3,reps:"10–12"},
+      {name:"Overhead Cable Tri Ext",sets:2,reps:"12–15"},
+      {name:"Rope Pushdown",sets:2,reps:"15–20"},
+    ]
+  },
+  {
+    id:2, label:"D2 · BACK+BI", full:"BACK + BICEPS",
+    exercises:[
+      {name:"Chest Supported Row",sets:4,reps:"8–10"},
+      {name:"Neutral Grip Lat Pulldown",sets:3,reps:"10–12"},
+      {name:"Narrow Cable Row",sets:3,reps:"10–12"},
+      {name:"Bayesian Cable Curl",sets:3,reps:"10–12"},
+      {name:"Preacher Curl",sets:2,reps:"10–12"},
+      {name:"Hammer Curl",sets:2,reps:"12–15"},
+    ]
+  },
+  {
+    id:3, label:"D3 · SHOULDERS", full:"SHOULDERS + REAR DELTS",
+    exercises:[
+      {name:"Machine Shoulder Press",sets:3,reps:"8–10"},
+      {name:"Cable Lateral Raise",sets:3,reps:"15–20"},
+      {name:"Dumbbell Lateral Raise",sets:2,reps:"15–20"},
+      {name:"Reverse Pec Deck",sets:3,reps:"15–20"},
+      {name:"Rear Delt Cable Fly",sets:2,reps:"15–20"},
+      {name:"Face Pull",sets:2,reps:"15–20"},
+      {name:"Cable Y Raise",sets:2,reps:"15–20"},
+    ]
+  },
+  {
+    id:4, label:"D4 · LEGS", full:"LEGS",
+    exercises:[
+      {name:"Front Squat",sets:4,reps:"5–8"},
+      {name:"Romanian Deadlift",sets:3,reps:"8–10"},
+      {name:"Single Leg Extension",sets:3,reps:"12–15"},
+      {name:"Seated Leg Curl",sets:3,reps:"10–12"},
+      {name:"Walking Lunges",sets:2,reps:"12–15 ea"},
+      {name:"Standing Calf Raise",sets:4,reps:"12–15"},
+    ]
+  },
+  {
+    id:5, label:"D5 · CHEST+LAT", full:"CHEST + TRICEPS + LAT DELTS",
+    exercises:[
+      {name:"Incline Machine Press",sets:3,reps:"8–10"},
+      {name:"Machine Chest Press",sets:2,reps:"10–12"},
+      {name:"Cable Pec Fly",sets:2,reps:"12–15"},
+      {name:"Rope Pushdown",sets:2,reps:"15–20"},
+      {name:"Overhead Cable Tri Ext",sets:2,reps:"12–15"},
+      {name:"Cable Lateral Raise",sets:2,reps:"15–20"},
+      {name:"Lean Away Lateral Raise",sets:2,reps:"15–20"},
+    ]
+  },
+  {
+    id:6, label:"D6 · BACK+REAR", full:"BACK + BICEPS + REAR DELTS",
+    exercises:[
+      {name:"Single Arm Lat Pulldown",sets:3,reps:"10–12"},
+      {name:"Chest Supported Row",sets:3,reps:"8–10"},
+      {name:"Cable Row",sets:2,reps:"10–12"},
+      {name:"Bayesian Cable Curl",sets:2,reps:"10–12"},
+      {name:"Hammer Curl",sets:2,reps:"12–15"},
+      {name:"Reverse Pec Deck",sets:2,reps:"15–20"},
+      {name:"Face Pull",sets:2,reps:"15–20"},
+    ]
+  },
+  {id:7, label:"RECAP", full:"WEEKLY RECAP", exercises:[]}
+];
+
+let currentWeek = 1;
+
+function setSyncStatus(state, label) {
+  document.getElementById('syncDot').className = 'sync-dot ' + state;
+  document.getElementById('syncLabel').textContent = label;
+}
+
+async function loadFromCloud() {
+  setSyncStatus('syncing', 'LOADING...');
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const data = await res.json();
+    cloudData = data.record || { weeks: {} };
+    setSyncStatus('synced', 'SYNCED');
+  } catch(e) {
+    setSyncStatus('error', 'OFFLINE');
+    cloudData = JSON.parse(localStorage.getItem('ll_backup') || '{"weeks":{}}');
+  }
+  document.getElementById('loadingOverlay').style.display = 'none';
+  renderAll();
+}
+
+async function saveToCloud() {
+  setSyncStatus('syncing', 'SAVING...');
+  localStorage.setItem('ll_backup', JSON.stringify(cloudData));
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY
+      },
+      body: JSON.stringify(cloudData)
+    });
+    setSyncStatus('synced', 'SAVED ✓');
+  } catch(e) {
+    setSyncStatus('error', 'SAVE FAILED');
+  }
+}
+
+function debouncedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToCloud, 1500);
+}
+
+function getVal(w, d, e) { return cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.[`e${e}`] || ''; }
+function setVal(w, d, e, v) {
+  if (!cloudData.weeks) cloudData.weeks = {};
+  if (!cloudData.weeks[`w${w}`]) cloudData.weeks[`w${w}`] = {};
+  if (!cloudData.weeks[`w${w}`][`d${d}`]) cloudData.weeks[`w${w}`][`d${d}`] = {};
+  cloudData.weeks[`w${w}`][`d${d}`][`e${e}`] = v;
+  debouncedSave();
+}
+
+function getNotes(w, d) { return cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.notes || ''; }
+function setNotes(w, d, v) {
+  if (!cloudData.weeks) cloudData.weeks = {};
+  if (!cloudData.weeks[`w${w}`]) cloudData.weeks[`w${w}`] = {};
+  if (!cloudData.weeks[`w${w}`][`d${d}`]) cloudData.weeks[`w${w}`][`d${d}`] = {};
+  cloudData.weeks[`w${w}`][`d${d}`].notes = v;
+  debouncedSave();
+}
+
+function getAI(w) { return cloudData?.weeks?.[`w${w}`]?.ai || ''; }
+function setAI(w, v) {
+  if (!cloudData.weeks) cloudData.weeks = {};
+  if (!cloudData.weeks[`w${w}`]) cloudData.weeks[`w${w}`] = {};
+  cloudData.weeks[`w${w}`].ai = v;
+  debouncedSave();
+}
+
+function changeWeek(dir) {
+  const n = currentWeek + dir;
+  if (n < 1) return;
+  currentWeek = n;
+  document.getElementById('weekLabel').textContent = `WEEK ${currentWeek}`;
+  renderAll();
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+function renderAll() {
+  document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
+    `<button class="tab${i===0?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
+  ).join('');
+
+  const container = document.getElementById('panels');
+  container.innerHTML = '';
+  PROGRAM.forEach((day, di) => {
+    const panel = document.createElement('div');
+    panel.className = 'day-panel' + (di===0?' active':'');
+    panel.innerHTML = day.id===7 ? buildRecap() : buildDay(day, di);
+    container.appendChild(panel);
+  });
+
+  PROGRAM.forEach((day, di) => {
+    if (day.id===7) return;
+    day.exercises.forEach((_, ei) => {
+      const inp = document.getElementById(`inp_${di}_${ei}`);
+      if (!inp) return;
+      inp.value = getVal(currentWeek, day.id, ei);
+      if (inp.value) inp.closest('.exercise-row').classList.add('logged');
+      inp.addEventListener('input', () => {
+        setVal(currentWeek, day.id, ei, inp.value);
+        updateProgress(di);
+        inp.closest('.exercise-row').classList.toggle('logged', !!inp.value);
+      });
+    });
+    const notes = document.getElementById(`notes_${di}`);
+    if (notes) {
+      notes.value = getNotes(currentWeek, day.id);
+      notes.addEventListener('input', () => setNotes(currentWeek, day.id, notes.value));
+    }
+    updateProgress(di);
+  });
+}
+
+function buildDay(day, di) {
+  const rows = day.exercises.map((ex, ei) => `
+    <div class="exercise-row">
+      <div class="exercise-name">${ex.name}</div>
+      <div class="sets-reps">${ex.sets}×${ex.reps}</div>
+      <div class="weight-input-wrap">
+        <input type="number" class="weight-input" id="inp_${di}_${ei}" placeholder="—" min="0" step="2.5">
+        <span class="unit">lbs</span>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="day-header"><span>${day.full}</span></div>
+    <div class="exercise-grid">${rows}</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
+    <div class="logged-count" id="cnt_${di}">0 / ${day.exercises.length} logged</div>
+    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, exercise swaps, how it felt..."></textarea>
+    <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>`;
+}
+
+function buildRecap() {
+  const savedAI = getAI(currentWeek);
+  const cards = PROGRAM.filter(d=>d.id!==7).map(day =>
+    day.exercises.map((ex, ei) => {
+      const v = getVal(currentWeek, day.id, ei);
+      return `<div class="recap-card">
+        <div class="day-label">Day ${day.id}</div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="weight-display">${v||'—'}<span class="w-unit">${v?' lbs':''}</span></div>
+      </div>`;
+    }).join('')
+  ).join('');
+
+  const aiHtml = savedAI
+    ? `<div class="ai-box"><div class="ai-label">◈ AI Coach — Week ${currentWeek}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
+    : `<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes on your week.</p></div></div>`;
+
+  return `
+    <div class="day-header"><span>WEEK ${currentWeek} RECAP</span></div>
+    <div class="recap-section">
+      <div class="section-label">Logged Weights</div>
+      <div class="recap-grid">${cards}</div>
+    </div>
+    <div class="recap-section">
+      <div class="export-box">
+        <div class="export-box-text">
+          <strong>↑ Share with Claude</strong><br>
+          Copy your week and paste into Claude for your check-in.
+        </div>
+        <button class="btn btn-copy" onclick="exportWeek()">⬆ Copy for Claude</button>
+      </div>
+      <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied! Paste into Claude.</span>
+    </div>
+    <div class="recap-section">
+      <div class="section-label">AI Coaching Analysis</div>
+      ${aiHtml}
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Week ${currentWeek} Recap</button>
+      </div>
+    </div>`;
+}
+
+function updateProgress(di) {
+  const day = PROGRAM[di];
+  let n = 0;
+  day.exercises.forEach((_,ei) => { if(getVal(currentWeek,day.id,ei)) n++; });
+  const pct = Math.round(n/day.exercises.length*100);
+  const bar = document.getElementById(`prog_${di}`);
+  const cnt = document.getElementById(`cnt_${di}`);
+  if(bar) bar.style.width = pct+'%';
+  if(cnt) cnt.textContent = `${n} / ${day.exercises.length} logged`;
+}
+
+function exportWeek() {
+  let text = `LIFTLOG — WEEK ${currentWeek} DATA\n${'='.repeat(36)}\n\n`;
+  PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+    let hasData = day.exercises.some((_,ei)=>getVal(currentWeek,day.id,ei));
+    const notes = getNotes(currentWeek,day.id);
+    if(!hasData && !notes) return;
+    text += `DAY ${day.id} — ${day.full}\n`;
+    day.exercises.forEach((ex,ei)=>{
+      const v = getVal(currentWeek,day.id,ei);
+      text += `  ${ex.name} (${ex.sets}x${ex.reps}): ${v?v+' lbs':'not logged'}\n`;
+    });
+    if(notes) text += `  Notes: ${notes}\n`;
+    text += '\n';
+  });
+  if(currentWeek>1){
+    text += `WEEK ${currentWeek-1} COMPARISON\n`;
+    let hasComp = false;
+    PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+      day.exercises.forEach((ex,ei)=>{
+        const curr=getVal(currentWeek,day.id,ei);
+        const prev=getVal(currentWeek-1,day.id,ei);
+        if(curr&&prev){
+          const diff=parseFloat(curr)-parseFloat(prev);
+          text+=`  ${ex.name}: ${prev} → ${curr} lbs (${diff>=0?'+':''}${diff})\n`;
+          hasComp=true;
+        }
+      });
+    });
+    if(!hasComp) text+='  (no previous week data)\n';
+    text+='\n';
+  }
+  text+=`Goals: Lean bulk. Priority: arms, chest, rear delts, shoulders.\nPaste this into Claude and say "weekly check-in".`;
+
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById('exportFlash');
+    if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+  }).catch(()=>{ prompt('Copy this:',text); });
+}
+
+async function generateRecap() {
+  const btn=document.getElementById('genBtn');
+  const content=document.getElementById('aiContent');
+  btn.disabled=true;
+  btn.innerHTML='<span class="dot-loader"><span></span><span></span><span></span></span>';
+
+  let prompt=`You are an expert strength and hypertrophy coach. Analyze this week's training log.\n\nGoals: Lean bulk. Priority: arms, chest, rear delts, shoulders.\n\nWeek ${currentWeek}:\n\n`;
+  PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+    prompt+=`DAY ${day.id} (${day.full}):\n`;
+    day.exercises.forEach((ex,ei)=>{
+      const v=getVal(currentWeek,day.id,ei);
+      prompt+=`  ${ex.name} ${ex.sets}x${ex.reps}: ${v?v+' lbs':'not logged'}\n`;
+    });
+    const n=getNotes(currentWeek,day.id);
+    if(n) prompt+=`  Notes: ${n}\n`;
+    prompt+='\n';
+  });
+  if(currentWeek>1){
+    prompt+=`\nPrev Week (${currentWeek-1}):\n`;
+    PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+      day.exercises.forEach((ex,ei)=>{
+        const p=getVal(currentWeek-1,day.id,ei);
+        if(p) prompt+=`  ${ex.name}: ${p} lbs\n`;
+      });
+    });
+  }
+  prompt+=`\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts\n3. **Next Week Targets** — specific weight suggestions\n4. **Watch Points** — 1-2 adjustments\n\nBe direct. HTML <p> and <strong> tags only.`;
+
+  try {
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'Could not generate.';
+    content.innerHTML=text;
+    setAI(currentWeek,text);
+  } catch(e) {
+    content.innerHTML='<p style="color:var(--accent2)">Connection error. Try again.</p>';
+  }
+  btn.disabled=false;
+  btn.textContent=`Regenerate Week ${currentWeek} Recap`;
+}
+
+loadFromCloud();
+</script>
+</body>
+</html>
