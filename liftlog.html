@@ -17,6 +17,9 @@
     --text: #f0f0f0;
     --muted: #555555;
     --muted2: #888888;
+    --push: #ff6b35;
+    --pull: #4fc3f7;
+    --lower: #c8ff00;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,7 +58,7 @@
     gap: 8px;
   }
 
-  .week-nav {
+  .cycle-nav {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -64,7 +67,7 @@
     color: var(--muted2);
   }
 
-  .week-nav button {
+  .cycle-nav button {
     background: var(--surface2);
     border: 1px solid var(--border);
     color: var(--text);
@@ -77,7 +80,7 @@
     transition: all 0.15s;
   }
 
-  .week-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .cycle-nav button:hover { border-color: var(--accent); color: var(--accent); }
 
   .sync-row {
     display: flex;
@@ -115,7 +118,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--muted2);
-    padding: 8px 14px;
+    padding: 8px 12px;
     cursor: pointer;
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -126,7 +129,15 @@
   }
 
   .tab:hover { color: var(--text); border-color: var(--muted); }
-  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 500; }
+  .tab.active { color: #000; font-weight: 500; }
+  .tab.push { border-color: var(--push); }
+  .tab.push.active { background: var(--push); border-color: var(--push); }
+  .tab.pull { border-color: var(--pull); }
+  .tab.pull.active { background: var(--pull); border-color: var(--pull); }
+  .tab.lower { border-color: var(--lower); }
+  .tab.lower.active { background: var(--lower); border-color: var(--lower); }
+  .tab.recap { border-color: var(--muted); }
+  .tab.recap.active { background: var(--muted2); border-color: var(--muted2); }
 
   .day-panel { display: none; }
   .day-panel.active { display: block; }
@@ -135,11 +146,32 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
     letter-spacing: 2px;
-    margin-bottom: 14px;
+    margin-bottom: 4px;
     color: var(--muted2);
   }
 
   .day-header span { color: var(--text); }
+
+  .day-subheader {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .tier-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .tier-sp { background: #ff6b3522; color: var(--accent2); border: 1px solid var(--accent2); }
+  .tier-s { background: #c8ff0015; color: var(--accent); border: 1px solid #c8ff0044; }
+  .tier-a { background: #4fc3f715; color: var(--blue); border: 1px solid #4fc3f744; }
 
   .exercise-grid {
     display: flex;
@@ -342,6 +374,13 @@
   .notes-area:focus { outline: none; border-color: var(--accent); }
   .notes-area::placeholder { color: var(--muted); }
 
+  .autosave-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
   .btn {
     padding: 10px 20px;
     font-family: 'DM Mono', monospace;
@@ -395,7 +434,7 @@
 
   .recap-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
     gap: 8px;
     margin-bottom: 24px;
   }
@@ -424,11 +463,7 @@
     line-height: 1.3;
   }
 
-  .recap-sets {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
+  .recap-sets { display: flex; gap: 4px; flex-wrap: wrap; }
 
   .recap-set {
     font-family: 'Bebas Neue', sans-serif;
@@ -458,12 +493,7 @@
     flex-wrap: wrap;
   }
 
-  .export-box-text {
-    font-size: 13px;
-    color: var(--muted2);
-    line-height: 1.5;
-  }
-
+  .export-box-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
   .export-box-text strong { color: var(--blue); font-weight: 500; }
 
   .ai-box {
@@ -483,12 +513,7 @@
     margin-bottom: 12px;
   }
 
-  .ai-content {
-    font-size: 13px;
-    line-height: 1.75;
-    color: var(--muted2);
-  }
-
+  .ai-content { font-size: 13px; line-height: 1.75; color: var(--muted2); }
   .ai-content p { margin-bottom: 10px; }
   .ai-content p:last-child { margin-bottom: 0; }
   .ai-content strong { color: var(--text); font-weight: 500; }
@@ -515,11 +540,7 @@
     color: var(--accent);
   }
 
-  .dot-loader {
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
-  }
+  .dot-loader { display: inline-flex; gap: 5px; align-items: center; }
 
   .dot-loader span {
     width: 5px; height: 5px;
@@ -532,13 +553,6 @@
   .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
 
   @keyframes blink { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
-
-  .autosave-note {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
 </style>
 </head>
 <body>
@@ -552,10 +566,10 @@
 <header>
   <div class="logo">LIFT<span>LOG</span></div>
   <div class="header-right">
-    <div class="week-nav">
-      <button onclick="changeWeek(-1)">&#8249;</button>
-      <span id="weekLabel">WEEK 1</span>
-      <button onclick="changeWeek(1)">&#8250;</button>
+    <div class="cycle-nav">
+      <button onclick="changeCycle(-1)">&#8249;</button>
+      <span id="cycleLabel">CYCLE 1</span>
+      <button onclick="changeCycle(1)">&#8250;</button>
     </div>
     <div class="sync-row">
       <div class="sync-dot" id="syncDot"></div>
@@ -572,83 +586,85 @@ const API_KEY = '$2a$10$QR7R9tSqbovZw0xKejAUp.T.cXbKEAQTtpEl.pVh9GFMiN3G1at2y';
 const BIN_ID = '69cc5e04aaba882197b1af4d';
 const NUM_SETS = 4;
 
-let cloudData = { weeks: {} };
+let cloudData = { cycles: {}, nameOverrides: {} };
 let saveTimer = null;
 
 const PROGRAM = [
   {
-    id:1, label:"D1 · CHEST+TRI", full:"CHEST + TRICEPS",
+    id:'push1', label:"PUSH1", sub:"CHEST PRIMARY", type:'push',
     exercises:[
-      {name:"Barbell Bench Press",reps:"6–8"},
-      {name:"Incline Barbell Press",reps:"8–10"},
-      {name:"Cable Pec Fly",reps:"12–15"},
-      {name:"EZ-Bar Skullcrusher",reps:"10–12"},
-      {name:"Overhead Cable Tri Ext",reps:"12–15"},
-      {name:"Rope Pushdown",reps:"15–20"},
+      {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
+      {name:"Incline Dumbbell Press", tier:"S", reps:"8–10"},
+      {name:"Machine Chest Press", tier:"S", reps:"10–12"},
+      {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
+      {name:"Machine Shoulder Press", tier:"S", reps:"8–10"},
+      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
+      {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
+      {name:"Rope Pushdown", tier:"A", reps:"15–20"},
     ]
   },
   {
-    id:2, label:"D2 · BACK+BI", full:"BACK + BICEPS",
+    id:'pull1', label:"PULL1", sub:"THICKNESS + BICEPS", type:'pull',
     exercises:[
-      {name:"Chest Supported Row",reps:"8–10"},
-      {name:"Neutral Grip Lat Pulldown",reps:"10–12"},
-      {name:"Narrow Cable Row",reps:"10–12"},
-      {name:"Bayesian Cable Curl",reps:"10–12"},
-      {name:"Preacher Curl",reps:"10–12"},
-      {name:"Hammer Curl",reps:"12–15"},
+      {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
+      {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
+      {name:"Neutral Grip Lat Pulldown", tier:"S", reps:"10–12"},
+      {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
+      {name:"Preacher Curl", tier:"S", reps:"10–12"},
+      {name:"Face Pull", tier:"S", reps:"15–20"},
+      {name:"Reverse Pec Deck Cable", tier:"S", reps:"15–20"},
     ]
   },
   {
-    id:3, label:"D3 · SHOULDERS", full:"SHOULDERS + REAR DELTS",
+    id:'lower1', label:"LOWER1", sub:"QUAD FOCUS", type:'lower',
     exercises:[
-      {name:"Machine Shoulder Press",reps:"8–10"},
-      {name:"Cable Lateral Raise",reps:"15–20"},
-      {name:"Dumbbell Lateral Raise",reps:"15–20"},
-      {name:"Reverse Pec Deck",reps:"15–20"},
-      {name:"Rear Delt Cable Fly",reps:"15–20"},
-      {name:"Face Pull",reps:"15–20"},
-      {name:"Cable Y Raise",reps:"15–20"},
+      {name:"Front Squat", tier:"S+", reps:"5–8"},
+      {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
+      {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
+      {name:"Romanian Deadlift", tier:"S", reps:"8–10"},
+      {name:"Seated Leg Curl", tier:"A", reps:"10–12"},
+      {name:"Standing Calf Raise", tier:"A", reps:"12–15"},
     ]
   },
   {
-    id:4, label:"D4 · LEGS", full:"LEGS",
+    id:'push2', label:"PUSH2", sub:"SHOULDER PRIMARY", type:'push',
     exercises:[
-      {name:"Front Squat",reps:"5–8"},
-      {name:"Romanian Deadlift",reps:"8–10"},
-      {name:"Single Leg Extension",reps:"12–15"},
-      {name:"Seated Leg Curl",reps:"10–12"},
-      {name:"Walking Lunges",reps:"12–15 ea"},
-      {name:"Standing Calf Raise",reps:"12–15"},
+      {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
+      {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
+      {name:"Dumbbell Shoulder Press", tier:"S", reps:"8–10"},
+      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
+      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
+      {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
+      {name:"Rope Pushdown", tier:"A", reps:"15–20"},
     ]
   },
   {
-    id:5, label:"D5 · CHEST+LAT", full:"CHEST + TRICEPS + LAT DELTS",
+    id:'pull2', label:"PULL2", sub:"WIDTH + REAR DELTS", type:'pull',
     exercises:[
-      {name:"Incline Machine Press",reps:"8–10"},
-      {name:"Machine Chest Press",reps:"10–12"},
-      {name:"Cable Pec Fly",reps:"12–15"},
-      {name:"Rope Pushdown",reps:"15–20"},
-      {name:"Overhead Cable Tri Ext",reps:"12–15"},
-      {name:"Cable Lateral Raise",reps:"15–20"},
-      {name:"Lean Away Lateral Raise",reps:"15–20"},
+      {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
+      {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
+      {name:"Banded Pull Ups", tier:"A", reps:"8–10"},
+      {name:"Hammer Curl", tier:"S", reps:"12–15"},
+      {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+      {name:"Face Pull", tier:"S+", reps:"15–20"},
+      {name:"Cable Y Raise", tier:"A", reps:"15–20"},
     ]
   },
   {
-    id:6, label:"D6 · BACK+REAR", full:"BACK + BICEPS + REAR DELTS",
+    id:'lower2', label:"LOWER2", sub:"GLUTE PRIMARY", type:'lower',
     exercises:[
-      {name:"Single Arm Lat Pulldown",reps:"10–12"},
-      {name:"Chest Supported Row",reps:"8–10"},
-      {name:"Cable Row",reps:"10–12"},
-      {name:"Bayesian Cable Curl",reps:"10–12"},
-      {name:"Hammer Curl",reps:"12–15"},
-      {name:"Reverse Pec Deck",reps:"15–20"},
-      {name:"Face Pull",reps:"15–20"},
+      {name:"Hip Thrust", tier:"S+", reps:"10–12"},
+      {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
+      {name:"Hack Squat", tier:"S", reps:"8–10"},
+      {name:"Romanian Deadlift", tier:"S", reps:"8–10"},
+      {name:"Leg Extension (controlled)", tier:"A", reps:"15–20"},
+      {name:"Seated Leg Curl", tier:"A", reps:"10–12"},
     ]
   },
-  {id:7, label:"RECAP", full:"WEEKLY RECAP", exercises:[]}
+  {id:'recap', label:"RECAP", sub:"", type:'recap', exercises:[]}
 ];
 
-let currentWeek = 1;
+let currentCycle = 1;
 
 function setSyncStatus(state, label) {
   document.getElementById('syncDot').className = 'sync-dot ' + state;
@@ -662,11 +678,13 @@ async function loadFromCloud() {
       headers: { 'X-Master-Key': API_KEY }
     });
     const data = await res.json();
-    cloudData = data.record || { weeks: {} };
+    cloudData = data.record || { cycles: {}, nameOverrides: {} };
+    if (!cloudData.cycles) cloudData.cycles = {};
+    if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
     setSyncStatus('synced', 'SYNCED');
   } catch(e) {
     setSyncStatus('error', 'OFFLINE');
-    cloudData = JSON.parse(localStorage.getItem('ll_backup') || '{"weeks":{}}');
+    cloudData = JSON.parse(localStorage.getItem('ll_backup') || '{"cycles":{},"nameOverrides":{}}');
   }
   document.getElementById('loadingOverlay').style.display = 'none';
   renderAll();
@@ -692,72 +710,72 @@ function debouncedSave() {
   saveTimer = setTimeout(saveToCloud, 1500);
 }
 
-function ensureDay(w, d) {
-  if (!cloudData.weeks) cloudData.weeks = {};
-  if (!cloudData.weeks[`w${w}`]) cloudData.weeks[`w${w}`] = {};
-  if (!cloudData.weeks[`w${w}`][`d${d}`]) cloudData.weeks[`w${w}`][`d${d}`] = {};
+function ensureDay(c, d) {
+  if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {};
+  if (!cloudData.cycles[`c${c}`][d]) cloudData.cycles[`c${c}`][d] = {};
 }
 
-function getSet(w, d, e, s) {
-  const sets = cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.[`e${e}`];
+function getSet(c, d, e, s) {
+  const sets = cloudData?.cycles?.[`c${c}`]?.[d]?.[`e${e}`];
   if (Array.isArray(sets)) return sets[s] || '';
   if (s === 0 && sets && typeof sets === 'string') return sets;
   return '';
 }
 
-function setSet(w, d, e, s, v) {
-  ensureDay(w, d);
+function setSet(c, d, e, s, v) {
+  ensureDay(c, d);
   const key = `e${e}`;
-  let arr = cloudData.weeks[`w${w}`][`d${d}`][key];
-  if (!Array.isArray(arr)) {
-    const old = (typeof arr === 'string') ? arr : '';
-    arr = [old, '', '', ''];
-  }
+  let arr = cloudData.cycles[`c${c}`][d][key];
+  if (!Array.isArray(arr)) { arr = ['','','','']; }
   arr[s] = v;
-  cloudData.weeks[`w${w}`][`d${d}`][key] = arr;
+  cloudData.cycles[`c${c}`][d][key] = arr;
   debouncedSave();
 }
 
-function getExName(w, d, e) {
-  return cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.[`n${e}`] || null;
+// Permanent name overrides — stored globally, not per cycle
+function getExName(dayId, ei) {
+  return cloudData?.nameOverrides?.[`${dayId}_${ei}`] || null;
 }
 
-function setExName(w, d, e, name) {
-  ensureDay(w, d);
-  cloudData.weeks[`w${w}`][`d${d}`][`n${e}`] = name;
+function setExName(dayId, ei, name) {
+  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+  if (name) {
+    cloudData.nameOverrides[`${dayId}_${ei}`] = name;
+  } else {
+    delete cloudData.nameOverrides[`${dayId}_${ei}`];
+  }
   debouncedSave();
 }
 
-function getBonusExercises(w, d) {
-  return cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.bonus || [];
+function getBonusExercises(c, d) {
+  return cloudData?.cycles?.[`c${c}`]?.[d]?.bonus || [];
 }
 
-function saveBonusExercises(w, d, arr) {
-  ensureDay(w, d);
-  cloudData.weeks[`w${w}`][`d${d}`].bonus = arr;
+function saveBonusExercises(c, d, arr) {
+  ensureDay(c, d);
+  cloudData.cycles[`c${c}`][d].bonus = arr;
   debouncedSave();
 }
 
-function getNotes(w, d) { return cloudData?.weeks?.[`w${w}`]?.[`d${d}`]?.notes || ''; }
-function setNotes(w, d, v) {
-  ensureDay(w, d);
-  cloudData.weeks[`w${w}`][`d${d}`].notes = v;
+function getNotes(c, d) { return cloudData?.cycles?.[`c${c}`]?.[d]?.notes || ''; }
+function setNotes(c, d, v) {
+  ensureDay(c, d);
+  cloudData.cycles[`c${c}`][d].notes = v;
   debouncedSave();
 }
 
-function getAI(w) { return cloudData?.weeks?.[`w${w}`]?.ai || ''; }
-function setAI(w, v) {
-  if (!cloudData.weeks) cloudData.weeks = {};
-  if (!cloudData.weeks[`w${w}`]) cloudData.weeks[`w${w}`] = {};
-  cloudData.weeks[`w${w}`].ai = v;
+function getAI(c) { return cloudData?.cycles?.[`c${c}`]?.ai || ''; }
+function setAI(c, v) {
+  if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {};
+  cloudData.cycles[`c${c}`].ai = v;
   debouncedSave();
 }
 
-function changeWeek(dir) {
-  const n = currentWeek + dir;
+function changeCycle(dir) {
+  const n = currentCycle + dir;
   if (n < 1) return;
-  currentWeek = n;
-  document.getElementById('weekLabel').textContent = `WEEK ${currentWeek}`;
+  currentCycle = n;
+  document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
   renderAll();
 }
 
@@ -776,8 +794,7 @@ function startEditName(di, ei, dayId) {
   editBtn.style.display = 'none';
   inputEl.style.display = 'block';
   confirmEl.style.display = 'block';
-  inputEl.focus();
-  inputEl.select();
+  inputEl.focus(); inputEl.select();
 }
 
 function confirmEditName(di, ei, dayId) {
@@ -790,11 +807,11 @@ function confirmEditName(di, ei, dayId) {
   if (newName && newName !== defaultName) {
     nameEl.textContent = newName;
     nameEl.classList.add('custom');
-    setExName(currentWeek, dayId, ei, newName);
+    setExName(dayId, ei, newName);
   } else {
     nameEl.textContent = defaultName;
     nameEl.classList.remove('custom');
-    setExName(currentWeek, dayId, ei, null);
+    setExName(dayId, ei, null);
   }
   nameEl.style.display = 'block';
   editBtn.style.display = 'block';
@@ -803,12 +820,10 @@ function confirmEditName(di, ei, dayId) {
 }
 
 function addBonusExercise(dayId, di) {
-  const bonus = getBonusExercises(currentWeek, dayId);
-  const newBonus = { name: 'New Exercise', sets: ['','','',''] };
-  bonus.push(newBonus);
-  saveBonusExercises(currentWeek, dayId, bonus);
+  const bonus = getBonusExercises(currentCycle, dayId);
+  bonus.push({ name: 'New Exercise', sets: ['','','',''] });
+  saveBonusExercises(currentCycle, dayId, bonus);
   renderAll();
-  // Switch back to correct tab and focus the new name input
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===di));
   document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===di));
   const bi = bonus.length - 1;
@@ -828,12 +843,9 @@ function startEditBonusName(di, bi, dayId) {
   const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`);
   const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
   inputEl.value = nameEl.textContent;
-  nameEl.style.display = 'none';
-  editBtn.style.display = 'none';
-  inputEl.style.display = 'block';
-  confirmEl.style.display = 'block';
-  inputEl.focus();
-  inputEl.select();
+  nameEl.style.display = 'none'; editBtn.style.display = 'none';
+  inputEl.style.display = 'block'; confirmEl.style.display = 'block';
+  inputEl.focus(); inputEl.select();
 }
 
 function confirmBonusName(di, bi, dayId) {
@@ -843,25 +855,22 @@ function confirmBonusName(di, bi, dayId) {
   const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
   const newName = inputEl.value.trim() || 'New Exercise';
   nameEl.textContent = newName;
-  nameEl.style.display = 'block';
-  editBtn.style.display = 'block';
-  inputEl.style.display = 'none';
-  confirmEl.style.display = 'none';
-  // Save name
-  const bonus = getBonusExercises(currentWeek, dayId);
-  if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentWeek, dayId, bonus); }
+  nameEl.style.display = 'block'; editBtn.style.display = 'block';
+  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
+  const bonus = getBonusExercises(currentCycle, dayId);
+  if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentCycle, dayId, bonus); }
 }
 
 function deleteBonusExercise(dayId, bi) {
-  const bonus = getBonusExercises(currentWeek, dayId);
+  const bonus = getBonusExercises(currentCycle, dayId);
   bonus.splice(bi, 1);
-  saveBonusExercises(currentWeek, dayId, bonus);
+  saveBonusExercises(currentCycle, dayId, bonus);
   renderAll();
 }
 
 function renderAll() {
   document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
-    `<button class="tab${i===0?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
+    `<button class="tab ${d.type}${i===0?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
   ).join('');
 
   const container = document.getElementById('panels');
@@ -869,55 +878,49 @@ function renderAll() {
   PROGRAM.forEach((day, di) => {
     const panel = document.createElement('div');
     panel.className = 'day-panel' + (di===0?' active':'');
-    panel.innerHTML = day.id===7 ? buildRecap() : buildDay(day, di);
+    panel.innerHTML = day.type==='recap' ? buildRecap() : buildDay(day, di);
     container.appendChild(panel);
   });
 
   PROGRAM.forEach((day, di) => {
-    if (day.id===7) return;
+    if (day.type==='recap') return;
 
-    // Wire regular exercises
     day.exercises.forEach((ex, ei) => {
-      const customName = getExName(currentWeek, day.id, ei);
+      const customName = getExName(day.id, ei);
       const nameEl = document.getElementById(`exname_${di}_${ei}`);
       if (nameEl && customName) { nameEl.textContent = customName; nameEl.classList.add('custom'); }
 
       const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-      if (inputEl) {
-        inputEl.addEventListener('keydown', (e) => { if (e.key==='Enter') confirmEditName(di, ei, day.id); });
-      }
+      if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
 
       for (let s = 0; s < NUM_SETS; s++) {
         const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
         if (!inp) continue;
-        const val = getSet(currentWeek, day.id, ei, s);
+        const val = getSet(currentCycle, day.id, ei, s);
         inp.value = val;
         if (val) inp.classList.add('has-value');
         inp.addEventListener('input', () => {
-          setSet(currentWeek, day.id, ei, s, inp.value);
+          setSet(currentCycle, day.id, ei, s, inp.value);
           inp.classList.toggle('has-value', !!inp.value);
           updateProgress(di);
         });
       }
     });
 
-    // Wire bonus exercises
-    const bonus = getBonusExercises(currentWeek, day.id);
+    const bonus = getBonusExercises(currentCycle, day.id);
     bonus.forEach((bex, bi) => {
       const nameInp = document.getElementById(`bonus_name_${di}_${bi}`);
-      if (nameInp) {
-        nameInp.addEventListener('keydown', (e) => { if (e.key==='Enter') confirmBonusName(di, bi, day.id); });
-      }
+      if (nameInp) nameInp.addEventListener('keydown', e => { if(e.key==='Enter') confirmBonusName(di,bi,day.id); });
       for (let s = 0; s < NUM_SETS; s++) {
         const inp = document.getElementById(`binp_${di}_${bi}_${s}`);
         if (!inp) continue;
         inp.value = bex.sets[s] || '';
         if (inp.value) inp.classList.add('has-value');
         inp.addEventListener('input', () => {
-          const b = getBonusExercises(currentWeek, day.id);
+          const b = getBonusExercises(currentCycle, day.id);
           if (!b[bi]) return;
           b[bi].sets[s] = inp.value;
-          saveBonusExercises(currentWeek, day.id, b);
+          saveBonusExercises(currentCycle, day.id, b);
           inp.classList.toggle('has-value', !!inp.value);
           updateProgress(di);
         });
@@ -926,36 +929,15 @@ function renderAll() {
 
     const notes = document.getElementById(`notes_${di}`);
     if (notes) {
-      notes.value = getNotes(currentWeek, day.id);
-      notes.addEventListener('input', () => setNotes(currentWeek, day.id, notes.value));
+      notes.value = getNotes(currentCycle, day.id);
+      notes.addEventListener('input', () => setNotes(currentCycle, day.id, notes.value));
     }
     updateProgress(di);
   });
 }
 
-function buildBonusRow(di, bi, dayId, bex) {
-  const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-    <div class="set-wrap">
-      <div class="set-label">S${s+1}</div>
-      <input type="number" class="set-input" id="binp_${di}_${bi}_${s}" placeholder="—" min="0" step="2.5">
-    </div>`).join('');
-
-  return `
-    <div class="exercise-row bonus" id="bonus_row_${di}_${bi}">
-      <div class="exercise-top">
-        <div class="exercise-name-wrap">
-          <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
-          <button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},${dayId})" title="Rename">✎</button>
-          <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40" placeholder="Exercise name">
-          <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},${dayId})">✓</button>
-        </div>
-        <button class="delete-btn" onclick="deleteBonusExercise(${dayId},${bi})" title="Remove">✕</button>
-      </div>
-      <div class="sets-row">
-        ${setBoxes}
-        <div class="unit">lbs</div>
-      </div>
-    </div>`;
+function tierBadge(tier) {
+  return `<span class="tier-badge tier-${tier.toLowerCase().replace('+','sp')}">${tier}</span>`;
 }
 
 function buildDay(day, di) {
@@ -965,66 +947,84 @@ function buildDay(day, di) {
         <div class="set-label">S${s+1}</div>
         <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="—" min="0" step="2.5">
       </div>`).join('');
-
     return `
-      <div class="exercise-row" id="row_${di}_${ei}">
+      <div class="exercise-row">
         <div class="exercise-top">
           <div class="exercise-name-wrap">
+            ${tierBadge(ex.tier)}
             <span class="exercise-name" id="exname_${di}_${ei}">${ex.name}</span>
-            <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},${day.id})" title="Rename for this week">✎</button>
+            <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${day.id}')" title="Rename permanently">✎</button>
             <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-            <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},${day.id})">✓</button>
+            <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${day.id}')">✓</button>
           </div>
           <div class="exercise-meta">${ex.reps}</div>
         </div>
-        <div class="sets-row">
-          ${setBoxes}
-          <div class="unit">lbs</div>
-        </div>
+        <div class="sets-row">${setBoxes}<div class="unit">lbs</div></div>
       </div>`;
   }).join('');
 
-  const bonus = getBonusExercises(currentWeek, day.id);
-  const bonusRows = bonus.map((bex, bi) => buildBonusRow(di, bi, day.id, bex)).join('');
+  const bonus = getBonusExercises(currentCycle, day.id);
+  const bonusRows = bonus.map((bex, bi) => {
+    const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
+      <div class="set-wrap">
+        <div class="set-label">S${s+1}</div>
+        <input type="number" class="set-input" id="binp_${di}_${bi}_${s}" placeholder="—" min="0" step="2.5">
+      </div>`).join('');
+    return `
+      <div class="exercise-row bonus">
+        <div class="exercise-top">
+          <div class="exercise-name-wrap">
+            <span class="tier-badge tier-a">+</span>
+            <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
+            <button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
+            <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40" placeholder="Exercise name">
+            <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>
+          </div>
+          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${bi})">✕</button>
+        </div>
+        <div class="sets-row">${setBoxes}<div class="unit">lbs</div></div>
+      </div>`;
+  }).join('');
 
   return `
-    <div class="day-header"><span>${day.full}</span></div>
+    <div class="day-header"><span>${day.label}</span></div>
+    <div class="day-subheader">${day.sub}</div>
     <div class="exercise-grid">${rows}${bonusRows}</div>
-    <button class="add-exercise-btn" onclick="addBonusExercise(${day.id}, ${di})">+ Add Exercise</button>
+    <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${day.exercises.length} logged</div>
-    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, exercise swaps, how it felt..."></textarea>
+    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, how it felt..."></textarea>
     <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>`;
 }
 
 function buildRecap() {
-  const savedAI = getAI(currentWeek);
-  const cards = PROGRAM.filter(d=>d.id!==7).map(day => {
+  const savedAI = getAI(currentCycle);
+  const cards = PROGRAM.filter(d=>d.type!=='recap').map(day => {
     const regularCards = day.exercises.map((ex, ei) => {
-      const customName = getExName(currentWeek, day.id, ei);
+      const customName = getExName(day.id, ei);
       const displayName = customName || ex.name;
-      const sets = Array.from({length: NUM_SETS}, (_,s) => getSet(currentWeek, day.id, ei, s));
-      const hasAny = sets.some(v => v);
+      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
+      const hasAny = sets.some(v=>v);
       const setDisplay = sets.map(v => v
         ? `<div class="recap-set">${v}<span class="rs-unit">lb</span></div>`
         : `<div class="recap-set empty">·</div>`
       ).join('');
-      return `<div class="recap-card" style="${!hasAny?'opacity:0.4':''}">
-        <div class="day-label">Day ${day.id}</div>
-        <div class="ex-name">${displayName}${customName?' ✎':''}</div>
+      return `<div class="recap-card" style="${!hasAny?'opacity:0.35':''}">
+        <div class="day-label">${day.label}</div>
+        <div class="ex-name">${displayName}</div>
         <div class="recap-sets">${setDisplay}</div>
       </div>`;
     }).join('');
 
-    const bonus = getBonusExercises(currentWeek, day.id);
+    const bonus = getBonusExercises(currentCycle, day.id);
     const bonusCards = bonus.map(bex => {
       const hasAny = bex.sets.some(v=>v);
       const setDisplay = bex.sets.map(v => v
         ? `<div class="recap-set">${v}<span class="rs-unit">lb</span></div>`
         : `<div class="recap-set empty">·</div>`
       ).join('');
-      return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.4':''}">
-        <div class="day-label">Day ${day.id} · BONUS</div>
+      return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.35':''}">
+        <div class="day-label">${day.label} · BONUS</div>
         <div class="ex-name">${bex.name}</div>
         <div class="recap-sets">${setDisplay}</div>
       </div>`;
@@ -1034,22 +1034,20 @@ function buildRecap() {
   }).join('');
 
   const aiHtml = savedAI
-    ? `<div class="ai-box"><div class="ai-label">◈ AI Coach — Week ${currentWeek}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
-    : `<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes on your week.</p></div></div>`;
+    ? `<div class="ai-box"><div class="ai-label">◈ AI Coach — Cycle ${currentCycle}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
+    : `<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes on this cycle.</p></div></div>`;
 
   return `
-    <div class="day-header"><span>WEEK ${currentWeek} RECAP</span></div>
+    <div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
+    <div class="day-subheader">PUSH 1 · PULL 1 · LOWER 1 · REST · PUSH 2 · PULL 2 · LOWER 2 · REST</div>
     <div class="recap-section">
       <div class="section-label">Logged Weights</div>
       <div class="recap-grid">${cards}</div>
     </div>
     <div class="recap-section">
       <div class="export-box">
-        <div class="export-box-text">
-          <strong>↑ Share with Claude</strong><br>
-          Copy your week and paste into Claude for your check-in.
-        </div>
-        <button class="btn btn-copy" onclick="exportWeek()">⬆ Copy for Claude</button>
+        <div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude for your check-in.</div>
+        <button class="btn btn-copy" onclick="exportCycle()">⬆ Copy for Claude</button>
       </div>
       <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied! Paste into Claude.</span>
     </div>
@@ -1057,17 +1055,18 @@ function buildRecap() {
       <div class="section-label">AI Coaching Analysis</div>
       ${aiHtml}
       <div class="btn-row" style="margin-top:14px;">
-        <button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Week ${currentWeek} Recap</button>
+        <button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Cycle ${currentCycle} Recap</button>
       </div>
     </div>`;
 }
 
 function updateProgress(di) {
   const day = PROGRAM[di];
+  if (!day || day.type==='recap') return;
   let n = 0;
   day.exercises.forEach((_,ei) => {
     for (let s = 0; s < NUM_SETS; s++) {
-      if (getSet(currentWeek, day.id, ei, s)) { n++; break; }
+      if (getSet(currentCycle, day.id, ei, s)) { n++; break; }
     }
   });
   const pct = Math.round(n / day.exercises.length * 100);
@@ -1077,22 +1076,22 @@ function updateProgress(di) {
   if(cnt) cnt.textContent = `${n} / ${day.exercises.length} logged`;
 }
 
-function exportWeek() {
-  let text = `LIFTLOG — WEEK ${currentWeek} DATA\n${'='.repeat(36)}\n\n`;
-  PROGRAM.filter(d=>d.id!==7).forEach(day=>{
-    const notes = getNotes(currentWeek, day.id);
-    let hasData = day.exercises.some((_,ei) =>
-      Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek,day.id,ei,s)).some(v=>v)
+function exportCycle() {
+  let text = `LIFTLOG — CYCLE ${currentCycle} DATA\n${'='.repeat(36)}\n\n`;
+  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
+    const notes = getNotes(currentCycle, day.id);
+    let hasData = day.exercises.some((_,ei)=>
+      Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).some(v=>v)
     );
-    const bonus = getBonusExercises(currentWeek, day.id);
+    const bonus = getBonusExercises(currentCycle, day.id);
     const hasBonus = bonus.some(b=>b.sets.some(v=>v));
     if (!hasData && !hasBonus && !notes) return;
 
-    text += `DAY ${day.id} — ${day.full}\n`;
+    text += `${day.label} — ${day.sub}\n`;
     day.exercises.forEach((ex,ei)=>{
-      const customName = getExName(currentWeek, day.id, ei);
+      const customName = getExName(day.id, ei);
       const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
-      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek,day.id,ei,s));
+      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       if (!sets.some(v=>v)) return;
       const setStr = sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(' | ');
       text += `  ${displayName} (${ex.reps}): ${setStr}\n`;
@@ -1106,13 +1105,13 @@ function exportWeek() {
     text += '\n';
   });
 
-  if (currentWeek > 1) {
-    text += `WEEK ${currentWeek-1} COMPARISON\n`;
+  if (currentCycle > 1) {
+    text += `CYCLE ${currentCycle-1} COMPARISON\n`;
     let hasComp = false;
-    PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
       day.exercises.forEach((ex,ei)=>{
-        const currSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek,day.id,ei,s)).filter(Boolean);
-        const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek-1,day.id,ei,s)).filter(Boolean);
+        const currSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).filter(Boolean);
+        const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
         if (currSets.length && prevSets.length) {
           const currMax = Math.max(...currSets.map(Number));
           const prevMax = Math.max(...prevSets.map(Number));
@@ -1122,11 +1121,11 @@ function exportWeek() {
         }
       });
     });
-    if (!hasComp) text += '  (no previous week data)\n';
+    if (!hasComp) text += '  (no previous cycle data)\n';
     text += '\n';
   }
 
-  text += `Goals: Lean bulk. Priority: arms, chest, rear delts, shoulders.\nPaste this into Claude and say "weekly check-in".`;
+  text += `Goals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\nPaste into Claude and say "cycle check-in".`;
 
   navigator.clipboard.writeText(text).then(()=>{
     const el = document.getElementById('exportFlash');
@@ -1140,42 +1139,42 @@ async function generateRecap() {
   btn.disabled = true;
   btn.innerHTML = '<span class="dot-loader"><span></span><span></span><span></span></span>';
 
-  let prompt = `You are an expert strength and hypertrophy coach. Analyze this week's training log.\n\nGoals: Lean bulk. Priority: arms, chest, rear delts, shoulders.\n\nWeek ${currentWeek}:\n\n`;
-  PROGRAM.filter(d=>d.id!==7).forEach(day=>{
-    prompt += `DAY ${day.id} (${day.full}):\n`;
+  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle log.\n\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Note: right knee tendon recovering — ramp lower body slowly.\n\nCycle ${currentCycle}:\n\n`;
+
+  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
+    prompt += `${day.label} (${day.sub}):\n`;
     day.exercises.forEach((ex,ei)=>{
-      const customName = getExName(currentWeek, day.id, ei);
+      const customName = getExName(day.id, ei);
       const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
-      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek,day.id,ei,s));
+      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       if (!sets.some(v=>v)) return;
       const setStr = sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(', ');
-      prompt += `  ${displayName} (${ex.reps}): ${setStr}\n`;
+      prompt += `  ${displayName} [${ex.tier}] (${ex.reps}): ${setStr}\n`;
     });
-    const bonus = getBonusExercises(currentWeek, day.id);
+    const bonus = getBonusExercises(currentCycle, day.id);
     bonus.forEach(bex=>{
       if (!bex.sets.some(v=>v)) return;
       const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(', ');
       prompt += `  ${bex.name} [BONUS]: ${setStr}\n`;
     });
-    const n = getNotes(currentWeek, day.id);
+    const n = getNotes(currentCycle, day.id);
     if(n) prompt += `  Notes: ${n}\n`;
     prompt += '\n';
   });
 
-  if (currentWeek > 1) {
-    prompt += `\nPrev Week (${currentWeek-1}) top sets:\n`;
-    PROGRAM.filter(d=>d.id!==7).forEach(day=>{
+  if (currentCycle > 1) {
+    prompt += `\nPrev Cycle (${currentCycle-1}) top sets:\n`;
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
       day.exercises.forEach((ex,ei)=>{
-        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentWeek-1,day.id,ei,s)).filter(Boolean);
+        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
         if (sets.length) {
-          const max = Math.max(...sets.map(Number));
-          prompt += `  ${ex.name}: ${max}lbs top set\n`;
+          prompt += `  ${ex.name}: ${Math.max(...sets.map(Number))}lbs top set\n`;
         }
       });
     });
   }
 
-  prompt += `\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts referencing actual sets/weights\n3. **Next Week Targets** — specific weight suggestions for key lifts\n4. **Watch Points** — 1-2 adjustments\n\nBe direct. HTML <p> and <strong> tags only.`;
+  prompt += `\nProvide:\n1. **Overview** — 2 sentences on how the cycle went\n2. **Wins** — 2-3 specific callouts with actual sets/weights\n3. **Next Cycle Targets** — specific weight suggestions for key lifts\n4. **Watch Points** — 1-2 adjustments including knee/quad considerations\n\nBe direct. HTML <p> and <strong> tags only.`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -1186,12 +1185,12 @@ async function generateRecap() {
     const data = await res.json();
     const text = data.content?.map(b=>b.text||'').join('')||'Could not generate.';
     content.innerHTML = text;
-    setAI(currentWeek, text);
+    setAI(currentCycle, text);
   } catch(e) {
     content.innerHTML = '<p style="color:var(--accent2)">Connection error. Try again.</p>';
   }
   btn.disabled = false;
-  btn.textContent = `Regenerate Week ${currentWeek} Recap`;
+  btn.textContent = `Regenerate Cycle ${currentCycle} Recap`;
 }
 
 loadFromCloud();
