@@ -623,17 +623,17 @@ const PROGRAM = [
       {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
       {name:"Romanian Deadlift", tier:"S", reps:"8–10"},
       {name:"Seated Leg Curl", tier:"A", reps:"10–12"},
-      {name:"Standing Calf Raise", tier:"A", reps:"12–15"},
+      {name:"Seated Single Leg Calf Raise", tier:"A", reps:"12–15"},
     ]
   },
   {
     id:'push2', label:"PUSH2", sub:"SHOULDER PRIMARY", type:'push',
     exercises:[
-      {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
-      {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
       {name:"Dumbbell Shoulder Press", tier:"S", reps:"8–10"},
       {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
+      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
+      {name:"Flat Barbell Bench Press", tier:"S+", reps:"6–8"},
+      {name:"Incline Machine Press", tier:"S", reps:"10–12"},
       {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
       {name:"Rope Pushdown", tier:"A", reps:"15–20"},
     ]
@@ -644,6 +644,7 @@ const PROGRAM = [
       {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
       {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
       {name:"Banded Pull Ups", tier:"A", reps:"8–10"},
+      {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
       {name:"Hammer Curl", tier:"S", reps:"12–15"},
       {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
       {name:"Face Pull", tier:"S+", reps:"15–20"},
@@ -665,6 +666,48 @@ const PROGRAM = [
 ];
 
 let currentCycle = 1;
+
+// Unit system — stored per day per cycle
+function getUnit(c, dayId) {
+  const stored = cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;
+  if (stored) return stored;
+  // Remember last used unit for this day across cycles
+  for (let i = c - 1; i >= 1; i--) {
+    const prev = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;
+    if (prev) return prev;
+  }
+  return 'lbs';
+}
+
+function setUnit(c, dayId, unit) {
+  ensureDay(c, dayId);
+  cloudData.cycles[`c${c}`][dayId].unit = unit;
+  debouncedSave();
+}
+
+function toggleUnit(dayId, di) {
+  const current = getUnit(currentCycle, dayId);
+  const next = current === 'lbs' ? 'kg' : 'lbs';
+  setUnit(currentCycle, dayId, next);
+  // Update unit labels and placeholders on screen
+  const unitEls = document.querySelectorAll(`.unit-label-${di}`);
+  unitEls.forEach(el => el.textContent = next);
+  // Refresh placeholders with converted value
+  const day = PROGRAM[di];
+  if (!day) return;
+  day.exercises.forEach((ex, ei) => {
+    const inp = document.getElementById(`inp_${di}_${ei}_0`);
+    if (!inp || inp.value) return;
+    const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
+    if (!prevSets.length) return;
+    const prevTopLbs = Math.max(...prevSets.map(Number));
+    const placeholder = next === 'kg' ? (prevTopLbs / 2.205).toFixed(1) : String(prevTopLbs);
+    inp.placeholder = placeholder;
+  });
+  // Update toggle button text
+  const btn = document.getElementById(`unit-toggle-${di}`);
+  if (btn) btn.textContent = next === 'lbs' ? 'Switch to KG' : 'Switch to LBS';
+}
 
 function setSyncStatus(state, label) {
   document.getElementById('syncDot').className = 'sync-dot ' + state;
@@ -893,15 +936,38 @@ function renderAll() {
       const inputEl = document.getElementById(`exinput_${di}_${ei}`);
       if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
 
+      // Get last cycle's top set for S1 placeholder
+      let prevTopSet = '';
+      if (currentCycle > 1) {
+        const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
+        if (prevSets.length) {
+          const prevTopLbs = Math.max(...prevSets.map(Number));
+          const unit = getUnit(currentCycle, day.id);
+          prevTopSet = unit === 'kg' ? (prevTopLbs / 2.205).toFixed(1) : String(prevTopLbs);
+        }
+      }
+
       for (let s = 0; s < NUM_SETS; s++) {
         const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
         if (!inp) continue;
         const val = getSet(currentCycle, day.id, ei, s);
         inp.value = val;
         if (val) inp.classList.add('has-value');
+        // S1 placeholder shows last cycle top set
+        if (s === 0 && !val && prevTopSet) {
+          inp.placeholder = prevTopSet;
+          inp.style.color = 'var(--muted2)';
+        }
+        inp.addEventListener('focus', () => {
+          if (!inp.value) inp.style.color = 'var(--text)';
+        });
+        inp.addEventListener('blur', () => {
+          if (!inp.value && s === 0 && prevTopSet) inp.style.color = 'var(--muted2)';
+        });
         inp.addEventListener('input', () => {
           setSet(currentCycle, day.id, ei, s, inp.value);
           inp.classList.toggle('has-value', !!inp.value);
+          inp.style.color = inp.value ? 'var(--accent)' : (s===0 && prevTopSet ? 'var(--muted2)' : 'var(--text)');
           updateProgress(di);
         });
       }
@@ -941,6 +1007,7 @@ function tierBadge(tier) {
 }
 
 function buildDay(day, di) {
+  const unit = getUnit(currentCycle, day.id);
   const rows = day.exercises.map((ex, ei) => {
     const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
       <div class="set-wrap">
@@ -959,7 +1026,7 @@ function buildDay(day, di) {
           </div>
           <div class="exercise-meta">${ex.reps}</div>
         </div>
-        <div class="sets-row">${setBoxes}<div class="unit">lbs</div></div>
+        <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
       </div>`;
   }).join('');
 
@@ -982,18 +1049,22 @@ function buildDay(day, di) {
           </div>
           <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${bi})">✕</button>
         </div>
-        <div class="sets-row">${setBoxes}<div class="unit">lbs</div></div>
+        <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
       </div>`;
   }).join('');
 
   return `
     <div class="day-header"><span>${day.label}</span></div>
     <div class="day-subheader">${day.sub}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
+      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'lbs' ? 'Switch to KG' : 'Switch to LBS'}</button>
+    </div>
     <div class="exercise-grid">${rows}${bonusRows}</div>
     <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${day.exercises.length} logged</div>
-    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, how it felt..."></textarea>
+    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
     <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>`;
 }
 
@@ -1087,7 +1158,7 @@ function exportCycle() {
     const hasBonus = bonus.some(b=>b.sets.some(v=>v));
     if (!hasData && !hasBonus && !notes) return;
 
-    text += `${day.label} — ${day.sub}\n`;
+    text += `${day.label} — ${day.sub} [${getUnit(currentCycle, day.id).toUpperCase()}]\n`;
     day.exercises.forEach((ex,ei)=>{
       const customName = getExName(day.id, ei);
       const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
