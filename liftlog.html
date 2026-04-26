@@ -14,12 +14,11 @@
     --accent: #c8ff00;
     --accent2: #ff6b35;
     --blue: #4fc3f7;
+    --purple: #b388ff;
+    --green: #69f0ae;
     --text: #f0f0f0;
     --muted: #555555;
     --muted2: #888888;
-    --push: #ff6b35;
-    --pull: #4fc3f7;
-    --lower: #c8ff00;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -130,13 +129,12 @@
 
   .tab:hover { color: var(--text); border-color: var(--muted); }
   .tab.active { color: #000; font-weight: 500; }
-  .tab.push { border-color: var(--push); }
-  .tab.push.active { background: var(--push); border-color: var(--push); }
-  .tab.pull { border-color: var(--pull); }
-  .tab.pull.active { background: var(--pull); border-color: var(--pull); }
-  .tab.lower { border-color: var(--lower); }
-  .tab.lower.active { background: var(--lower); border-color: var(--lower); }
-  .tab.recap { border-color: var(--muted); }
+  .tab.chest.active { background: var(--accent2); border-color: var(--accent2); }
+  .tab.back.active { background: var(--blue); border-color: var(--blue); }
+  .tab.shoulders.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .tab.chest-back.active { background: var(--accent); border-color: var(--accent); }
+  .tab.arms.active { background: var(--green); border-color: var(--green); }
+  .tab.shoulders-legs.active { background: var(--purple); border-color: var(--purple); color: #fff; }
   .tab.recap.active { background: var(--muted2); border-color: var(--muted2); }
 
   .day-panel { display: none; }
@@ -160,6 +158,18 @@
     margin-bottom: 16px;
   }
 
+  .section-divider {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    margin-top: 12px;
+  }
+
   .tier-badge {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
@@ -172,6 +182,17 @@
   .tier-sp { background: #ff6b3522; color: var(--accent2); border: 1px solid var(--accent2); }
   .tier-s { background: #c8ff0015; color: var(--accent); border: 1px solid #c8ff0044; }
   .tier-a { background: #4fc3f715; color: var(--blue); border: 1px solid #4fc3f744; }
+
+  .superset-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 1px 6px;
+    background: #b388ff22;
+    color: var(--purple);
+    border: 1px solid var(--purple);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
 
   .exercise-grid {
     display: flex;
@@ -190,6 +211,8 @@
   .exercise-row.logged { border-color: var(--accent); }
   .exercise-row.bonus { border-color: var(--blue); border-style: dashed; }
   .exercise-row.bonus.logged { border-color: var(--accent); border-style: solid; }
+  .exercise-row.superset-row { border-color: var(--purple); border-style: solid; border-width: 1px; }
+  .exercise-row.superset-row.logged { border-color: var(--accent); }
 
   .exercise-top {
     display: flex;
@@ -227,7 +250,6 @@
     padding: 2px 4px;
     flex-shrink: 0;
     transition: color 0.15s;
-    line-height: 1;
   }
 
   .edit-btn:hover { color: var(--accent); }
@@ -241,7 +263,6 @@
     padding: 2px 4px;
     flex-shrink: 0;
     transition: color 0.15s;
-    line-height: 1;
   }
 
   .delete-btn:hover { color: var(--accent2); }
@@ -591,123 +612,174 @@ let saveTimer = null;
 
 const PROGRAM = [
   {
-    id:'push1', label:"PUSH1", sub:"CHEST PRIMARY", type:'push',
-    exercises:[
-      {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
-      {name:"Incline Dumbbell Press", tier:"S", reps:"8–10"},
-      {name:"Machine Chest Press", tier:"S", reps:"10–12"},
-      {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
-      {name:"Machine Shoulder Press", tier:"S", reps:"8–10"},
-      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
-      {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
-      {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+    id:'day1', label:"DAY 1", sub:"CHEST + TRICEPS", type:'chest',
+    sections: [
+      {
+        title: "CHEST",
+        exercises:[
+          {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
+          {name:"Incline Dumbbell Press", tier:"S", reps:"8–10"},
+          {name:"Machine Chest Press", tier:"S", reps:"10–12"},
+          {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
+        ]
+      },
+      {
+        title: "TRICEPS",
+        exercises:[
+          {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
+          {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
+          {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+        ]
+      }
     ]
   },
   {
-    id:'pull1', label:"PULL1", sub:"THICKNESS + BICEPS", type:'pull',
-    exercises:[
-      {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
-      {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
-      {name:"Neutral Grip Lat Pulldown", tier:"S", reps:"10–12"},
-      {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-      {name:"Preacher Curl", tier:"S", reps:"10–12"},
-      {name:"Face Pull", tier:"S", reps:"15–20"},
-      {name:"Reverse Pec Deck Cable", tier:"S", reps:"15–20"},
+    id:'day2', label:"DAY 2", sub:"BACK + BICEPS + REAR DELTS", type:'back',
+    sections:[
+      {
+        title:"BACK — WIDTH + THICKNESS",
+        exercises:[
+          {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
+          {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
+          {name:"Neutral Grip Lat Pulldown", tier:"S", reps:"10–12"},
+          {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
+        ]
+      },
+      {
+        title:"BICEPS",
+        exercises:[
+          {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
+          {name:"Preacher Curl", tier:"S", reps:"10–12"},
+          {name:"Hammer Curl", tier:"S", reps:"12–15"},
+        ]
+      },
+      {
+        title:"REAR DELTS + UPPER BACK",
+        exercises:[
+          {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+          {name:"Face Pull", tier:"S+", reps:"15–20"},
+        ]
+      }
     ]
   },
   {
-    id:'lower1', label:"LOWER1", sub:"QUAD FOCUS", type:'lower',
-    exercises:[
-      {name:"Front Squat", tier:"S+", reps:"5–8"},
-      {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
-      {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
-      {name:"Romanian Deadlift", tier:"S", reps:"8–10"},
-      {name:"Seated Leg Curl", tier:"A", reps:"10–12"},
-      {name:"Seated Single Leg Calf Raise", tier:"A", reps:"12–15"},
+    id:'day3', label:"DAY 3", sub:"SHOULDERS + LEGS (QUAD)", type:'shoulders',
+    sections:[
+      {
+        title:"SHOULDERS",
+        exercises:[
+          {name:"Dumbbell Shoulder Press", tier:"S", reps:"8–10"},
+          {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
+          {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
+          {name:"Cable Upright Row", tier:"S", reps:"12–15"},
+        ]
+      },
+      {
+        title:"LEGS — QUAD FOCUS",
+        exercises:[
+          {name:"Front Squat", tier:"S+", reps:"5–8"},
+          {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
+          {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
+        ]
+      }
     ]
   },
   {
-    id:'push2', label:"PUSH2", sub:"SHOULDER PRIMARY", type:'push',
-    exercises:[
-      {name:"Dumbbell Shoulder Press", tier:"S", reps:"8–10"},
-      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
-      {name:"Flat Barbell Bench Press", tier:"S+", reps:"6–8"},
-      {name:"Incline Machine Press", tier:"S", reps:"10–12"},
-      {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
-      {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+    id:'day4', label:"DAY 4", sub:"CHEST + UPPER BACK", type:'chest-back',
+    sections:[
+      {
+        title:"CHEST",
+        exercises:[
+          {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
+          {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
+          {name:"Incline Machine Press", tier:"S", reps:"10–12"},
+          {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
+        ]
+      },
+      {
+        title:"UPPER BACK ACCESSORIES",
+        exercises:[
+          {name:"Cable Y Raise", tier:"A", reps:"15–20"},
+          {name:"Banded Pull Ups", tier:"A", reps:"8–10"},
+          {name:"Face Pull", tier:"S+", reps:"15–20"},
+        ]
+      }
     ]
   },
   {
-    id:'pull2', label:"PULL2", sub:"WIDTH + REAR DELTS", type:'pull',
-    exercises:[
-      {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
-      {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
-      {name:"Banded Pull Ups", tier:"A", reps:"8–10"},
-      {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-      {name:"Hammer Curl", tier:"S", reps:"12–15"},
-      {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-      {name:"Face Pull", tier:"S+", reps:"15–20"},
-      {name:"Cable Y Raise", tier:"A", reps:"15–20"},
+    id:'day5', label:"DAY 5", sub:"ARMS BLAST", type:'arms',
+    sections:[
+      {
+        title:"SUPERSETS — BICEP + TRICEP",
+        supersets:[
+          {
+            label:"SUPERSET 1",
+            exercises:[
+              {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
+              {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
+            ]
+          },
+          {
+            label:"SUPERSET 2",
+            exercises:[
+              {name:"Preacher Curl", tier:"S", reps:"10–12"},
+              {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
+            ]
+          },
+          {
+            label:"SUPERSET 3",
+            exercises:[
+              {name:"Hammer Curl", tier:"S", reps:"12–15"},
+              {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+            ]
+          },
+          {
+            label:"SUPERSET 4",
+            exercises:[
+              {name:"Incline DB Curl", tier:"S", reps:"10–12"},
+              {name:"Single Arm Pushdown", tier:"A", reps:"15–20"},
+            ]
+          }
+        ]
+      }
     ]
   },
   {
-    id:'lower2', label:"LOWER2", sub:"GLUTE PRIMARY", type:'lower',
-    exercises:[
-      {name:"Hip Thrust", tier:"S+", reps:"10–12"},
-      {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
-      {name:"Hack Squat", tier:"S", reps:"8–10"},
-      {name:"Romanian Deadlift", tier:"S", reps:"8–10"},
-      {name:"Leg Extension (controlled)", tier:"A", reps:"15–20"},
-      {name:"Seated Leg Curl", tier:"A", reps:"10–12"},
+    id:'day6', label:"DAY 6", sub:"SHOULDERS + LEGS (GLUTE)", type:'shoulders-legs',
+    sections:[
+      {
+        title:"SHOULDERS + UPPER BACK",
+        exercises:[
+          {name:"Arnold Press", tier:"S", reps:"8–10"},
+          {name:"Cable Upright Row", tier:"S", reps:"12–15"},
+          {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
+          {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+          {name:"Cable Y Raise", tier:"A", reps:"15–20"},
+        ]
+      },
+      {
+        title:"LEGS — GLUTE FOCUS",
+        exercises:[
+          {name:"Hip Thrust", tier:"S+", reps:"10–12"},
+          {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
+        ]
+      }
     ]
   },
-  {id:'recap', label:"RECAP", sub:"", type:'recap', exercises:[]}
+  {id:'recap', label:"RECAP", sub:"", type:'recap', sections:[]}
 ];
 
-let currentCycle = 1;
-
-// Unit system — stored per day per cycle
-function getUnit(c, dayId) {
-  const stored = cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;
-  if (stored) return stored;
-  // Remember last used unit for this day across cycles
-  for (let i = c - 1; i >= 1; i--) {
-    const prev = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;
-    if (prev) return prev;
+// Flatten exercises for indexing
+function getExercises(day) {
+  if (day.type === 'recap') return [];
+  if (day.id === 'day5') {
+    // Supersets — flatten all exercises
+    return day.sections[0].supersets.flatMap(ss => ss.exercises);
   }
-  return 'lbs';
+  return day.sections.flatMap(s => s.exercises);
 }
 
-function setUnit(c, dayId, unit) {
-  ensureDay(c, dayId);
-  cloudData.cycles[`c${c}`][dayId].unit = unit;
-  debouncedSave();
-}
-
-function toggleUnit(dayId, di) {
-  const current = getUnit(currentCycle, dayId);
-  const next = current === 'lbs' ? 'kg' : 'lbs';
-  setUnit(currentCycle, dayId, next);
-  // Update unit labels and placeholders on screen
-  const unitEls = document.querySelectorAll(`.unit-label-${di}`);
-  unitEls.forEach(el => el.textContent = next);
-  // Refresh placeholders with converted value
-  const day = PROGRAM[di];
-  if (!day) return;
-  day.exercises.forEach((ex, ei) => {
-    const inp = document.getElementById(`inp_${di}_${ei}_0`);
-    if (!inp || inp.value) return;
-    const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
-    if (!prevSets.length) return;
-    const prevTopLbs = Math.max(...prevSets.map(Number));
-    const placeholder = next === 'kg' ? (prevTopLbs / 2.205).toFixed(1) : String(prevTopLbs);
-    inp.placeholder = placeholder;
-  });
-  // Update toggle button text
-  const btn = document.getElementById(`unit-toggle-${di}`);
-  if (btn) btn.textContent = next === 'lbs' ? 'Switch to KG' : 'Switch to LBS';
-}
+let currentCycle = 1;
 
 function setSyncStatus(state, label) {
   document.getElementById('syncDot').className = 'sync-dot ' + state;
@@ -769,25 +841,80 @@ function setSet(c, d, e, s, v) {
   ensureDay(c, d);
   const key = `e${e}`;
   let arr = cloudData.cycles[`c${c}`][d][key];
-  if (!Array.isArray(arr)) { arr = ['','','','']; }
+  if (!Array.isArray(arr)) arr = ['','','',''];
   arr[s] = v;
   cloudData.cycles[`c${c}`][d][key] = arr;
   debouncedSave();
 }
 
-// Permanent name overrides — stored globally, not per cycle
 function getExName(dayId, ei) {
   return cloudData?.nameOverrides?.[`${dayId}_${ei}`] || null;
 }
 
 function setExName(dayId, ei, name) {
   if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  if (name) {
-    cloudData.nameOverrides[`${dayId}_${ei}`] = name;
-  } else {
-    delete cloudData.nameOverrides[`${dayId}_${ei}`];
-  }
+  if (name) cloudData.nameOverrides[`${dayId}_${ei}`] = name;
+  else delete cloudData.nameOverrides[`${dayId}_${ei}`];
   debouncedSave();
+}
+
+function getUnit(c, dayId) {
+  const stored = cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;
+  if (stored) return stored;
+  for (let i = c - 1; i >= 1; i--) {
+    const prev = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;
+    if (prev) return prev;
+  }
+  return 'lbs';
+}
+
+function setUnit(c, dayId, unit) {
+  ensureDay(c, dayId);
+  cloudData.cycles[`c${c}`][dayId].unit = unit;
+  debouncedSave();
+}
+
+function convertValue(val, toUnit) {
+  const num = parseFloat(val);
+  if (isNaN(num) || num === 0) return '';
+  if (toUnit === 'kg') return (num / 2.2046).toFixed(1);
+  return (num * 2.2046).toFixed(1);
+}
+
+function toggleUnit(dayId, di) {
+  const current = getUnit(currentCycle, dayId);
+  const next = current === 'lbs' ? 'kg' : 'lbs';
+  setUnit(currentCycle, dayId, next);
+
+  document.querySelectorAll(`.unit-label-${di}`).forEach(el => el.textContent = next);
+
+  const day = PROGRAM[di];
+  if (!day) return;
+  const exercises = getExercises(day);
+
+  exercises.forEach((ex, ei) => {
+    for (let s = 0; s < NUM_SETS; s++) {
+      const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
+      if (!inp) continue;
+      if (inp.value) {
+        const converted = convertValue(inp.value, next);
+        inp.value = converted;
+        setSet(currentCycle, dayId, ei, s, converted);
+        inp.classList.add('has-value');
+        inp.style.color = 'var(--accent)';
+      } else if (s === 0) {
+        const prevSets = Array.from({length:NUM_SETS},(_,ps)=>getSet(currentCycle-1,day.id,ei,ps)).filter(Boolean);
+        if (prevSets.length) {
+          const prevTopLbs = Math.max(...prevSets.map(Number));
+          inp.placeholder = next === 'kg' ? (prevTopLbs / 2.2046).toFixed(1) : String(prevTopLbs);
+        }
+        inp.style.color = 'var(--muted2)';
+      }
+    }
+  });
+
+  const btn = document.getElementById(`unit-toggle-${di}`);
+  if (btn) btn.textContent = next === 'lbs' ? 'Switch to KG' : 'Switch to LBS';
 }
 
 function getBonusExercises(c, d) {
@@ -833,10 +960,8 @@ function startEditName(di, ei, dayId) {
   const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`);
   const editBtn = document.getElementById(`exedit_${di}_${ei}`);
   inputEl.value = nameEl.textContent;
-  nameEl.style.display = 'none';
-  editBtn.style.display = 'none';
-  inputEl.style.display = 'block';
-  confirmEl.style.display = 'block';
+  nameEl.style.display = 'none'; editBtn.style.display = 'none';
+  inputEl.style.display = 'block'; confirmEl.style.display = 'block';
   inputEl.focus(); inputEl.select();
 }
 
@@ -846,7 +971,8 @@ function confirmEditName(di, ei, dayId) {
   const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`);
   const editBtn = document.getElementById(`exedit_${di}_${ei}`);
   const newName = inputEl.value.trim();
-  const defaultName = PROGRAM.find(d=>d.id===dayId).exercises[ei].name;
+  const exercises = getExercises(PROGRAM[di]);
+  const defaultName = exercises[ei]?.name || '';
   if (newName && newName !== defaultName) {
     nameEl.textContent = newName;
     nameEl.classList.add('custom');
@@ -856,10 +982,8 @@ function confirmEditName(di, ei, dayId) {
     nameEl.classList.remove('custom');
     setExName(dayId, ei, null);
   }
-  nameEl.style.display = 'block';
-  editBtn.style.display = 'block';
-  inputEl.style.display = 'none';
-  confirmEl.style.display = 'none';
+  nameEl.style.display = 'block'; editBtn.style.display = 'block';
+  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
 }
 
 function addBonusExercise(dayId, di) {
@@ -911,6 +1035,39 @@ function deleteBonusExercise(dayId, bi) {
   renderAll();
 }
 
+function tierBadge(tier) {
+  const cls = tier === 'S+' ? 'tier-sp' : tier === 'S' ? 'tier-s' : 'tier-a';
+  return `<span class="tier-badge ${cls}">${tier}</span>`;
+}
+
+function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
+  const customName = getExName(dayId, ei);
+  const displayName = customName || ex.name;
+  const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
+    <div class="set-wrap">
+      <div class="set-label">S${s+1}</div>
+      <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="—" min="0" step="2.5">
+    </div>`).join('');
+
+  const rowClass = isSupersetMember ? 'exercise-row superset-row' : 'exercise-row';
+  const badge = isSupersetMember ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
+
+  return `
+    <div class="${rowClass}">
+      <div class="exercise-top">
+        <div class="exercise-name-wrap">
+          ${badge}
+          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
+          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
+          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
+          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
+        </div>
+        <div class="exercise-meta">${ex.reps}</div>
+      </div>
+      <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
+    </div>`;
+}
+
 function renderAll() {
   document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
     `<button class="tab ${d.type}${i===0?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
@@ -927,16 +1084,11 @@ function renderAll() {
 
   PROGRAM.forEach((day, di) => {
     if (day.type==='recap') return;
-
-    day.exercises.forEach((ex, ei) => {
-      const customName = getExName(day.id, ei);
-      const nameEl = document.getElementById(`exname_${di}_${ei}`);
-      if (nameEl && customName) { nameEl.textContent = customName; nameEl.classList.add('custom'); }
-
+    const exercises = getExercises(day);
+    exercises.forEach((ex, ei) => {
       const inputEl = document.getElementById(`exinput_${di}_${ei}`);
       if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
 
-      // Get last cycle's top set for S1 placeholder
       let prevTopSet = '';
       if (currentCycle > 1) {
         const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
@@ -952,18 +1104,13 @@ function renderAll() {
         if (!inp) continue;
         const val = getSet(currentCycle, day.id, ei, s);
         inp.value = val;
-        if (val) inp.classList.add('has-value');
-        // S1 placeholder shows last cycle top set
+        if (val) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
         if (s === 0 && !val && prevTopSet) {
           inp.placeholder = prevTopSet;
           inp.style.color = 'var(--muted2)';
         }
-        inp.addEventListener('focus', () => {
-          if (!inp.value) inp.style.color = 'var(--text)';
-        });
-        inp.addEventListener('blur', () => {
-          if (!inp.value && s === 0 && prevTopSet) inp.style.color = 'var(--muted2)';
-        });
+        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
+        inp.addEventListener('blur', () => { if (!inp.value && s===0 && prevTopSet) inp.style.color = 'var(--muted2)'; });
         inp.addEventListener('input', () => {
           setSet(currentCycle, day.id, ei, s, inp.value);
           inp.classList.toggle('has-value', !!inp.value);
@@ -1002,33 +1149,32 @@ function renderAll() {
   });
 }
 
-function tierBadge(tier) {
-  return `<span class="tier-badge tier-${tier.toLowerCase().replace('+','sp')}">${tier}</span>`;
-}
-
 function buildDay(day, di) {
   const unit = getUnit(currentCycle, day.id);
-  const rows = day.exercises.map((ex, ei) => {
-    const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-      <div class="set-wrap">
-        <div class="set-label">S${s+1}</div>
-        <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="—" min="0" step="2.5">
-      </div>`).join('');
-    return `
-      <div class="exercise-row">
-        <div class="exercise-top">
-          <div class="exercise-name-wrap">
-            ${tierBadge(ex.tier)}
-            <span class="exercise-name" id="exname_${di}_${ei}">${ex.name}</span>
-            <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${day.id}')" title="Rename permanently">✎</button>
-            <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-            <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${day.id}')">✓</button>
-          </div>
-          <div class="exercise-meta">${ex.reps}</div>
-        </div>
-        <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
-      </div>`;
-  }).join('');
+  let exerciseIndex = 0;
+  let sectionsHtml = '';
+
+  if (day.id === 'day5') {
+    // Arms blast — supersets
+    const section = day.sections[0];
+    let ssHtml = '';
+    section.supersets.forEach((ss) => {
+      ssHtml += `<div class="section-divider">${ss.label}</div>`;
+      ss.exercises.forEach((ex) => {
+        ssHtml += buildExerciseRow(di, exerciseIndex, ex, day.id, unit, true);
+        exerciseIndex++;
+      });
+    });
+    sectionsHtml = ssHtml;
+  } else {
+    day.sections.forEach(section => {
+      sectionsHtml += `<div class="section-divider">${section.title}</div>`;
+      section.exercises.forEach(ex => {
+        sectionsHtml += buildExerciseRow(di, exerciseIndex, ex, day.id, unit, false);
+        exerciseIndex++;
+      });
+    });
+  }
 
   const bonus = getBonusExercises(currentCycle, day.id);
   const bonusRows = bonus.map((bex, bi) => {
@@ -1044,7 +1190,7 @@ function buildDay(day, di) {
             <span class="tier-badge tier-a">+</span>
             <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
             <button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
-            <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40" placeholder="Exercise name">
+            <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40">
             <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>
           </div>
           <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${bi})">✕</button>
@@ -1053,6 +1199,8 @@ function buildDay(day, di) {
       </div>`;
   }).join('');
 
+  const totalEx = getExercises(day).length;
+
   return `
     <div class="day-header"><span>${day.label}</span></div>
     <div class="day-subheader">${day.sub}</div>
@@ -1060,10 +1208,10 @@ function buildDay(day, di) {
       <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
       <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'lbs' ? 'Switch to KG' : 'Switch to LBS'}</button>
     </div>
-    <div class="exercise-grid">${rows}${bonusRows}</div>
+    <div class="exercise-grid">${sectionsHtml}${bonusRows}</div>
     <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
-    <div class="logged-count" id="cnt_${di}">0 / ${day.exercises.length} logged</div>
+    <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
     <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
     <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>`;
 }
@@ -1071,13 +1219,15 @@ function buildDay(day, di) {
 function buildRecap() {
   const savedAI = getAI(currentCycle);
   const cards = PROGRAM.filter(d=>d.type!=='recap').map(day => {
-    const regularCards = day.exercises.map((ex, ei) => {
+    const exercises = getExercises(day);
+    const regularCards = exercises.map((ex, ei) => {
       const customName = getExName(day.id, ei);
       const displayName = customName || ex.name;
       const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       const hasAny = sets.some(v=>v);
+      const unit = getUnit(currentCycle, day.id);
       const setDisplay = sets.map(v => v
-        ? `<div class="recap-set">${v}<span class="rs-unit">lb</span></div>`
+        ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`
         : `<div class="recap-set empty">·</div>`
       ).join('');
       return `<div class="recap-card" style="${!hasAny?'opacity:0.35':''}">
@@ -1090,8 +1240,9 @@ function buildRecap() {
     const bonus = getBonusExercises(currentCycle, day.id);
     const bonusCards = bonus.map(bex => {
       const hasAny = bex.sets.some(v=>v);
+      const unit = getUnit(currentCycle, day.id);
       const setDisplay = bex.sets.map(v => v
-        ? `<div class="recap-set">${v}<span class="rs-unit">lb</span></div>`
+        ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`
         : `<div class="recap-set empty">·</div>`
       ).join('');
       return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.35':''}">
@@ -1110,7 +1261,7 @@ function buildRecap() {
 
   return `
     <div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
-    <div class="day-subheader">PUSH 1 · PULL 1 · LOWER 1 · REST · PUSH 2 · PULL 2 · LOWER 2 · REST</div>
+    <div class="day-subheader">DAY 1 · DAY 2 · DAY 3 · REST · DAY 4 · DAY 5 · DAY 6 · REST</div>
     <div class="recap-section">
       <div class="section-label">Logged Weights</div>
       <div class="recap-grid">${cards}</div>
@@ -1134,42 +1285,45 @@ function buildRecap() {
 function updateProgress(di) {
   const day = PROGRAM[di];
   if (!day || day.type==='recap') return;
+  const exercises = getExercises(day);
   let n = 0;
-  day.exercises.forEach((_,ei) => {
+  exercises.forEach((_,ei) => {
     for (let s = 0; s < NUM_SETS; s++) {
       if (getSet(currentCycle, day.id, ei, s)) { n++; break; }
     }
   });
-  const pct = Math.round(n / day.exercises.length * 100);
+  const pct = Math.round(n / exercises.length * 100);
   const bar = document.getElementById(`prog_${di}`);
   const cnt = document.getElementById(`cnt_${di}`);
   if(bar) bar.style.width = pct+'%';
-  if(cnt) cnt.textContent = `${n} / ${day.exercises.length} logged`;
+  if(cnt) cnt.textContent = `${n} / ${exercises.length} logged`;
 }
 
 function exportCycle() {
   let text = `LIFTLOG — CYCLE ${currentCycle} DATA\n${'='.repeat(36)}\n\n`;
   PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
+    const exercises = getExercises(day);
+    const unit = getUnit(currentCycle, day.id);
     const notes = getNotes(currentCycle, day.id);
-    let hasData = day.exercises.some((_,ei)=>
+    let hasData = exercises.some((_,ei)=>
       Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).some(v=>v)
     );
     const bonus = getBonusExercises(currentCycle, day.id);
     const hasBonus = bonus.some(b=>b.sets.some(v=>v));
     if (!hasData && !hasBonus && !notes) return;
 
-    text += `${day.label} — ${day.sub} [${getUnit(currentCycle, day.id).toUpperCase()}]\n`;
-    day.exercises.forEach((ex,ei)=>{
+    text += `${day.label} — ${day.sub} [${unit.toUpperCase()}]\n`;
+    exercises.forEach((ex,ei)=>{
       const customName = getExName(day.id, ei);
       const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
       const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       if (!sets.some(v=>v)) return;
-      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(' | ');
+      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
       text += `  ${displayName} (${ex.reps}): ${setStr}\n`;
     });
     bonus.forEach(bex=>{
       if (!bex.sets.some(v=>v)) return;
-      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(' | ');
+      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
       text += `  ${bex.name} [BONUS]: ${setStr}\n`;
     });
     if (notes) text += `  Notes: ${notes}\n`;
@@ -1180,14 +1334,15 @@ function exportCycle() {
     text += `CYCLE ${currentCycle-1} COMPARISON\n`;
     let hasComp = false;
     PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-      day.exercises.forEach((ex,ei)=>{
+      const exercises = getExercises(day);
+      exercises.forEach((ex,ei)=>{
         const currSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).filter(Boolean);
         const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
         if (currSets.length && prevSets.length) {
           const currMax = Math.max(...currSets.map(Number));
           const prevMax = Math.max(...prevSets.map(Number));
           const diff = currMax - prevMax;
-          text += `  ${ex.name}: ${prevMax} → ${currMax} lbs top set (${diff>=0?'+':''}${diff})\n`;
+          text += `  ${ex.name}: ${prevMax} → ${currMax} (${diff>=0?'+':''}${diff})\n`;
           hasComp = true;
         }
       });
@@ -1210,22 +1365,24 @@ async function generateRecap() {
   btn.disabled = true;
   btn.innerHTML = '<span class="dot-loader"><span></span><span></span><span></span></span>';
 
-  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle log.\n\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Note: right knee tendon recovering — ramp lower body slowly.\n\nCycle ${currentCycle}:\n\n`;
+  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle.\n\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Right knee tendon recovering — ramp lower body slowly.\n\nCycle ${currentCycle}:\n\n`;
 
   PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-    prompt += `${day.label} (${day.sub}):\n`;
-    day.exercises.forEach((ex,ei)=>{
+    const exercises = getExercises(day);
+    const unit = getUnit(currentCycle, day.id);
+    prompt += `${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
+    exercises.forEach((ex,ei)=>{
       const customName = getExName(day.id, ei);
       const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
       const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       if (!sets.some(v=>v)) return;
-      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(', ');
+      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ');
       prompt += `  ${displayName} [${ex.tier}] (${ex.reps}): ${setStr}\n`;
     });
     const bonus = getBonusExercises(currentCycle, day.id);
     bonus.forEach(bex=>{
       if (!bex.sets.some(v=>v)) return;
-      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}lbs`:'').filter(Boolean).join(', ');
+      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ');
       prompt += `  ${bex.name} [BONUS]: ${setStr}\n`;
     });
     const n = getNotes(currentCycle, day.id);
@@ -1236,16 +1393,15 @@ async function generateRecap() {
   if (currentCycle > 1) {
     prompt += `\nPrev Cycle (${currentCycle-1}) top sets:\n`;
     PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-      day.exercises.forEach((ex,ei)=>{
+      const exercises = getExercises(day);
+      exercises.forEach((ex,ei)=>{
         const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
-        if (sets.length) {
-          prompt += `  ${ex.name}: ${Math.max(...sets.map(Number))}lbs top set\n`;
-        }
+        if (sets.length) prompt += `  ${ex.name}: ${Math.max(...sets.map(Number))} top set\n`;
       });
     });
   }
 
-  prompt += `\nProvide:\n1. **Overview** — 2 sentences on how the cycle went\n2. **Wins** — 2-3 specific callouts with actual sets/weights\n3. **Next Cycle Targets** — specific weight suggestions for key lifts\n4. **Watch Points** — 1-2 adjustments including knee/quad considerations\n\nBe direct. HTML <p> and <strong> tags only.`;
+  prompt += `\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts with actual sets/weights\n3. **Next Cycle Targets** — specific weight suggestions for key lifts\n4. **Watch Points** — 1-2 adjustments including knee considerations\n\nBe direct. HTML <p> and <strong> tags only.`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
