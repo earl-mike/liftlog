@@ -787,22 +787,45 @@ function setSyncStatus(state, label) {
 }
 
 async function loadFromCloud() {
-  setSyncStatus('syncing', 'LOADING...');
+  // Step 1 — load from cache instantly, show app immediately
+  const cached = localStorage.getItem('ll_backup');
+  if (cached) {
+    try {
+      cloudData = JSON.parse(cached);
+      if (!cloudData.cycles) cloudData.cycles = {};
+      if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+    } catch(e) {
+      cloudData = { cycles: {}, nameOverrides: {} };
+    }
+    document.getElementById('loadingOverlay').style.display = 'none';
+    renderAll();
+    setSyncStatus('syncing', 'SYNCING...');
+  } else {
+    setSyncStatus('syncing', 'LOADING...');
+  }
+
+  // Step 2 — sync from JSONBin in background
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { 'X-Master-Key': API_KEY }
     });
     const data = await res.json();
-    cloudData = data.record || { cycles: {}, nameOverrides: {} };
-    if (!cloudData.cycles) cloudData.cycles = {};
-    if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+    const fresh = data.record || { cycles: {}, nameOverrides: {} };
+    if (!fresh.cycles) fresh.cycles = {};
+    if (!fresh.nameOverrides) fresh.nameOverrides = {};
+    cloudData = fresh;
+    localStorage.setItem('ll_backup', JSON.stringify(cloudData));
     setSyncStatus('synced', 'SYNCED');
+    document.getElementById('loadingOverlay').style.display = 'none';
+    renderAll();
   } catch(e) {
-    setSyncStatus('error', 'OFFLINE');
-    cloudData = JSON.parse(localStorage.getItem('ll_backup') || '{"cycles":{},"nameOverrides":{}}');
+    setSyncStatus('error', 'OFFLINE — using cache');
+    if (!cached) {
+      cloudData = { cycles: {}, nameOverrides: {} };
+      document.getElementById('loadingOverlay').style.display = 'none';
+      renderAll();
+    }
   }
-  document.getElementById('loadingOverlay').style.display = 'none';
-  renderAll();
 }
 
 async function saveToCloud() {
