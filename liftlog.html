@@ -888,7 +888,7 @@ function getUnit(c, dayId) {
     const prev = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;
     if (prev) return prev;
   }
-  return 'lbs';
+  return 'kg';
 }
 
 function setUnit(c, dayId, unit) {
@@ -941,13 +941,31 @@ function toggleUnit(dayId, di) {
 }
 
 function getBonusExercises(c, d) {
-  return cloudData?.cycles?.[`c${c}`]?.[d]?.bonus || [];
+  const thisCycle = cloudData?.cycles?.[`c${c}`]?.[d]?.bonus || [];
+  if (c <= 1) return thisCycle;
+  const prevBonus = cloudData?.cycles?.[`c${c-1}`]?.[d]?.bonus || [];
+  const removed = cloudData?.cycles?.[`c${c}`]?.[d]?.bonusRemoved || [];
+  const thisNames = thisCycle.map(b => b.name);
+  const toCarry = prevBonus.filter(b => !removed.includes(b.name) && !thisNames.includes(b.name));
+  const carried = toCarry.map(b => ({ ...b, sets: ['','','',''], carried: true, prevSets: b.sets }));
+  return [...thisCycle, ...carried];
 }
 
 function saveBonusExercises(c, d, arr) {
   ensureDay(c, d);
   cloudData.cycles[`c${c}`][d].bonus = arr;
   debouncedSave();
+}
+
+function removeBonusPermanently(dayId, di, bonusName) {
+  ensureDay(currentCycle, dayId);
+  const removed = cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved || [];
+  if (!removed.includes(bonusName)) removed.push(bonusName);
+  cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved = removed;
+  const bonus = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
+  cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
+  debouncedSave();
+  renderAll();
 }
 
 function getNotes(c, d) { return cloudData?.cycles?.[`c${c}`]?.[d]?.notes || ''; }
@@ -1051,11 +1069,19 @@ function confirmBonusName(di, bi, dayId) {
   if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentCycle, dayId, bonus); }
 }
 
-function deleteBonusExercise(dayId, bi) {
-  const bonus = getBonusExercises(currentCycle, dayId);
-  bonus.splice(bi, 1);
-  saveBonusExercises(currentCycle, dayId, bonus);
-  renderAll();
+function deleteBonusExercise(dayId, di, bonusName, isCarried) {
+  if (isCarried) {
+    // Permanently remove carried-forward exercise
+    removeBonusPermanently(dayId, di, bonusName);
+  } else {
+    // Remove from this cycle's own bonus list
+    const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
+    const filtered = bonus.filter(b => b.name !== bonusName);
+    ensureDay(currentCycle, dayId);
+    cloudData.cycles[`c${currentCycle}`][dayId].bonus = filtered;
+    debouncedSave();
+    renderAll();
+  }
 }
 
 function tierBadge(tier) {
@@ -1229,7 +1255,7 @@ function buildDay(day, di) {
     <div class="day-subheader">${day.sub}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
-      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'lbs' ? 'Switch to KG' : 'Switch to LBS'}</button>
+      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'kg' ? 'Switch to LBS' : 'Switch to KG'}</button>
     </div>
     <div class="exercise-grid">${sectionsHtml}${bonusRows}</div>
     <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
