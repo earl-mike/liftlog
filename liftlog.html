@@ -798,7 +798,7 @@ async function loadFromCloud() {
       cloudData = { cycles: {}, nameOverrides: {} };
     }
     document.getElementById('loadingOverlay').style.display = 'none';
-    renderAll();
+    renderAll(true);
     setSyncStatus('syncing', 'SYNCING...');
   } else {
     setSyncStatus('syncing', 'LOADING...');
@@ -817,13 +817,13 @@ async function loadFromCloud() {
     localStorage.setItem('ll_backup', JSON.stringify(cloudData));
     setSyncStatus('synced', 'SYNCED');
     document.getElementById('loadingOverlay').style.display = 'none';
-    renderAll();
+    renderAll(true);
   } catch(e) {
     setSyncStatus('error', 'OFFLINE — using cache');
     if (!cached) {
       cloudData = { cycles: {}, nameOverrides: {} };
       document.getElementById('loadingOverlay').style.display = 'none';
-      renderAll();
+      renderAll(true);
     }
   }
 }
@@ -1117,16 +1117,47 @@ function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
     </div>`;
 }
 
-function renderAll() {
+function findMostRecentDayIdx() {
+  // Find the most recent cycle with any data
+  let bestCycle = currentCycle;
+  let bestDayIdx = 0;
+  let found = false;
+
+  for (let c = currentCycle; c >= 1; c--) {
+    for (let di = PROGRAM.length - 2; di >= 0; di--) {
+      const day = PROGRAM[di];
+      if (day.type === 'recap') continue;
+      const exercises = getExercises(day);
+      const hasData = exercises.some((_,ei) =>
+        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
+      );
+      if (hasData) {
+        if (c !== currentCycle) {
+          currentCycle = c;
+          document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
+        }
+        bestDayIdx = di;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+  return bestDayIdx;
+}
+
+function renderAll(smartOpen = false) {
+  const openIdx = smartOpen ? findMostRecentDayIdx() : 0;
+
   document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
-    `<button class="tab ${d.type}${i===0?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
+    `<button class="tab ${d.type}${i===openIdx?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
   ).join('');
 
   const container = document.getElementById('panels');
   container.innerHTML = '';
   PROGRAM.forEach((day, di) => {
     const panel = document.createElement('div');
-    panel.className = 'day-panel' + (di===0?' active':'');
+    panel.className = 'day-panel' + (di===openIdx?' active':'');
     panel.innerHTML = day.type==='recap' ? buildRecap() : buildDay(day, di);
     container.appendChild(panel);
   });
@@ -1177,13 +1208,32 @@ function renderAll() {
         const inp = document.getElementById(`binp_${di}_${bi}_${s}`);
         if (!inp) continue;
         inp.value = bex.sets[s] || '';
-        if (inp.value) inp.classList.add('has-value');
+        if (inp.value) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
+        // Show prev cycle top set as S1 placeholder for carried exercises
+        if (s === 0 && !inp.value && bex.carried && bex.prevSets) {
+          const prevTop = Math.max(...bex.prevSets.filter(Boolean).map(Number));
+          if (prevTop) inp.placeholder = String(prevTop);
+          inp.style.color = 'var(--muted2)';
+        }
+        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
+        inp.addEventListener('blur', () => { if (!inp.value && s===0 && bex.carried) inp.style.color = 'var(--muted2)'; });
         inp.addEventListener('input', () => {
-          const b = getBonusExercises(currentCycle, day.id);
-          if (!b[bi]) return;
-          b[bi].sets[s] = inp.value;
-          saveBonusExercises(currentCycle, day.id, b);
+          // Save to this cycle's actual bonus array (not carried)
+          ensureDay(currentCycle, day.id);
+          let saved = cloudData.cycles[`c${currentCycle}`][day.id].bonus || [];
+          const existing = saved.find(b => b.name === bex.name);
+          if (existing) {
+            existing.sets[s] = inp.value;
+          } else {
+            // First edit of a carried exercise — add it to this cycle's bonus
+            const newEntry = { name: bex.name, sets: ['','','',''] };
+            newEntry.sets[s] = inp.value;
+            saved.push(newEntry);
+            cloudData.cycles[`c${currentCycle}`][day.id].bonus = saved;
+          }
+          debouncedSave();
           inp.classList.toggle('has-value', !!inp.value);
+          inp.style.color = inp.value ? 'var(--accent)' : (s===0 && bex.carried ? 'var(--muted2)' : 'var(--text)');
           updateProgress(di);
         });
       }
@@ -1227,22 +1277,27 @@ function buildDay(day, di) {
 
   const bonus = getBonusExercises(currentCycle, day.id);
   const bonusRows = bonus.map((bex, bi) => {
+    const isCarried = !!bex.carried;
     const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
       <div class="set-wrap">
         <div class="set-label">S${s+1}</div>
         <input type="number" class="set-input" id="binp_${di}_${bi}_${s}" placeholder="—" min="0" step="2.5">
       </div>`).join('');
+    const carriedBadge = isCarried
+      ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>`
+      : '';
     return `
-      <div class="exercise-row bonus">
+      <div class="exercise-row bonus${isCarried?' carried':''}">
         <div class="exercise-top">
           <div class="exercise-name-wrap">
             <span class="tier-badge tier-a">+</span>
             <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
-            <button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
+            ${carriedBadge}
+            ${!isCarried ? `<button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
             <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40">
-            <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>
+            <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>` : ''}
           </div>
-          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${bi})">✕</button>
+          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${di},'${bex.name}',${isCarried})" title="${isCarried?'Remove permanently':'Remove'}">✕</button>
         </div>
         <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
       </div>`;
