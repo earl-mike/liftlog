@@ -965,7 +965,7 @@ function removeBonusPermanently(dayId, di, bonusName) {
   const bonus = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
   cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
   debouncedSave();
-  renderAll();
+  renderAndStay(di);
 }
 
 function getNotes(c, d) { return cloudData?.cycles?.[`c${c}`]?.[d]?.notes || ''; }
@@ -1080,8 +1080,31 @@ function deleteBonusExercise(dayId, di, bonusName, isCarried) {
     ensureDay(currentCycle, dayId);
     cloudData.cycles[`c${currentCycle}`][dayId].bonus = filtered;
     debouncedSave();
-    renderAll();
+    renderAndStay(di);
   }
+}
+
+function renderAndStay(di) {
+  // Re-render but keep the current tab open
+  renderAll(false);
+  switchTab(di);
+}
+
+function markSessionDone(dayId, di) {
+  ensureDay(currentCycle, dayId);
+  cloudData.cycles[`c${currentCycle}`][dayId].done = true;
+  debouncedSave();
+  // Flash confirmation
+  const btn = document.getElementById(`done-btn-${di}`);
+  if (btn) {
+    btn.textContent = '✓ SESSION DONE';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  }
+}
+
+function isSessionDone(c, dayId) {
+  return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done;
 }
 
 function tierBadge(tier) {
@@ -1118,32 +1141,43 @@ function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
 }
 
 function findMostRecentDayIdx() {
-  // Find the most recent cycle with any data
-  let bestCycle = currentCycle;
-  let bestDayIdx = 0;
-  let found = false;
+  // Find highest cycle that has any data
+  const cycleKeys = Object.keys(cloudData.cycles || {});
+  let maxCycle = 1;
+  cycleKeys.forEach(k => {
+    const n = parseInt(k.replace('c',''));
+    if (!isNaN(n) && n > maxCycle) maxCycle = n;
+  });
 
-  for (let c = currentCycle; c >= 1; c--) {
-    for (let di = PROGRAM.length - 2; di >= 0; di--) {
+  // Scan from highest cycle downward
+  for (let c = maxCycle; c >= 1; c--) {
+    // Find the last day in this cycle that has data AND is not marked done
+    // If all days with data are done, find the next incomplete day
+    let lastDataDayIdx = -1;
+    let firstIncompleteDayIdx = -1;
+
+    for (let di = 0; di < PROGRAM.length - 1; di++) {
       const day = PROGRAM[di];
       if (day.type === 'recap') continue;
       const exercises = getExercises(day);
       const hasData = exercises.some((_,ei) =>
         Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
       );
-      if (hasData) {
-        if (c !== currentCycle) {
-          currentCycle = c;
-          document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
-        }
-        bestDayIdx = di;
-        found = true;
-        break;
-      }
+      const done = isSessionDone(c, day.id);
+      if (hasData) lastDataDayIdx = di;
+      if (hasData && !done && firstIncompleteDayIdx === -1) firstIncompleteDayIdx = di;
     }
-    if (found) break;
+
+    if (lastDataDayIdx >= 0) {
+      if (c !== currentCycle) {
+        currentCycle = c;
+        document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
+      }
+      // Open to most recent incomplete session, or last day if all done
+      return firstIncompleteDayIdx >= 0 ? firstIncompleteDayIdx : lastDataDayIdx;
+    }
   }
-  return bestDayIdx;
+  return 0;
 }
 
 function renderAll(smartOpen = false) {
@@ -1244,6 +1278,23 @@ function renderAll(smartOpen = false) {
       notes.value = getNotes(currentCycle, day.id);
       notes.addEventListener('input', () => setNotes(currentCycle, day.id, notes.value));
     }
+
+    // Wire finish session button state
+    const finishBtn = document.getElementById(`finish-btn-${di}`);
+    if (finishBtn) {
+      if (isSessionDone(currentCycle, day.id)) {
+        finishBtn.textContent = '✓ SESSION DONE';
+        finishBtn.style.borderColor = 'var(--accent)';
+        finishBtn.style.color = 'var(--accent)';
+      }
+      finishBtn.addEventListener('click', () => {
+        markSessionDone(day.id, di);
+        finishBtn.textContent = '✓ SESSION DONE';
+        finishBtn.style.borderColor = 'var(--accent)';
+        finishBtn.style.color = 'var(--accent)';
+      });
+    }
+
     updateProgress(di);
   });
 }
@@ -1317,7 +1368,12 @@ function buildDay(day, di) {
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
     <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
-    <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>`;
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+      <div class="autosave-note">&#9672; AUTO-SAVES TO CLOUD AS YOU TYPE</div>
+      <button id="done-btn-${di}" onclick="markSessionDone('${day.id}',${di})"
+        style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;"
+        id="finish-btn-${di}">FINISH SESSION</button>
+    </div>`;
 }
 
 function buildRecap() {
