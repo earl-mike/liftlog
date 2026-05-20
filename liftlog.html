@@ -395,6 +395,27 @@
   .notes-area:focus { outline: none; border-color: var(--accent); }
   .notes-area::placeholder { color: var(--muted); }
 
+  .drag-handle {
+    cursor: grab;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 6px 0 0;
+    flex-shrink: 0;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .drag-handle:active { cursor: grabbing; }
+
+  .exercise-row.dragging {
+    opacity: 0.4;
+    border-color: var(--accent) !important;
+  }
+
+  .exercise-row.drag-over {
+    border-top: 2px solid var(--accent);
+  }
+
   .autosave-note {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -928,8 +949,12 @@ function toggleUnit(dayId, di) {
       } else if (s === 0) {
         const prevSets = Array.from({length:NUM_SETS},(_,ps)=>getSet(currentCycle-1,day.id,ei,ps)).filter(Boolean);
         if (prevSets.length) {
-          const prevTopLbs = Math.max(...prevSets.map(Number));
-          inp.placeholder = next === 'kg' ? (prevTopLbs / 2.2046).toFixed(1) : String(prevTopLbs);
+          const prevTopRaw = Math.max(...prevSets.map(Number));
+          const prevUnit = getUnit(currentCycle-1, day.id);
+          let converted = prevTopRaw;
+          if (prevUnit === 'kg' && next === 'lbs') converted = (prevTopRaw * 2.2046).toFixed(1);
+          else if (prevUnit === 'lbs' && next === 'kg') converted = (prevTopRaw / 2.2046).toFixed(1);
+          inp.placeholder = String(converted);
         }
         inp.style.color = 'var(--muted2)';
       }
@@ -1084,6 +1109,35 @@ function deleteBonusExercise(dayId, di, bonusName, isCarried) {
   }
 }
 
+// Exercise order management — stored permanently in nameOverrides
+function getExerciseOrder(dayId) {
+  const key = `order_${dayId}`;
+  const stored = cloudData?.nameOverrides?.[key];
+  return stored ? JSON.parse(stored) : null;
+}
+
+function saveExerciseOrder(dayId, order) {
+  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+  cloudData.nameOverrides[`order_${dayId}`] = JSON.stringify(order);
+  debouncedSave();
+}
+
+function getOrderedExercises(day) {
+  const exercises = getExercises(day);
+  const order = getExerciseOrder(day.id);
+  if (!order) return exercises.map((ex, i) => ({ ex, origIdx: i }));
+  // Map stored order to exercises
+  const result = [];
+  order.forEach(origIdx => {
+    if (origIdx < exercises.length) result.push({ ex: exercises[origIdx], origIdx });
+  });
+  // Add any new exercises not in stored order
+  exercises.forEach((ex, i) => {
+    if (!order.includes(i)) result.push({ ex, origIdx: i });
+  });
+  return result;
+}
+
 function renderAndStay(di) {
   // Re-render but keep the current tab open
   renderAll(false);
@@ -1125,9 +1179,10 @@ function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
   const badge = isSupersetMember ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
 
   return `
-    <div class="${rowClass}">
+    <div class="${rowClass}" draggable="true" data-di="${di}" data-ei="${ei}" data-dayid="${dayId}">
       <div class="exercise-top">
         <div class="exercise-name-wrap">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
           ${badge}
           <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
           <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
@@ -1151,10 +1206,8 @@ function findMostRecentDayIdx() {
 
   // Scan from highest cycle downward
   for (let c = maxCycle; c >= 1; c--) {
-    // Find the last day in this cycle that has data AND is not marked done
-    // If all days with data are done, find the next incomplete day
     let lastDataDayIdx = -1;
-    let firstIncompleteDayIdx = -1;
+    let lastDoneDayIdx = -1;
 
     for (let di = 0; di < PROGRAM.length - 1; di++) {
       const day = PROGRAM[di];
@@ -1165,7 +1218,7 @@ function findMostRecentDayIdx() {
       );
       const done = isSessionDone(c, day.id);
       if (hasData) lastDataDayIdx = di;
-      if (hasData && !done && firstIncompleteDayIdx === -1) firstIncompleteDayIdx = di;
+      if (hasData && done) lastDoneDayIdx = di;
     }
 
     if (lastDataDayIdx >= 0) {
@@ -1173,8 +1226,13 @@ function findMostRecentDayIdx() {
         currentCycle = c;
         document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
       }
-      // Open to most recent incomplete session, or last day if all done
-      return firstIncompleteDayIdx >= 0 ? firstIncompleteDayIdx : lastDataDayIdx;
+      // If the last data day is marked done, go to the next day after it
+      if (lastDoneDayIdx === lastDataDayIdx) {
+        const nextIdx = lastDataDayIdx + 1;
+        return nextIdx < PROGRAM.length - 1 ? nextIdx : lastDataDayIdx;
+      }
+      // Otherwise open to the last day with data
+      return lastDataDayIdx;
     }
   }
   return 0;
@@ -1207,9 +1265,14 @@ function renderAll(smartOpen = false) {
       if (currentCycle > 1) {
         const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
         if (prevSets.length) {
-          const prevTopLbs = Math.max(...prevSets.map(Number));
-          const unit = getUnit(currentCycle, day.id);
-          prevTopSet = unit === 'kg' ? (prevTopLbs / 2.205).toFixed(1) : String(prevTopLbs);
+          const prevTopRaw = Math.max(...prevSets.map(Number));
+          const currentUnit = getUnit(currentCycle, day.id);
+          const prevUnit = getUnit(currentCycle-1, day.id);
+          // Convert prev top set to current unit if units differ
+          let prevTopConverted = prevTopRaw;
+          if (prevUnit === 'kg' && currentUnit === 'lbs') prevTopConverted = (prevTopRaw * 2.2046).toFixed(1);
+          else if (prevUnit === 'lbs' && currentUnit === 'kg') prevTopConverted = (prevTopRaw / 2.2046).toFixed(1);
+          prevTopSet = String(prevTopConverted);
         }
       }
 
@@ -1296,35 +1359,85 @@ function renderAll(smartOpen = false) {
     }
 
     updateProgress(di);
+
+    // Wire drag-to-reorder on exercise grid
+    const grid = document.querySelector(`#panels .day-panel:nth-child(${di+1}) .exercise-grid`);
+    if (grid) initDragReorder(grid, day.id, di);
+  });
+}
+
+let dragSrcEl = null;
+let dragSrcEi = null;
+let dragDayId = null;
+let dragDi = null;
+
+function initDragReorder(grid, dayId, di) {
+  const rows = Array.from(grid.querySelectorAll('.exercise-row'));
+  rows.forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragSrcEl = row;
+      dragSrcEi = parseInt(row.dataset.ei);
+      dragDayId = row.dataset.dayid;
+      dragDi = parseInt(row.dataset.di);
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      grid.querySelectorAll('.exercise-row').forEach(r => r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      grid.querySelectorAll('.exercise-row').forEach(r => r.classList.remove('drag-over'));
+      if (row !== dragSrcEl) row.classList.add('drag-over');
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!dragSrcEl || row === dragSrcEl) return;
+
+      const srcIsBonus = dragSrcEl.dataset.ei?.startsWith('bonus_');
+      const tgtIsBonus = row.dataset.ei?.startsWith('bonus_');
+
+      if (!srcIsBonus && !tgtIsBonus) {
+        // Both regular — reorder program exercises
+        const targetEi = parseInt(row.dataset.ei);
+        const srcEi = dragSrcEi;
+        if (isNaN(srcEi) || isNaN(targetEi)) return;
+        const day = PROGRAM[dragDi];
+        const exercises = getExercises(day);
+        const currentOrder = getExerciseOrder(dayId) || exercises.map((_,i) => i);
+        const srcPos = currentOrder.indexOf(srcEi);
+        const tgtPos = currentOrder.indexOf(targetEi);
+        if (srcPos === -1 || tgtPos === -1) return;
+        currentOrder.splice(srcPos, 1);
+        currentOrder.splice(tgtPos, 0, srcEi);
+        saveExerciseOrder(dayId, currentOrder);
+      } else if (srcIsBonus && tgtIsBonus) {
+        // Both bonus — reorder bonus array
+        const srcBi = parseInt(dragSrcEl.dataset.bonusIdx);
+        const tgtBi = parseInt(row.dataset.bonusIdx);
+        if (isNaN(srcBi) || isNaN(tgtBi)) return;
+        const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
+        const [moved] = bonus.splice(srcBi, 1);
+        bonus.splice(tgtBi, 0, moved);
+        ensureDay(currentCycle, dayId);
+        cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus;
+        debouncedSave();
+      }
+      // Cross-type drag (regular <-> bonus) — ignore
+      renderAndStay(dragDi);
+    });
   });
 }
 
 function buildDay(day, di) {
   const unit = getUnit(currentCycle, day.id);
-  let exerciseIndex = 0;
-  let sectionsHtml = '';
-
-  if (day.id === 'day5') {
-    // Arms blast — supersets
-    const section = day.sections[0];
-    let ssHtml = '';
-    section.supersets.forEach((ss) => {
-      ssHtml += `<div class="section-divider">${ss.label}</div>`;
-      ss.exercises.forEach((ex) => {
-        ssHtml += buildExerciseRow(di, exerciseIndex, ex, day.id, unit, true);
-        exerciseIndex++;
-      });
-    });
-    sectionsHtml = ssHtml;
-  } else {
-    day.sections.forEach(section => {
-      sectionsHtml += `<div class="section-divider">${section.title}</div>`;
-      section.exercises.forEach(ex => {
-        sectionsHtml += buildExerciseRow(di, exerciseIndex, ex, day.id, unit, false);
-        exerciseIndex++;
-      });
-    });
-  }
+  const orderedExercises = getOrderedExercises(day);
+  const isSupersetDay = day.id === 'day5';
+  let sectionsHtml = orderedExercises.map(({ ex, origIdx }) =>
+    buildExerciseRow(di, origIdx, ex, day.id, unit, isSupersetDay)
+  ).join('');
 
   const bonus = getBonusExercises(currentCycle, day.id);
   const bonusRows = bonus.map((bex, bi) => {
@@ -1338,9 +1451,10 @@ function buildDay(day, di) {
       ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>`
       : '';
     return `
-      <div class="exercise-row bonus${isCarried?' carried':''}">
+      <div class="exercise-row bonus${isCarried?' carried':''}" draggable="true" data-di="${di}" data-ei="bonus_${bi}" data-dayid="${day.id}" data-bonus-idx="${bi}">
         <div class="exercise-top">
           <div class="exercise-name-wrap">
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
             <span class="tier-badge tier-a">+</span>
             <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
             ${carriedBadge}
@@ -1460,64 +1574,87 @@ function updateProgress(di) {
 }
 
 function exportCycle() {
-  let text = `LIFTLOG — CYCLE ${currentCycle} DATA\n${'='.repeat(36)}\n\n`;
-  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-    const exercises = getExercises(day);
-    const unit = getUnit(currentCycle, day.id);
-    const notes = getNotes(currentCycle, day.id);
-    let hasData = exercises.some((_,ei)=>
-      Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).some(v=>v)
-    );
-    const bonus = getBonusExercises(currentCycle, day.id);
-    const hasBonus = bonus.some(b=>b.sets.some(v=>v));
-    if (!hasData && !hasBonus && !notes) return;
-
-    text += `${day.label} — ${day.sub} [${unit.toUpperCase()}]\n`;
-    exercises.forEach((ex,ei)=>{
-      const customName = getExName(day.id, ei);
-      const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
-      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
-      if (!sets.some(v=>v)) return;
-      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
-      text += `  ${displayName} (${ex.reps}): ${setStr}\n`;
-    });
-    bonus.forEach(bex=>{
-      if (!bex.sets.some(v=>v)) return;
-      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
-      text += `  ${bex.name} [BONUS]: ${setStr}\n`;
-    });
-    if (notes) text += `  Notes: ${notes}\n`;
-    text += '\n';
+  // Find highest cycle with data
+  const cycleKeys = Object.keys(cloudData.cycles || {});
+  let maxCycle = 1;
+  cycleKeys.forEach(k => {
+    const n = parseInt(k.replace('c',''));
+    if (!isNaN(n) && n > maxCycle) maxCycle = n;
   });
 
-  if (currentCycle > 1) {
-    text += `CYCLE ${currentCycle-1} COMPARISON\n`;
-    let hasComp = false;
+  let text = `LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\n`;
+  text += `Current Cycle: ${currentCycle} | Total Cycles: ${maxCycle}\n`;
+  text += `Goals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
+
+  // Export all cycles
+  for (let c = 1; c <= maxCycle; c++) {
+    let cycleHasData = false;
     PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
       const exercises = getExercises(day);
-      exercises.forEach((ex,ei)=>{
-        const currSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s)).filter(Boolean);
-        const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
-        if (currSets.length && prevSets.length) {
-          const currMax = Math.max(...currSets.map(Number));
-          const prevMax = Math.max(...prevSets.map(Number));
-          const diff = currMax - prevMax;
-          text += `  ${ex.name}: ${prevMax} → ${currMax} (${diff>=0?'+':''}${diff})\n`;
-          hasComp = true;
-        }
-      });
+      const hasData = exercises.some((_,ei)=>
+        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
+      );
+      if (hasData) cycleHasData = true;
     });
-    if (!hasComp) text += '  (no previous cycle data)\n';
+    if (!cycleHasData) continue;
+
+    text += `── CYCLE ${c} ──\n`;
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
+      const exercises = getExercises(day);
+      const unit = getUnit(c, day.id);
+      const notes = getNotes(c, day.id);
+      let hasData = exercises.some((_,ei)=>
+        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
+      );
+      const bonus = cloudData?.cycles?.[`c${c}`]?.[day.id]?.bonus || [];
+      const hasBonus = bonus.some(b=>b.sets && b.sets.some(v=>v));
+      if (!hasData && !hasBonus && !notes) return;
+
+      text += `${day.label} [${unit.toUpperCase()}]\n`;
+      exercises.forEach((ex,ei)=>{
+        const customName = getExName(day.id, ei);
+        const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
+        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s));
+        if (!sets.some(v=>v)) return;
+        const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
+        text += `  ${displayName}: ${setStr}\n`;
+      });
+      bonus.forEach(bex=>{
+        if (!bex.sets || !bex.sets.some(v=>v)) return;
+        const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
+        text += `  ${bex.name} [BONUS]: ${setStr}\n`;
+      });
+      if (notes) text += `  Notes: ${notes}\n`;
+    });
     text += '\n';
   }
 
-  text += `Goals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\nPaste into Claude and say "cycle check-in".`;
+  // Holistic progression summary — top set per exercise across all cycles
+  text += `── PROGRESSION SUMMARY (top set per cycle) ──\n`;
+  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
+    const exercises = getExercises(day);
+    exercises.forEach((ex,ei)=>{
+      const history = [];
+      for (let c = 1; c <= maxCycle; c++) {
+        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).filter(Boolean);
+        if (sets.length) history.push(`C${c}:${Math.max(...sets.map(Number))}`);
+      }
+      if (history.length > 1) {
+        const customName = getExName(day.id, ei);
+        const displayName = customName || ex.name;
+        text += `  ${displayName}: ${history.join(' → ')}\n`;
+      }
+    });
+  });
+
+  text += `\nPaste into Claude and say "cycle check-in".`;
 
   navigator.clipboard.writeText(text).then(()=>{
     const el = document.getElementById('exportFlash');
     if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
   }).catch(()=>{ prompt('Copy this:', text); });
 }
+
 
 async function generateRecap() {
   const btn = document.getElementById('genBtn');
