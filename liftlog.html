@@ -7,126 +7,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #222222;
-    --accent: #c8ff00;
-    --accent2: #ff6b35;
-    --blue: #4fc3f7;
-    --purple: #b388ff;
-    --green: #69f0ae;
-    --text: #f0f0f0;
-    --muted: #555555;
-    --muted2: #888888;
+    --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a;
+    --border: #222222; --accent: #c8ff00; --accent2: #ff6b35;
+    --blue: #4fc3f7; --purple: #b388ff; --green: #69f0ae;
+    --text: #f0f0f0; --muted: #555555; --muted2: #888888;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    padding: 20px;
-  }
-
-  header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 16px;
-  }
-
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 44px;
-    letter-spacing: 2px;
-    line-height: 1;
-    color: var(--accent);
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 20px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 2px; line-height: 1; color: var(--accent); }
   .logo span { color: var(--text); }
-
-  .header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  .cycle-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--muted2);
-  }
-
-  .cycle-nav button {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    width: 28px; height: 28px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .cycle-nav { display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted2); }
+  .cycle-nav button { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
   .cycle-nav button:hover { border-color: var(--accent); color: var(--accent); }
-
-  .sync-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
-
-  .sync-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--muted);
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-
+  .sync-row { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
   .sync-dot.syncing { background: var(--accent2); animation: pulse 0.8s infinite; }
   .sync-dot.synced { background: var(--accent); }
   .sync-dot.error { background: var(--accent2); }
-
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-  .tabs {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 20px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-
-  .tab {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--muted2);
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: all 0.15s;
-  }
-
+  .tabs { display: flex; gap: 2px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; }
+  .tab { background: var(--surface); border: 1px solid var(--border); color: var(--muted2); padding: 8px 12px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; transition: all 0.15s; }
   .tab:hover { color: var(--text); border-color: var(--muted); }
   .tab.active { color: #000; font-weight: 500; }
   .tab.chest.active { background: var(--accent2); border-color: var(--accent2); }
@@ -136,466 +38,101 @@
   .tab.arms.active { background: var(--green); border-color: var(--green); }
   .tab.shoulders-legs.active { background: var(--purple); border-color: var(--purple); color: #fff; }
   .tab.recap.active { background: var(--muted2); border-color: var(--muted2); }
-
   .day-panel { display: none; }
   .day-panel.active { display: block; }
-
-  .day-header {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 2px;
-    margin-bottom: 4px;
-    color: var(--muted2);
-  }
-
+  .day-header { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 4px; color: var(--muted2); }
   .day-header span { color: var(--text); }
-
-  .day-subheader {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted2);
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-  }
-
-  .section-divider {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted2);
-    padding: 8px 0 6px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-    margin-top: 12px;
-  }
-
-  .tier-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 2px;
-    flex-shrink: 0;
-    font-weight: 500;
-  }
-
+  .day-subheader { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 1px; margin-bottom: 16px; }
+  .superset-group { border-left: 2px solid var(--purple); padding-left: 10px; margin-bottom: 8px; }
+  .superset-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--purple); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+  .tier-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 1px 5px; border-radius: 2px; flex-shrink: 0; font-weight: 500; }
   .tier-sp { background: #ff6b3522; color: var(--accent2); border: 1px solid var(--accent2); }
   .tier-s { background: #c8ff0015; color: var(--accent); border: 1px solid #c8ff0044; }
   .tier-a { background: #4fc3f715; color: var(--blue); border: 1px solid #4fc3f744; }
-
-  .superset-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    padding: 1px 6px;
-    background: #b388ff22;
-    color: var(--purple);
-    border: 1px solid var(--purple);
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .exercise-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .exercise-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    transition: border-color 0.15s;
-    padding: 10px 14px;
-  }
-
+  .superset-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 1px 6px; background: #b388ff22; color: var(--purple); border: 1px solid var(--purple); border-radius: 2px; flex-shrink: 0; }
+  .exercise-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .exercise-row { background: var(--surface); border: 1px solid var(--border); transition: border-color 0.15s; padding: 10px 14px; }
   .exercise-row.logged { border-color: var(--accent); }
   .exercise-row.bonus { border-color: var(--blue); border-style: dashed; }
   .exercise-row.bonus.logged { border-color: var(--accent); border-style: solid; }
-  .exercise-row.superset-row { border-color: var(--purple); border-style: solid; border-width: 1px; }
+  .exercise-row.superset-row { border-color: var(--purple); }
   .exercise-row.superset-row.logged { border-color: var(--accent); }
-
-  .exercise-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-
-  .exercise-name-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .exercise-name {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
+  .exercise-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+  .exercise-name-wrap { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+  .exercise-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .exercise-name.custom { color: var(--accent); }
   .exercise-name.bonus-name { color: var(--blue); }
-
-  .edit-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 11px;
-    padding: 2px 4px;
-    flex-shrink: 0;
-    transition: color 0.15s;
-  }
-
+  .reorder-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; margin-right: 4px; }
+  .reorder-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 10px; padding: 1px 4px; line-height: 1; transition: color 0.15s; }
+  .reorder-btn:hover { color: var(--accent); }
+  .edit-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 4px; flex-shrink: 0; transition: color 0.15s; }
   .edit-btn:hover { color: var(--accent); }
-
-  .delete-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 13px;
-    padding: 2px 4px;
-    flex-shrink: 0;
-    transition: color 0.15s;
-  }
-
+  .delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 4px; flex-shrink: 0; transition: color 0.15s; }
   .delete-btn:hover { color: var(--accent2); }
-
-  .name-edit-input {
-    background: var(--surface2);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 3px 8px;
-    flex: 1;
-    min-width: 0;
-    display: none;
-  }
-
+  .link-btn { background: none; border: 1px solid var(--muted); color: var(--muted); cursor: pointer; font-size: 9px; padding: 2px 5px; flex-shrink: 0; transition: all 0.15s; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; border-radius: 2px; }
+  .link-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .link-btn.selecting { border-color: var(--accent); color: var(--accent); animation: pulse 0.8s infinite; }
+  .link-btn.linked { border-color: var(--purple); color: var(--purple); background: #b388ff22; }
+  .name-edit-input { background: var(--surface2); border: 1px solid var(--accent); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 3px 8px; flex: 1; min-width: 0; display: none; }
   .name-edit-input:focus { outline: none; }
-
-  .name-confirm-btn {
-    background: var(--accent);
-    border: none;
-    color: #000;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 4px 8px;
-    cursor: pointer;
-    flex-shrink: 0;
-    display: none;
-  }
-
-  .exercise-meta {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted2);
-    flex-shrink: 0;
-  }
-
-  .sets-row {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-
-  .set-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    flex: 1;
-  }
-
-  .set-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
-
-  .set-input {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    width: 100%;
-    padding: 6px 4px;
-    text-align: center;
-    transition: border-color 0.15s;
-    -moz-appearance: textfield;
-  }
-
-  .set-input::-webkit-outer-spin-button,
-  .set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .name-confirm-btn { background: var(--accent); border: none; color: #000; font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 8px; cursor: pointer; flex-shrink: 0; display: none; }
+  .exercise-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); flex-shrink: 0; }
+  .prev-weights { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.3px; }
+  .sets-row { display: flex; gap: 6px; align-items: center; }
+  .set-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+  .set-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.5px; }
+  .set-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; width: 100%; padding: 6px 4px; text-align: center; transition: border-color 0.15s; -moz-appearance: textfield; }
+  .set-input::-webkit-outer-spin-button, .set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .set-input:focus { outline: none; border-color: var(--accent); }
   .set-input.has-value { border-color: var(--accent); color: var(--accent); }
-
-  .unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  .progress-bar-wrap {
-    height: 3px;
-    background: var(--border);
-    margin-bottom: 6px;
-  }
-
+  .unit { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); flex-shrink: 0; }
+  .progress-bar-wrap { height: 3px; background: var(--border); margin-bottom: 6px; }
   .progress-bar { height: 100%; background: var(--accent); transition: width 0.3s; }
-
-  .logged-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted2);
-    margin-bottom: 10px;
-  }
-
-  .add-exercise-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px dashed var(--muted);
-    color: var(--muted2);
-    padding: 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 14px;
-  }
-
+  .logged-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted2); margin-bottom: 10px; }
+  .add-exercise-btn { width: 100%; background: transparent; border: 1px dashed var(--muted); color: var(--muted2); padding: 10px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-bottom: 14px; }
   .add-exercise-btn:hover { border-color: var(--blue); color: var(--blue); }
-
-  .notes-area {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    width: 100%;
-    padding: 12px;
-    resize: vertical;
-    min-height: 70px;
-    margin-bottom: 12px;
-  }
-
+  .notes-area { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; width: 100%; padding: 12px; resize: vertical; min-height: 70px; margin-bottom: 12px; }
   .notes-area:focus { outline: none; border-color: var(--accent); }
   .notes-area::placeholder { color: var(--muted); }
-
-  .reorder-btns {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex-shrink: 0;
-    margin-right: 6px;
-  }
-
-  .reorder-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 10px;
-    padding: 1px 4px;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-
-  .reorder-btn:hover { color: var(--accent); }
-  .reorder-btn:active { color: var(--accent); }
-
-  .autosave-note {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: none;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--muted);
-    color: var(--muted2);
-  }
-
+  .autosave-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+  .btn { padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; border: none; }
+  .btn-outline { background: transparent; border: 1px solid var(--muted); color: var(--muted2); }
   .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
   .btn-outline:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  .btn-copy {
-    background: var(--blue);
-    color: #000;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
+  .btn-copy { background: var(--blue); color: #000; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
   .btn-copy:hover { opacity: 0.85; }
-
-  .flash-msg {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
+  .flash-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
   .flash-msg.show { opacity: 1; }
-
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted2);
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .recap-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .recap-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 12px;
-  }
-
+  .section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .recap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; margin-bottom: 24px; }
+  .recap-card { background: var(--surface); border: 1px solid var(--border); padding: 12px; }
   .recap-card.bonus-card { border-color: var(--blue); }
-
-  .recap-card .day-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted2);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .recap-card .ex-name {
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    line-height: 1.3;
-  }
-
+  .recap-card .day-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .recap-card .ex-name { font-size: 12px; font-weight: 500; margin-bottom: 6px; line-height: 1.3; }
   .recap-sets { display: flex; gap: 4px; flex-wrap: wrap; }
-
-  .recap-set {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .recap-set .rs-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--muted2);
-  }
-
+  .recap-set { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); line-height: 1; }
+  .recap-set .rs-unit { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); }
   .recap-set.empty { color: var(--muted); font-size: 14px; }
-
-  .export-box {
-    background: var(--surface);
-    border: 1px solid var(--blue);
-    border-left: 3px solid var(--blue);
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
+  .export-box { background: var(--surface); border: 1px solid var(--blue); border-left: 3px solid var(--blue); padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .export-box-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
   .export-box-text strong { color: var(--blue); font-weight: 500; }
-
-  .ai-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .ai-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
+  .ai-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 20px; margin-bottom: 16px; }
+  .ai-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
   .ai-content { font-size: 13px; line-height: 1.75; color: var(--muted2); }
   .ai-content p { margin-bottom: 10px; }
   .ai-content p:last-child { margin-bottom: 0; }
   .ai-content strong { color: var(--text); font-weight: 500; }
-
   .recap-section { margin-bottom: 28px; }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: #0a0a0a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    z-index: 999;
-  }
-
-  .load-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px;
-    letter-spacing: 4px;
-    color: var(--accent);
-  }
-
+  .loading-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 999; }
+  .load-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 4px; color: var(--accent); }
   .dot-loader { display: inline-flex; gap: 5px; align-items: center; }
-
-  .dot-loader span {
-    width: 5px; height: 5px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: blink 1.2s infinite;
-  }
-
+  .dot-loader span { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: blink 1.2s infinite; }
   .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
   .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
-
   @keyframes blink { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
+  .finisher-section { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .finisher-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); letter-spacing: 2px; margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -632,173 +169,139 @@ const NUM_SETS = 4;
 let cloudData = { cycles: {}, nameOverrides: {} };
 let saveTimer = null;
 
+// Program definition — supersets defined inline
 const PROGRAM = [
   {
     id:'day1', label:"DAY 1", sub:"CHEST + TRICEPS", type:'chest',
-    sections: [
-      {
-        title: "CHEST",
-        exercises:[
-          {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
-          {name:"Incline Dumbbell Press", tier:"S", reps:"8–10"},
-          {name:"Machine Chest Press", tier:"S", reps:"10–12"},
-          {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
-        ]
-      },
-      {
-        title: "TRICEPS",
-        exercises:[
-          {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
-          {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
-          {name:"Rope Pushdown", tier:"A", reps:"15–20"},
-        ]
-      }
+    supersets:[
+      { label:"SS1", exercises:[
+        {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
+        {name:"Dips", tier:"S+", reps:"8–12"},
+      ]},
+      { label:"SS2", exercises:[
+        {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
+        {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
+      ]},
+      { label:"SS3", exercises:[
+        {name:"Machine Chest Press", tier:"S", reps:"10–12"},
+        {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
+      ]},
+      { label:"SS4", exercises:[
+        {name:"Dumbbell Fly", tier:"S", reps:"12–15"},
+        {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+      ]},
     ]
   },
   {
-    id:'day2', label:"DAY 2", sub:"BACK + BICEPS + REAR DELTS", type:'back',
-    sections:[
-      {
-        title:"BACK — WIDTH + THICKNESS",
-        exercises:[
-          {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
-          {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
-          {name:"Neutral Grip Lat Pulldown", tier:"S", reps:"10–12"},
-          {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
-        ]
-      },
-      {
-        title:"BICEPS",
-        exercises:[
-          {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-          {name:"Preacher Curl", tier:"S", reps:"10–12"},
-          {name:"Hammer Curl", tier:"S", reps:"12–15"},
-        ]
-      },
-      {
-        title:"REAR DELTS + UPPER BACK",
-        exercises:[
-          {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-          {name:"Face Pull", tier:"S+", reps:"15–20"},
-        ]
-      }
+    id:'day2', label:"DAY 2", sub:"BACK + BICEPS", type:'back',
+    supersets:[
+      { label:"SS1", exercises:[
+        {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
+        {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
+      ]},
+      { label:"SS2", exercises:[
+        {name:"Wide Grip Lat Pulldown", tier:"S", reps:"10–12"},
+        {name:"Preacher Curl", tier:"S", reps:"10–12"},
+      ]},
+      { label:"SS3", exercises:[
+        {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
+        {name:"Hammer Curl", tier:"S", reps:"12–15"},
+      ]},
+      { label:"SS4", exercises:[
+        {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
+        {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+      ]},
     ]
   },
   {
-    id:'day3', label:"DAY 3", sub:"SHOULDERS + LEGS (QUAD)", type:'shoulders',
-    sections:[
-      {
-        title:"SHOULDERS",
-        exercises:[
-          {name:"Dumbbell Shoulder Press", tier:"S", reps:"8–10"},
-          {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-          {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
-          {name:"Cable Upright Row", tier:"S", reps:"12–15"},
-        ]
-      },
-      {
-        title:"LEGS — QUAD FOCUS",
-        exercises:[
-          {name:"Front Squat", tier:"S+", reps:"5–8"},
-          {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
-          {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
-        ]
-      }
+    id:'day3', label:"DAY 3", sub:"SHOULDERS + LEGS", type:'shoulders',
+    exercises:[
+      {name:"Arnold Press", tier:"S", reps:"8–10"},
+      {name:"Cable Front Raise", tier:"S", reps:"12–15"},
+      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
+      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
+      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
+      {name:"Front Squat", tier:"S+", reps:"5–8"},
+      {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
+      {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
     ]
   },
   {
-    id:'day4', label:"DAY 4", sub:"CHEST + UPPER BACK", type:'chest-back',
-    sections:[
-      {
-        title:"CHEST",
-        exercises:[
-          {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
-          {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
-          {name:"Incline Machine Press", tier:"S", reps:"10–12"},
-          {name:"Bottom Up Cable Fly", tier:"A", reps:"12–15"},
-        ]
-      },
-      {
-        title:"UPPER BACK ACCESSORIES",
-        exercises:[
-          {name:"Cable Y Raise", tier:"A", reps:"15–20"},
-          {name:"Banded Pull Ups", tier:"A", reps:"8–10"},
-          {name:"Face Pull", tier:"S+", reps:"15–20"},
-        ]
-      }
+    id:'day4', label:"DAY 4", sub:"CHEST + BACK", type:'chest-back',
+    supersets:[
+      { label:"SS1", exercises:[
+        {name:"Incline Dumbbell Press", tier:"S+", reps:"8–10"},
+        {name:"Decline DB Row", tier:"S", reps:"10–12"},
+      ]},
+      { label:"SS2", exercises:[
+        {name:"Incline Machine Press", tier:"S", reps:"10–12"},
+        {name:"Close Grip Cable Row", tier:"S", reps:"10–12"},
+      ]},
+      { label:"SS3", exercises:[
+        {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
+        {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+      ]},
+      { label:"SS4", exercises:[
+        {name:"Dumbbell Fly", tier:"S", reps:"12–15"},
+        {name:"Cable Y Raise", tier:"A", reps:"15–20"},
+      ]},
+    ],
+    finisher:[
+      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
     ]
   },
   {
     id:'day5', label:"DAY 5", sub:"ARMS BLAST", type:'arms',
-    sections:[
-      {
-        title:"SUPERSETS — BICEP + TRICEP",
-        supersets:[
-          {
-            label:"SUPERSET 1",
-            exercises:[
-              {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-              {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
-            ]
-          },
-          {
-            label:"SUPERSET 2",
-            exercises:[
-              {name:"Preacher Curl", tier:"S", reps:"10–12"},
-              {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
-            ]
-          },
-          {
-            label:"SUPERSET 3",
-            exercises:[
-              {name:"Hammer Curl", tier:"S", reps:"12–15"},
-              {name:"Rope Pushdown", tier:"A", reps:"15–20"},
-            ]
-          },
-          {
-            label:"SUPERSET 4",
-            exercises:[
-              {name:"Incline DB Curl", tier:"S", reps:"10–12"},
-              {name:"Single Arm Pushdown", tier:"A", reps:"15–20"},
-            ]
-          }
-        ]
-      }
+    supersets:[
+      { label:"SS1", exercises:[
+        {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
+        {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
+      ]},
+      { label:"SS2", exercises:[
+        {name:"Preacher Curl", tier:"S", reps:"10–12"},
+        {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
+      ]},
+      { label:"SS3", exercises:[
+        {name:"Hammer Curl", tier:"S", reps:"12–15"},
+        {name:"Rope Pushdown", tier:"A", reps:"15–20"},
+      ]},
+      { label:"SS4", exercises:[
+        {name:"Incline DB Curl", tier:"S", reps:"10–12"},
+        {name:"Single Arm Pushdown", tier:"A", reps:"15–20"},
+      ]},
     ]
   },
   {
     id:'day6', label:"DAY 6", sub:"SHOULDERS + LEGS (GLUTE)", type:'shoulders-legs',
-    sections:[
-      {
-        title:"SHOULDERS + UPPER BACK",
-        exercises:[
-          {name:"Arnold Press", tier:"S", reps:"8–10"},
-          {name:"Cable Upright Row", tier:"S", reps:"12–15"},
-          {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-          {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-          {name:"Cable Y Raise", tier:"A", reps:"15–20"},
-        ]
-      },
-      {
-        title:"LEGS — GLUTE FOCUS",
-        exercises:[
-          {name:"Hip Thrust", tier:"S+", reps:"10–12"},
-          {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
-        ]
-      }
+    exercises:[
+      {name:"Arnold Press", tier:"S", reps:"8–10"},
+      {name:"Cable Front Raise", tier:"S", reps:"12–15"},
+      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
+      {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
+      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
+      {name:"Single Leg RDL", tier:"S+", reps:"10–12"},
+      {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
+      {name:"Leg Extension (controlled)", tier:"A", reps:"15–20"},
     ]
   },
-  {id:'recap', label:"RECAP", sub:"", type:'recap', sections:[]}
+  {id:'recap', label:"RECAP", sub:"", type:'recap', exercises:[]}
 ];
 
-// Flatten exercises for indexing
+// Flatten all exercises for a day (including supersets and finisher)
 function getExercises(day) {
-  if (day.type === 'recap') return [];
-  if (day.id === 'day5') {
-    // Supersets — flatten all exercises
-    return day.sections[0].supersets.flatMap(ss => ss.exercises);
+  if (!day || day.type === 'recap') return [];
+  if (day.supersets) {
+    const main = day.supersets.flatMap(ss => ss.exercises);
+    const fin = day.finisher || [];
+    return [...main, ...fin];
   }
-  return day.sections.flatMap(s => s.exercises);
+  return day.exercises || [];
+}
+
+// Get exercise index offset for finisher items
+function getFinisherStartIdx(day) {
+  if (!day.supersets) return 9999;
+  return day.supersets.flatMap(ss => ss.exercises).length;
 }
 
 let currentCycle = 1;
@@ -809,28 +312,21 @@ function setSyncStatus(state, label) {
 }
 
 async function loadFromCloud() {
-  // Step 1 — load from cache instantly, show app immediately
   const cached = localStorage.getItem('ll_backup');
   if (cached) {
     try {
       cloudData = JSON.parse(cached);
       if (!cloudData.cycles) cloudData.cycles = {};
       if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-    } catch(e) {
-      cloudData = { cycles: {}, nameOverrides: {} };
-    }
+    } catch(e) { cloudData = { cycles: {}, nameOverrides: {} }; }
     document.getElementById('loadingOverlay').style.display = 'none';
     renderAll(true);
     setSyncStatus('syncing', 'SYNCING...');
   } else {
     setSyncStatus('syncing', 'LOADING...');
   }
-
-  // Step 2 — sync from JSONBin in background
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': API_KEY }
-    });
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
     const data = await res.json();
     const fresh = data.record || { cycles: {}, nameOverrides: {} };
     if (!fresh.cycles) fresh.cycles = {};
@@ -842,11 +338,7 @@ async function loadFromCloud() {
     renderAll(true);
   } catch(e) {
     setSyncStatus('error', 'OFFLINE — using cache');
-    if (!cached) {
-      cloudData = { cycles: {}, nameOverrides: {} };
-      document.getElementById('loadingOverlay').style.display = 'none';
-      renderAll(true);
-    }
+    if (!cached) { cloudData = { cycles: {}, nameOverrides: {} }; document.getElementById('loadingOverlay').style.display = 'none'; renderAll(true); }
   }
 }
 
@@ -854,21 +346,12 @@ async function saveToCloud() {
   setSyncStatus('syncing', 'SAVING...');
   localStorage.setItem('ll_backup', JSON.stringify(cloudData));
   try {
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-      body: JSON.stringify(cloudData)
-    });
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY }, body: JSON.stringify(cloudData) });
     setSyncStatus('synced', 'SAVED ✓');
-  } catch(e) {
-    setSyncStatus('error', 'SAVE FAILED');
-  }
+  } catch(e) { setSyncStatus('error', 'SAVE FAILED'); }
 }
 
-function debouncedSave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToCloud, 1500);
-}
+function debouncedSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 1500); }
 
 function ensureDay(c, d) {
   if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {};
@@ -884,18 +367,14 @@ function getSet(c, d, e, s) {
 
 function setSet(c, d, e, s, v) {
   ensureDay(c, d);
-  const key = `e${e}`;
-  let arr = cloudData.cycles[`c${c}`][d][key];
+  let arr = cloudData.cycles[`c${c}`][d][`e${e}`];
   if (!Array.isArray(arr)) arr = ['','','',''];
   arr[s] = v;
-  cloudData.cycles[`c${c}`][d][key] = arr;
+  cloudData.cycles[`c${c}`][d][`e${e}`] = arr;
   debouncedSave();
 }
 
-function getExName(dayId, ei) {
-  return cloudData?.nameOverrides?.[`${dayId}_${ei}`] || null;
-}
-
+function getExName(dayId, ei) { return cloudData?.nameOverrides?.[`${dayId}_${ei}`] || null; }
 function setExName(dayId, ei, name) {
   if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
   if (name) cloudData.nameOverrides[`${dayId}_${ei}`] = name;
@@ -906,38 +385,26 @@ function setExName(dayId, ei, name) {
 function getUnit(c, dayId) {
   const stored = cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;
   if (stored) return stored;
-  for (let i = c - 1; i >= 1; i--) {
-    const prev = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;
-    if (prev) return prev;
-  }
+  for (let i = c-1; i >= 1; i--) { const p = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit; if (p) return p; }
   return 'kg';
 }
 
-function setUnit(c, dayId, unit) {
-  ensureDay(c, dayId);
-  cloudData.cycles[`c${c}`][dayId].unit = unit;
-  debouncedSave();
-}
+function setUnit(c, dayId, unit) { ensureDay(c, dayId); cloudData.cycles[`c${c}`][dayId].unit = unit; debouncedSave(); }
 
 function convertValue(val, toUnit) {
   const num = parseFloat(val);
   if (isNaN(num) || num === 0) return '';
-  if (toUnit === 'kg') return (num / 2.2046).toFixed(1);
-  return (num * 2.2046).toFixed(1);
+  return toUnit === 'kg' ? (num / 2.2046).toFixed(1) : (num * 2.2046).toFixed(1);
 }
 
 function toggleUnit(dayId, di) {
   const current = getUnit(currentCycle, dayId);
   const next = current === 'lbs' ? 'kg' : 'lbs';
   setUnit(currentCycle, dayId, next);
-
   document.querySelectorAll(`.unit-label-${di}`).forEach(el => el.textContent = next);
-
   const day = PROGRAM[di];
   if (!day) return;
-  const exercises = getExercises(day);
-
-  exercises.forEach((ex, ei) => {
+  getExercises(day).forEach((ex, ei) => {
     for (let s = 0; s < NUM_SETS; s++) {
       const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
       if (!inp) continue;
@@ -945,25 +412,12 @@ function toggleUnit(dayId, di) {
         const converted = convertValue(inp.value, next);
         inp.value = converted;
         setSet(currentCycle, dayId, ei, s, converted);
-        inp.classList.add('has-value');
-        inp.style.color = 'var(--accent)';
-      } else if (s === 0) {
-        const prevSets = Array.from({length:NUM_SETS},(_,ps)=>getSet(currentCycle-1,day.id,ei,ps)).filter(Boolean);
-        if (prevSets.length) {
-          const prevTopRaw = Math.max(...prevSets.map(Number));
-          const prevUnit = getUnit(currentCycle-1, day.id);
-          let converted = prevTopRaw;
-          if (prevUnit === 'kg' && next === 'lbs') converted = (prevTopRaw * 2.2046).toFixed(1);
-          else if (prevUnit === 'lbs' && next === 'kg') converted = (prevTopRaw / 2.2046).toFixed(1);
-          inp.placeholder = String(converted);
-        }
-        inp.style.color = 'var(--muted2)';
+        inp.classList.add('has-value'); inp.style.color = 'var(--accent)';
       }
     }
   });
-
   const btn = document.getElementById(`unit-toggle-${di}`);
-  if (btn) btn.textContent = next === 'lbs' ? 'Switch to KG' : 'Switch to LBS';
+  if (btn) btn.textContent = next === 'kg' ? 'Switch to LBS' : 'Switch to KG';
 }
 
 function getBonusExercises(c, d) {
@@ -977,11 +431,7 @@ function getBonusExercises(c, d) {
   return [...thisCycle, ...carried];
 }
 
-function saveBonusExercises(c, d, arr) {
-  ensureDay(c, d);
-  cloudData.cycles[`c${c}`][d].bonus = arr;
-  debouncedSave();
-}
+function saveBonusExercises(c, d, arr) { ensureDay(c, d); cloudData.cycles[`c${c}`][d].bonus = arr; debouncedSave(); }
 
 function removeBonusPermanently(dayId, di, bonusName) {
   ensureDay(currentCycle, dayId);
@@ -990,382 +440,63 @@ function removeBonusPermanently(dayId, di, bonusName) {
   cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved = removed;
   const bonus = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
   cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
-  debouncedSave();
-  renderAndStay(di);
+  debouncedSave(); renderAndStay(di);
 }
 
 function getNotes(c, d) { return cloudData?.cycles?.[`c${c}`]?.[d]?.notes || ''; }
-function setNotes(c, d, v) {
-  ensureDay(c, d);
-  cloudData.cycles[`c${c}`][d].notes = v;
-  debouncedSave();
-}
-
+function setNotes(c, d, v) { ensureDay(c, d); cloudData.cycles[`c${c}`][d].notes = v; debouncedSave(); }
 function getAI(c) { return cloudData?.cycles?.[`c${c}`]?.ai || ''; }
-function setAI(c, v) {
-  if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {};
-  cloudData.cycles[`c${c}`].ai = v;
-  debouncedSave();
-}
-
-function changeCycle(dir) {
-  const n = currentCycle + dir;
-  if (n < 1) return;
-  currentCycle = n;
-  document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
-  renderAll();
-}
-
-function switchTab(idx) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
-  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
-}
-
-function startEditName(di, ei, dayId) {
-  const nameEl = document.getElementById(`exname_${di}_${ei}`);
-  const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`);
-  const editBtn = document.getElementById(`exedit_${di}_${ei}`);
-  inputEl.value = nameEl.textContent;
-  nameEl.style.display = 'none'; editBtn.style.display = 'none';
-  inputEl.style.display = 'block'; confirmEl.style.display = 'block';
-  inputEl.focus(); inputEl.select();
-}
-
-function confirmEditName(di, ei, dayId) {
-  const nameEl = document.getElementById(`exname_${di}_${ei}`);
-  const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`);
-  const editBtn = document.getElementById(`exedit_${di}_${ei}`);
-  const newName = inputEl.value.trim();
-  const exercises = getExercises(PROGRAM[di]);
-  const defaultName = exercises[ei]?.name || '';
-  if (newName && newName !== defaultName) {
-    nameEl.textContent = newName;
-    nameEl.classList.add('custom');
-    setExName(dayId, ei, newName);
-  } else {
-    nameEl.textContent = defaultName;
-    nameEl.classList.remove('custom');
-    setExName(dayId, ei, null);
-  }
-  nameEl.style.display = 'block'; editBtn.style.display = 'block';
-  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
-}
-
-function addBonusExercise(dayId, di) {
-  const bonus = getBonusExercises(currentCycle, dayId);
-  bonus.push({ name: 'New Exercise', sets: ['','','',''] });
-  saveBonusExercises(currentCycle, dayId, bonus);
-  renderAll();
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===di));
-  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===di));
-  const bi = bonus.length - 1;
-  const inp = document.getElementById(`bonus_name_${di}_${bi}`);
-  if (inp) { inp.style.display = 'block'; inp.focus(); inp.select(); }
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`);
-  if (nameEl) nameEl.style.display = 'none';
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`);
-  if (confirmEl) confirmEl.style.display = 'block';
-  const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
-  if (editBtn) editBtn.style.display = 'none';
-}
-
-function startEditBonusName(di, bi, dayId) {
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`);
-  const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`);
-  const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
-  inputEl.value = nameEl.textContent;
-  nameEl.style.display = 'none'; editBtn.style.display = 'none';
-  inputEl.style.display = 'block'; confirmEl.style.display = 'block';
-  inputEl.focus(); inputEl.select();
-}
-
-function confirmBonusName(di, bi, dayId) {
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`);
-  const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`);
-  const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
-  const newName = inputEl.value.trim() || 'New Exercise';
-  nameEl.textContent = newName;
-  nameEl.style.display = 'block'; editBtn.style.display = 'block';
-  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
-  const bonus = getBonusExercises(currentCycle, dayId);
-  if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentCycle, dayId, bonus); }
-}
-
-function deleteBonusExercise(dayId, di, bonusName, isCarried) {
-  if (isCarried) {
-    // Permanently remove carried-forward exercise
-    removeBonusPermanently(dayId, di, bonusName);
-  } else {
-    // Remove from this cycle's own bonus list
-    const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
-    const filtered = bonus.filter(b => b.name !== bonusName);
-    ensureDay(currentCycle, dayId);
-    cloudData.cycles[`c${currentCycle}`][dayId].bonus = filtered;
-    debouncedSave();
-    renderAndStay(di);
-  }
-}
-
-// Exercise order management — stored permanently in nameOverrides
-function getExerciseOrder(dayId) {
-  const key = `order_${dayId}`;
-  const stored = cloudData?.nameOverrides?.[key];
-  return stored ? JSON.parse(stored) : null;
-}
-
-function saveExerciseOrder(dayId, order) {
-  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  cloudData.nameOverrides[`order_${dayId}`] = JSON.stringify(order);
-  debouncedSave();
-}
-
-function getOrderedExercises(day) {
-  const exercises = getExercises(day);
-  const order = getExerciseOrder(day.id);
-  if (!order) return exercises.map((ex, i) => ({ ex, origIdx: i }));
-  // Map stored order to exercises
-  const result = [];
-  order.forEach(origIdx => {
-    if (origIdx < exercises.length) result.push({ ex: exercises[origIdx], origIdx });
-  });
-  // Add any new exercises not in stored order
-  exercises.forEach((ex, i) => {
-    if (!order.includes(i)) result.push({ ex, origIdx: i });
-  });
-  return result;
-}
-
-function renderAndStay(di) {
-  // Re-render but keep the current tab open
-  renderAll(false);
-  switchTab(di);
-}
-
+function setAI(c, v) { if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {}; cloudData.cycles[`c${c}`].ai = v; debouncedSave(); }
+function isSessionDone(c, dayId) { return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done; }
 function markSessionDone(dayId, di) {
   ensureDay(currentCycle, dayId);
   cloudData.cycles[`c${currentCycle}`][dayId].done = true;
   debouncedSave();
-  // Flash confirmation
-  const btn = document.getElementById(`done-btn-${di}`);
-  if (btn) {
-    btn.textContent = '✓ SESSION DONE';
-    btn.style.borderColor = 'var(--accent)';
-    btn.style.color = 'var(--accent)';
+  const btn = document.getElementById(`finish-btn-${di}`);
+  if (btn) { btn.textContent = '✓ SESSION DONE'; btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; }
+}
+
+// Exercise order
+function getExerciseOrder(dayId) { const k = `order_${dayId}`; const s = cloudData?.nameOverrides?.[k]; return s ? JSON.parse(s) : null; }
+function saveExerciseOrder(dayId, order) { if (!cloudData.nameOverrides) cloudData.nameOverrides = {}; cloudData.nameOverrides[`order_${dayId}`] = JSON.stringify(order); debouncedSave(); }
+function getOrderedExercises(day) {
+  const exercises = getExercises(day);
+  const order = getExerciseOrder(day.id);
+  if (!order) return exercises.map((ex, i) => ({ ex, origIdx: i }));
+  const result = [];
+  order.forEach(origIdx => { if (origIdx < exercises.length) result.push({ ex: exercises[origIdx], origIdx }); });
+  exercises.forEach((ex, i) => { if (!order.includes(i)) result.push({ ex, origIdx: i }); });
+  return result;
+}
+
+// Superset linking
+let supersetSelectingDi = null, supersetSelectingEi = null, supersetSelectingIsBonus = false;
+function getSupersets(c, dayId) { return cloudData?.cycles?.[`c${c}`]?.[dayId]?.supersets || []; }
+function saveSupersets(c, dayId, arr) { ensureDay(c, dayId); cloudData.cycles[`c${c}`][dayId].supersets = arr; debouncedSave(); }
+function isSuperpaired(dayId, ei, isBonus) {
+  const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
+  return getSupersets(currentCycle, dayId).some(ss => ss.includes(key));
+}
+function toggleLink(dayId, di, ei, isBonus) {
+  const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
+  const supersets = getSupersets(currentCycle, dayId);
+  const existing = supersets.find(ss => ss.includes(key));
+  if (existing) {
+    saveSupersets(currentCycle, dayId, supersets.filter(ss => ss !== existing));
+    supersetSelectingDi = null; supersetSelectingEi = null; supersetSelectingIsBonus = false;
+    renderAndStay(di); return;
   }
-}
-
-function isSessionDone(c, dayId) {
-  return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done;
-}
-
-function tierBadge(tier) {
-  const cls = tier === 'S+' ? 'tier-sp' : tier === 'S' ? 'tier-s' : 'tier-a';
-  return `<span class="tier-badge ${cls}">${tier}</span>`;
-}
-
-function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
-  const customName = getExName(dayId, ei);
-  const displayName = customName || ex.name;
-  const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-    <div class="set-wrap">
-      <div class="set-label">S${s+1}</div>
-      <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="—" min="0" step="2.5">
-    </div>`).join('');
-
-  const rowClass = isSupersetMember ? 'exercise-row superset-row' : 'exercise-row';
-  const badge = isSupersetMember ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
-
-  return `
-    <div class="${rowClass}" id="exrow_${di}_${ei}">
-      <div class="exercise-top">
-        <div class="exercise-name-wrap">
-          <div class="reorder-btns">
-            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},-1)" title="Move up">▲</button>
-            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},1)" title="Move down">▼</button>
-          </div>
-          ${badge}
-          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
-          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
-          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
-        </div>
-        <div class="exercise-meta">${ex.reps}</div>
-      </div>
-      <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
-    </div>`;
-}
-
-function findMostRecentDayIdx() {
-  // Find highest cycle that has any data
-  const cycleKeys = Object.keys(cloudData.cycles || {});
-  let maxCycle = 1;
-  cycleKeys.forEach(k => {
-    const n = parseInt(k.replace('c',''));
-    if (!isNaN(n) && n > maxCycle) maxCycle = n;
-  });
-
-  // Scan from highest cycle downward
-  for (let c = maxCycle; c >= 1; c--) {
-    let lastDataDayIdx = -1;
-    let lastDoneDayIdx = -1;
-
-    for (let di = 0; di < PROGRAM.length - 1; di++) {
-      const day = PROGRAM[di];
-      if (day.type === 'recap') continue;
-      const exercises = getExercises(day);
-      const hasData = exercises.some((_,ei) =>
-        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
-      );
-      const done = isSessionDone(c, day.id);
-      if (hasData) lastDataDayIdx = di;
-      if (hasData && done) lastDoneDayIdx = di;
-    }
-
-    if (lastDataDayIdx >= 0) {
-      if (c !== currentCycle) {
-        currentCycle = c;
-        document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`;
-      }
-      // If the last data day is marked done, go to the next day after it
-      if (lastDoneDayIdx === lastDataDayIdx) {
-        const nextIdx = lastDataDayIdx + 1;
-        return nextIdx < PROGRAM.length - 1 ? nextIdx : lastDataDayIdx;
-      }
-      // Otherwise open to the last day with data
-      return lastDataDayIdx;
-    }
+  if (supersetSelectingDi === null) {
+    supersetSelectingDi = di; supersetSelectingEi = ei; supersetSelectingIsBonus = isBonus;
+    const btnId = isBonus ? `linkbtn_bonus_${di}_${ei}` : `linkbtn_${di}_${ei}`;
+    const btn = document.getElementById(btnId);
+    if (btn) btn.classList.add('selecting');
+  } else {
+    const firstKey = supersetSelectingIsBonus ? `bonus_${supersetSelectingEi}` : `ex_${supersetSelectingEi}`;
+    if (firstKey !== key) { supersets.push([firstKey, key]); saveSupersets(currentCycle, dayId, supersets); }
+    supersetSelectingDi = null; supersetSelectingEi = null; supersetSelectingIsBonus = false;
+    renderAndStay(di);
   }
-  return 0;
-}
-
-function renderAll(smartOpen = false) {
-  const openIdx = smartOpen ? findMostRecentDayIdx() : 0;
-
-  document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
-    `<button class="tab ${d.type}${i===openIdx?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
-  ).join('');
-
-  const container = document.getElementById('panels');
-  container.innerHTML = '';
-  PROGRAM.forEach((day, di) => {
-    const panel = document.createElement('div');
-    panel.className = 'day-panel' + (di===openIdx?' active':'');
-    panel.innerHTML = day.type==='recap' ? buildRecap() : buildDay(day, di);
-    container.appendChild(panel);
-  });
-
-  PROGRAM.forEach((day, di) => {
-    if (day.type==='recap') return;
-    const exercises = getExercises(day);
-    exercises.forEach((ex, ei) => {
-      const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-      if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
-
-      let prevTopSet = '';
-      if (currentCycle > 1) {
-        const prevSets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
-        if (prevSets.length) {
-          const prevTopRaw = Math.max(...prevSets.map(Number));
-          const currentUnit = getUnit(currentCycle, day.id);
-          const prevUnit = getUnit(currentCycle-1, day.id);
-          // Convert prev top set to current unit if units differ
-          let prevTopConverted = prevTopRaw;
-          if (prevUnit === 'kg' && currentUnit === 'lbs') prevTopConverted = (prevTopRaw * 2.2046).toFixed(1);
-          else if (prevUnit === 'lbs' && currentUnit === 'kg') prevTopConverted = (prevTopRaw / 2.2046).toFixed(1);
-          prevTopSet = String(prevTopConverted);
-        }
-      }
-
-      for (let s = 0; s < NUM_SETS; s++) {
-        const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
-        if (!inp) continue;
-        const val = getSet(currentCycle, day.id, ei, s);
-        inp.value = val;
-        if (val) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
-        if (s === 0 && !val && prevTopSet) {
-          inp.placeholder = prevTopSet;
-          inp.style.color = 'var(--muted2)';
-        }
-        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
-        inp.addEventListener('blur', () => { if (!inp.value && s===0 && prevTopSet) inp.style.color = 'var(--muted2)'; });
-        inp.addEventListener('input', () => {
-          setSet(currentCycle, day.id, ei, s, inp.value);
-          inp.classList.toggle('has-value', !!inp.value);
-          inp.style.color = inp.value ? 'var(--accent)' : (s===0 && prevTopSet ? 'var(--muted2)' : 'var(--text)');
-          updateProgress(di);
-        });
-      }
-    });
-
-    const bonus = getBonusExercises(currentCycle, day.id);
-    bonus.forEach((bex, bi) => {
-      const nameInp = document.getElementById(`bonus_name_${di}_${bi}`);
-      if (nameInp) nameInp.addEventListener('keydown', e => { if(e.key==='Enter') confirmBonusName(di,bi,day.id); });
-      for (let s = 0; s < NUM_SETS; s++) {
-        const inp = document.getElementById(`binp_${di}_${bi}_${s}`);
-        if (!inp) continue;
-        inp.value = bex.sets[s] || '';
-        if (inp.value) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
-        // Show prev cycle top set as S1 placeholder for carried exercises
-        if (s === 0 && !inp.value && bex.carried && bex.prevSets) {
-          const prevTop = Math.max(...bex.prevSets.filter(Boolean).map(Number));
-          if (prevTop) inp.placeholder = String(prevTop);
-          inp.style.color = 'var(--muted2)';
-        }
-        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
-        inp.addEventListener('blur', () => { if (!inp.value && s===0 && bex.carried) inp.style.color = 'var(--muted2)'; });
-        inp.addEventListener('input', () => {
-          // Save to this cycle's actual bonus array (not carried)
-          ensureDay(currentCycle, day.id);
-          let saved = cloudData.cycles[`c${currentCycle}`][day.id].bonus || [];
-          const existing = saved.find(b => b.name === bex.name);
-          if (existing) {
-            existing.sets[s] = inp.value;
-          } else {
-            // First edit of a carried exercise — add it to this cycle's bonus
-            const newEntry = { name: bex.name, sets: ['','','',''] };
-            newEntry.sets[s] = inp.value;
-            saved.push(newEntry);
-            cloudData.cycles[`c${currentCycle}`][day.id].bonus = saved;
-          }
-          debouncedSave();
-          inp.classList.toggle('has-value', !!inp.value);
-          inp.style.color = inp.value ? 'var(--accent)' : (s===0 && bex.carried ? 'var(--muted2)' : 'var(--text)');
-          updateProgress(di);
-        });
-      }
-    });
-
-    const notes = document.getElementById(`notes_${di}`);
-    if (notes) {
-      notes.value = getNotes(currentCycle, day.id);
-      notes.addEventListener('input', () => setNotes(currentCycle, day.id, notes.value));
-    }
-
-    // Wire finish session button state
-    const finishBtn = document.getElementById(`finish-btn-${di}`);
-    if (finishBtn) {
-      if (isSessionDone(currentCycle, day.id)) {
-        finishBtn.textContent = '✓ SESSION DONE';
-        finishBtn.style.borderColor = 'var(--accent)';
-        finishBtn.style.color = 'var(--accent)';
-      }
-      finishBtn.addEventListener('click', () => {
-        markSessionDone(day.id, di);
-        finishBtn.textContent = '✓ SESSION DONE';
-        finishBtn.style.borderColor = 'var(--accent)';
-        finishBtn.style.color = 'var(--accent)';
-      });
-    }
-
-    updateProgress(di);
-
-
-  });
 }
 
 function moveExercise(dayId, di, ei, direction) {
@@ -1376,83 +507,182 @@ function moveExercise(dayId, di, ei, direction) {
   if (pos === -1) return;
   const newPos = pos + direction;
   if (newPos < 0 || newPos >= currentOrder.length) return;
-  currentOrder.splice(pos, 1);
-  currentOrder.splice(newPos, 0, ei);
-  saveExerciseOrder(dayId, currentOrder);
-  renderAndStay(di);
+  currentOrder.splice(pos, 1); currentOrder.splice(newPos, 0, ei);
+  saveExerciseOrder(dayId, currentOrder); renderAndStay(di);
 }
 
 function moveBonusExercise(dayId, di, bi, direction) {
   const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
   const newBi = bi + direction;
   if (newBi < 0 || newBi >= bonus.length) return;
-  const [moved] = bonus.splice(bi, 1);
-  bonus.splice(newBi, 0, moved);
-  ensureDay(currentCycle, dayId);
-  cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus;
-  debouncedSave();
-  renderAndStay(di);
+  const [moved] = bonus.splice(bi, 1); bonus.splice(newBi, 0, moved);
+  ensureDay(currentCycle, dayId); cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus;
+  debouncedSave(); renderAndStay(di);
+}
+
+function renderAndStay(di) { renderAll(false); switchTab(di); }
+
+function changeCycle(dir) {
+  const n = currentCycle + dir; if (n < 1) return;
+  currentCycle = n; document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`; renderAll(false);
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+function findMostRecentDayIdx() {
+  const cycleKeys = Object.keys(cloudData.cycles || {});
+  let maxCycle = 1;
+  cycleKeys.forEach(k => { const n = parseInt(k.replace('c','')); if (!isNaN(n) && n > maxCycle) maxCycle = n; });
+  for (let c = maxCycle; c >= 1; c--) {
+    let lastDataDayIdx = -1, lastDoneDayIdx = -1;
+    for (let di = 0; di < PROGRAM.length - 1; di++) {
+      const day = PROGRAM[di]; if (day.type === 'recap') continue;
+      const exercises = getExercises(day);
+      const hasData = exercises.some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
+      const done = isSessionDone(c, day.id);
+      if (hasData) lastDataDayIdx = di;
+      if (hasData && done) lastDoneDayIdx = di;
+    }
+    if (lastDataDayIdx >= 0) {
+      if (c !== currentCycle) { currentCycle = c; document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`; }
+      if (lastDoneDayIdx === lastDataDayIdx) { const nextIdx = lastDataDayIdx + 1; return nextIdx < PROGRAM.length - 1 ? nextIdx : lastDataDayIdx; }
+      return lastDataDayIdx;
+    }
+  }
+  return 0;
+}
+
+function tierBadge(tier) {
+  const cls = tier === 'S+' ? 'tier-sp' : tier === 'S' ? 'tier-s' : 'tier-a';
+  return `<span class="tier-badge ${cls}">${tier}</span>`;
+}
+
+function buildInputRow(di, ei, unit) {
+  const prevWeights = currentCycle > 1 ? Array.from({length:NUM_SETS}, (_,s) => getSet(currentCycle-1, PROGRAM[di].id, ei, s)) : [];
+  const hasPrev = prevWeights.some(v => v);
+  const prevRow = hasPrev ? `<div class="prev-weights">LAST: ${prevWeights.map(v => v||'—').join(' · ')}</div>` : '';
+  const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
+    <div class="set-wrap">
+      <div class="set-label">S${s+1}</div>
+      <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="${prevWeights[s]||'—'}" min="0" step="2.5">
+    </div>`).join('');
+  return `${prevRow}<div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>`;
+}
+
+function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
+  const customName = getExName(dayId, ei);
+  const displayName = customName || ex.name;
+  const paired = isSuperpaired(dayId, ei, false);
+  const linkBtnLabel = paired ? 'UNLINK' : 'LINK';
+  const linkBtnClass = paired ? 'link-btn linked' : 'link-btn';
+  const rowClass = (isSupersetMember || paired) ? 'exercise-row superset-row' : 'exercise-row';
+  const badge = (isSupersetMember || paired) ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
+  return `
+    <div class="${rowClass}" id="exrow_${di}_${ei}">
+      <div class="exercise-top">
+        <div class="exercise-name-wrap">
+          <div class="reorder-btns">
+            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},-1)">▲</button>
+            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},1)">▼</button>
+          </div>
+          ${badge}
+          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
+          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
+          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
+          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="${linkBtnClass}" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">${linkBtnLabel}</button>
+          <div class="exercise-meta">${ex.reps}</div>
+        </div>
+      </div>
+      ${buildInputRow(di, ei, unit)}
+    </div>`;
 }
 
 function buildDay(day, di) {
   const unit = getUnit(currentCycle, day.id);
-  const orderedExercises = getOrderedExercises(day);
-  const isSupersetDay = day.id === 'day5';
-  let sectionsHtml = orderedExercises.map(({ ex, origIdx }) =>
-    buildExerciseRow(di, origIdx, ex, day.id, unit, isSupersetDay)
-  ).join('');
+  let bodyHtml = '';
 
+  if (day.supersets) {
+    // Build superset groups
+    let ei = 0;
+    day.supersets.forEach(ss => {
+      bodyHtml += `<div class="superset-group"><div class="superset-label">◈ ${ss.label}</div>`;
+      ss.exercises.forEach(ex => {
+        bodyHtml += buildExerciseRow(di, ei, ex, day.id, unit, true);
+        ei++;
+      });
+      bodyHtml += `</div>`;
+    });
+    // Finisher
+    if (day.finisher) {
+      bodyHtml += `<div class="finisher-section"><div class="finisher-label">◈ FINISHER</div>`;
+      day.finisher.forEach(ex => {
+        bodyHtml += buildExerciseRow(di, ei, ex, day.id, unit, false);
+        ei++;
+      });
+      bodyHtml += `</div>`;
+    }
+  } else {
+    // Regular day
+    const orderedExercises = getOrderedExercises(day);
+    orderedExercises.forEach(({ ex, origIdx }) => {
+      bodyHtml += buildExerciseRow(di, origIdx, ex, day.id, unit, false);
+    });
+  }
+
+  // Bonus exercises
   const bonus = getBonusExercises(currentCycle, day.id);
-  const bonusRows = bonus.map((bex, bi) => {
+  bonus.forEach((bex, bi) => {
     const isCarried = !!bex.carried;
+    const bonusPaired = isSuperpaired(day.id, bi, true);
+    const bonusRowClass = bonusPaired ? 'exercise-row bonus superset-row' : 'exercise-row bonus';
+    const carriedBadge = isCarried ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>` : '';
     const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-      <div class="set-wrap">
-        <div class="set-label">S${s+1}</div>
+      <div class="set-wrap"><div class="set-label">S${s+1}</div>
         <input type="number" class="set-input" id="binp_${di}_${bi}_${s}" placeholder="—" min="0" step="2.5">
       </div>`).join('');
-    const carriedBadge = isCarried
-      ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>`
-      : '';
-    return `
-      <div class="exercise-row bonus${isCarried?' carried':''}" id="bonusrow_${di}_${bi}">
+    bodyHtml += `
+      <div class="${bonusRowClass}${isCarried?' carried':''}">
         <div class="exercise-top">
           <div class="exercise-name-wrap">
             <div class="reorder-btns">
               <button class="reorder-btn" onclick="moveBonusExercise('${day.id}',${di},${bi},-1)">▲</button>
               <button class="reorder-btn" onclick="moveBonusExercise('${day.id}',${di},${bi},1)">▼</button>
             </div>
-            <span class="tier-badge tier-a">+</span>
+            ${bonusPaired ? '<span class="superset-badge">SS</span>' : '<span class="tier-badge tier-a">+</span>'}
             <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
             ${carriedBadge}
             ${!isCarried ? `<button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
             <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40">
             <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>` : ''}
           </div>
-          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${di},'${bex.name}',${isCarried})" title="${isCarried?'Remove permanently':'Remove'}">✕</button>
+          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${di},'${bex.name}',${isCarried})">✕</button>
         </div>
         <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
       </div>`;
-  }).join('');
+  });
 
   const totalEx = getExercises(day).length;
-
   return `
     <div class="day-header"><span>${day.label}</span></div>
     <div class="day-subheader">${day.sub}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span id="unit-display-${di}" style="color:var(--accent)">${unit.toUpperCase()}</span></div>
       <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'kg' ? 'Switch to LBS' : 'Switch to KG'}</button>
     </div>
-    <div class="exercise-grid">${sectionsHtml}${bonusRows}</div>
+    <div class="exercise-grid">${bodyHtml}</div>
     <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
     <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-      <div class="autosave-note">&#9672; AUTO-SAVES TO CLOUD AS YOU TYPE</div>
-      <button id="done-btn-${di}" onclick="markSessionDone('${day.id}',${di})"
-        style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;"
-        id="finish-btn-${di}">FINISH SESSION</button>
+      <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>
+      <button id="finish-btn-${di}" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;">FINISH SESSION</button>
     </div>`;
 }
 
@@ -1460,38 +690,21 @@ function buildRecap() {
   const savedAI = getAI(currentCycle);
   const cards = PROGRAM.filter(d=>d.type!=='recap').map(day => {
     const exercises = getExercises(day);
+    const unit = getUnit(currentCycle, day.id);
     const regularCards = exercises.map((ex, ei) => {
       const customName = getExName(day.id, ei);
       const displayName = customName || ex.name;
       const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       const hasAny = sets.some(v=>v);
-      const unit = getUnit(currentCycle, day.id);
-      const setDisplay = sets.map(v => v
-        ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`
-        : `<div class="recap-set empty">·</div>`
-      ).join('');
-      return `<div class="recap-card" style="${!hasAny?'opacity:0.35':''}">
-        <div class="day-label">${day.label}</div>
-        <div class="ex-name">${displayName}</div>
-        <div class="recap-sets">${setDisplay}</div>
-      </div>`;
+      const setDisplay = sets.map(v => v ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>` : `<div class="recap-set empty">·</div>`).join('');
+      return `<div class="recap-card" style="${!hasAny?'opacity:0.35':''}"><div class="day-label">${day.label}</div><div class="ex-name">${displayName}</div><div class="recap-sets">${setDisplay}</div></div>`;
     }).join('');
-
     const bonus = getBonusExercises(currentCycle, day.id);
     const bonusCards = bonus.map(bex => {
       const hasAny = bex.sets.some(v=>v);
-      const unit = getUnit(currentCycle, day.id);
-      const setDisplay = bex.sets.map(v => v
-        ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`
-        : `<div class="recap-set empty">·</div>`
-      ).join('');
-      return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.35':''}">
-        <div class="day-label">${day.label} · BONUS</div>
-        <div class="ex-name">${bex.name}</div>
-        <div class="recap-sets">${setDisplay}</div>
-      </div>`;
+      const setDisplay = bex.sets.map(v => v ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>` : `<div class="recap-set empty">·</div>`).join('');
+      return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.35':''}"><div class="day-label">${day.label} · BONUS</div><div class="ex-name">${bex.name}</div><div class="recap-sets">${setDisplay}</div></div>`;
     }).join('');
-
     return regularCards + bonusCards;
   }).join('');
 
@@ -1501,11 +714,8 @@ function buildRecap() {
 
   return `
     <div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
-    <div class="day-subheader">DAY 1 · DAY 2 · DAY 3 · REST · DAY 4 · DAY 5 · DAY 6 · REST</div>
-    <div class="recap-section">
-      <div class="section-label">Logged Weights</div>
-      <div class="recap-grid">${cards}</div>
-    </div>
+    <div class="day-subheader">D1 · D2 · D3 · REST · D4 · D5 · D6 · REST</div>
+    <div class="recap-section"><div class="section-label">Logged Weights</div><div class="recap-grid">${cards}</div></div>
     <div class="recap-section">
       <div class="export-box">
         <div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude for your check-in.</div>
@@ -1522,165 +732,228 @@ function buildRecap() {
     </div>`;
 }
 
+function renderAll(smartOpen = false) {
+  const openIdx = smartOpen ? findMostRecentDayIdx() : 0;
+  document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
+    `<button class="tab ${d.type}${i===openIdx?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
+  ).join('');
+  const container = document.getElementById('panels');
+  container.innerHTML = '';
+  PROGRAM.forEach((day, di) => {
+    const panel = document.createElement('div');
+    panel.className = 'day-panel' + (di===openIdx?' active':'');
+    panel.innerHTML = day.type==='recap' ? buildRecap() : buildDay(day, di);
+    container.appendChild(panel);
+  });
+  PROGRAM.forEach((day, di) => {
+    if (day.type==='recap') return;
+    const exercises = getExercises(day);
+    exercises.forEach((ex, ei) => {
+      const inputEl = document.getElementById(`exinput_${di}_${ei}`);
+      if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
+      for (let s = 0; s < NUM_SETS; s++) {
+        const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
+        if (!inp) continue;
+        const val = getSet(currentCycle, day.id, ei, s);
+        const prevVal = currentCycle > 1 ? getSet(currentCycle-1, day.id, ei, s) : '';
+        inp.value = val;
+        if (val) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
+        else if (prevVal) { inp.style.color = 'var(--muted2)'; }
+        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
+        inp.addEventListener('blur', () => { if (!inp.value && prevVal) inp.style.color = 'var(--muted2)'; });
+        inp.addEventListener('input', () => {
+          setSet(currentCycle, day.id, ei, s, inp.value);
+          inp.classList.toggle('has-value', !!inp.value);
+          inp.style.color = inp.value ? 'var(--accent)' : (prevVal ? 'var(--muted2)' : 'var(--text)');
+          updateProgress(di);
+        });
+      }
+    });
+    const bonus = getBonusExercises(currentCycle, day.id);
+    bonus.forEach((bex, bi) => {
+      const nameInp = document.getElementById(`bonus_name_${di}_${bi}`);
+      if (nameInp) nameInp.addEventListener('keydown', e => { if(e.key==='Enter') confirmBonusName(di,bi,day.id); });
+      for (let s = 0; s < NUM_SETS; s++) {
+        const inp = document.getElementById(`binp_${di}_${bi}_${s}`);
+        if (!inp) continue;
+        inp.value = bex.sets[s] || '';
+        if (inp.value) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
+        inp.addEventListener('input', () => {
+          ensureDay(currentCycle, day.id);
+          let saved = cloudData.cycles[`c${currentCycle}`][day.id].bonus || [];
+          const existing = saved.find(b => b.name === bex.name);
+          if (existing) { existing.sets[s] = inp.value; }
+          else { const newEntry = { name: bex.name, sets: ['','','',''] }; newEntry.sets[s] = inp.value; saved.push(newEntry); cloudData.cycles[`c${currentCycle}`][day.id].bonus = saved; }
+          debouncedSave();
+          inp.classList.toggle('has-value', !!inp.value);
+          inp.style.color = inp.value ? 'var(--accent)' : 'var(--text)';
+          updateProgress(di);
+        });
+      }
+    });
+    const notes = document.getElementById(`notes_${di}`);
+    if (notes) { notes.value = getNotes(currentCycle, day.id); notes.addEventListener('input', () => setNotes(currentCycle, day.id, notes.value)); }
+    const finishBtn = document.getElementById(`finish-btn-${di}`);
+    if (finishBtn) {
+      if (isSessionDone(currentCycle, day.id)) { finishBtn.textContent = '✓ SESSION DONE'; finishBtn.style.borderColor = 'var(--accent)'; finishBtn.style.color = 'var(--accent)'; }
+      finishBtn.addEventListener('click', () => markSessionDone(day.id, di));
+    }
+    updateProgress(di);
+  });
+}
+
 function updateProgress(di) {
-  const day = PROGRAM[di];
-  if (!day || day.type==='recap') return;
+  const day = PROGRAM[di]; if (!day || day.type==='recap') return;
   const exercises = getExercises(day);
   let n = 0;
-  exercises.forEach((_,ei) => {
-    for (let s = 0; s < NUM_SETS; s++) {
-      if (getSet(currentCycle, day.id, ei, s)) { n++; break; }
-    }
-  });
+  exercises.forEach((_,ei) => { for (let s = 0; s < NUM_SETS; s++) { if (getSet(currentCycle, day.id, ei, s)) { n++; break; } } });
   const pct = Math.round(n / exercises.length * 100);
-  const bar = document.getElementById(`prog_${di}`);
-  const cnt = document.getElementById(`cnt_${di}`);
+  const bar = document.getElementById(`prog_${di}`); const cnt = document.getElementById(`cnt_${di}`);
   if(bar) bar.style.width = pct+'%';
   if(cnt) cnt.textContent = `${n} / ${exercises.length} logged`;
 }
 
+function startEditName(di, ei, dayId) {
+  const nameEl = document.getElementById(`exname_${di}_${ei}`); const inputEl = document.getElementById(`exinput_${di}_${ei}`);
+  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`); const editBtn = document.getElementById(`exedit_${di}_${ei}`);
+  inputEl.value = nameEl.textContent; nameEl.style.display = 'none'; editBtn.style.display = 'none';
+  inputEl.style.display = 'block'; confirmEl.style.display = 'block'; inputEl.focus(); inputEl.select();
+}
+
+function confirmEditName(di, ei, dayId) {
+  const nameEl = document.getElementById(`exname_${di}_${ei}`); const inputEl = document.getElementById(`exinput_${di}_${ei}`);
+  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`); const editBtn = document.getElementById(`exedit_${di}_${ei}`);
+  const newName = inputEl.value.trim();
+  const exercises = getExercises(PROGRAM[di]);
+  const defaultName = exercises[ei]?.name || '';
+  if (newName && newName !== defaultName) { nameEl.textContent = newName; nameEl.classList.add('custom'); setExName(dayId, ei, newName); }
+  else { nameEl.textContent = defaultName; nameEl.classList.remove('custom'); setExName(dayId, ei, null); }
+  nameEl.style.display = 'block'; editBtn.style.display = 'block'; inputEl.style.display = 'none'; confirmEl.style.display = 'none';
+}
+
+function addBonusExercise(dayId, di) {
+  const bonus = getBonusExercises(currentCycle, dayId);
+  bonus.push({ name: 'New Exercise', sets: ['','','',''] });
+  saveBonusExercises(currentCycle, dayId, bonus);
+  renderAll(false); switchTab(di);
+  const bi = bonus.length - 1;
+  const inp = document.getElementById(`bonus_name_${di}_${bi}`);
+  if (inp) { inp.style.display = 'block'; inp.focus(); inp.select(); }
+  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); if (nameEl) nameEl.style.display = 'none';
+  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); if (confirmEl) confirmEl.style.display = 'block';
+  const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`); if (editBtn) editBtn.style.display = 'none';
+}
+
+function startEditBonusName(di, bi, dayId) {
+  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
+  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
+  inputEl.value = nameEl.textContent; nameEl.style.display = 'none'; editBtn.style.display = 'none';
+  inputEl.style.display = 'block'; confirmEl.style.display = 'block'; inputEl.focus(); inputEl.select();
+}
+
+function confirmBonusName(di, bi, dayId) {
+  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
+  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
+  const newName = inputEl.value.trim() || 'New Exercise';
+  nameEl.textContent = newName; nameEl.style.display = 'block'; editBtn.style.display = 'block';
+  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
+  const bonus = getBonusExercises(currentCycle, dayId);
+  if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentCycle, dayId, bonus); }
+}
+
+function deleteBonusExercise(dayId, di, bonusName, isCarried) {
+  if (isCarried) { removeBonusPermanently(dayId, di, bonusName); return; }
+  const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
+  ensureDay(currentCycle, dayId);
+  cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
+  debouncedSave(); renderAndStay(di);
+}
+
 function exportCycle() {
-  // Find highest cycle with data
   const cycleKeys = Object.keys(cloudData.cycles || {});
   let maxCycle = 1;
-  cycleKeys.forEach(k => {
-    const n = parseInt(k.replace('c',''));
-    if (!isNaN(n) && n > maxCycle) maxCycle = n;
-  });
-
-  let text = `LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\n`;
-  text += `Current Cycle: ${currentCycle} | Total Cycles: ${maxCycle}\n`;
-  text += `Goals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
-
-  // Export all cycles
+  cycleKeys.forEach(k => { const n = parseInt(k.replace('c','')); if (!isNaN(n) && n > maxCycle) maxCycle = n; });
+  let text = `LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\nCurrent Cycle: ${currentCycle} | Total Cycles: ${maxCycle}\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
   for (let c = 1; c <= maxCycle; c++) {
     let cycleHasData = false;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-      const exercises = getExercises(day);
-      const hasData = exercises.some((_,ei)=>
-        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
-      );
-      if (hasData) cycleHasData = true;
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
+      if (getExercises(day).some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v))) cycleHasData = true;
     });
     if (!cycleHasData) continue;
-
     text += `── CYCLE ${c} ──\n`;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-      const exercises = getExercises(day);
-      const unit = getUnit(c, day.id);
-      const notes = getNotes(c, day.id);
-      let hasData = exercises.some((_,ei)=>
-        Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)
-      );
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
+      const exercises = getExercises(day); const unit = getUnit(c, day.id); const notes = getNotes(c, day.id);
+      let hasData = exercises.some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
       const bonus = cloudData?.cycles?.[`c${c}`]?.[day.id]?.bonus || [];
-      const hasBonus = bonus.some(b=>b.sets && b.sets.some(v=>v));
-      if (!hasData && !hasBonus && !notes) return;
-
+      if (!hasData && !bonus.some(b=>b.sets&&b.sets.some(v=>v)) && !notes) return;
       text += `${day.label} [${unit.toUpperCase()}]\n`;
-      exercises.forEach((ex,ei)=>{
+      exercises.forEach((ex,ei) => {
         const customName = getExName(day.id, ei);
         const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
         const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s));
         if (!sets.some(v=>v)) return;
-        const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
-        text += `  ${displayName}: ${setStr}\n`;
+        text += `  ${displayName}: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;
       });
-      bonus.forEach(bex=>{
-        if (!bex.sets || !bex.sets.some(v=>v)) return;
-        const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ');
-        text += `  ${bex.name} [BONUS]: ${setStr}\n`;
+      bonus.forEach(bex => {
+        if (!bex.sets||!bex.sets.some(v=>v)) return;
+        text += `  ${bex.name} [BONUS]: ${bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;
       });
       if (notes) text += `  Notes: ${notes}\n`;
     });
     text += '\n';
   }
-
-  // Holistic progression summary — top set per exercise across all cycles
   text += `── PROGRESSION SUMMARY (top set per cycle) ──\n`;
-  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-    const exercises = getExercises(day);
-    exercises.forEach((ex,ei)=>{
+  PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
+    getExercises(day).forEach((ex,ei) => {
       const history = [];
       for (let c = 1; c <= maxCycle; c++) {
         const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).filter(Boolean);
         if (sets.length) history.push(`C${c}:${Math.max(...sets.map(Number))}`);
       }
-      if (history.length > 1) {
-        const customName = getExName(day.id, ei);
-        const displayName = customName || ex.name;
-        text += `  ${displayName}: ${history.join(' → ')}\n`;
-      }
+      if (history.length > 1) text += `  ${getExName(day.id,ei)||ex.name}: ${history.join(' → ')}\n`;
     });
   });
-
   text += `\nPaste into Claude and say "cycle check-in".`;
-
-  navigator.clipboard.writeText(text).then(()=>{
+  navigator.clipboard.writeText(text).then(() => {
     const el = document.getElementById('exportFlash');
     if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
-  }).catch(()=>{ prompt('Copy this:', text); });
+  }).catch(() => { prompt('Copy this:', text); });
 }
 
-
 async function generateRecap() {
-  const btn = document.getElementById('genBtn');
-  const content = document.getElementById('aiContent');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="dot-loader"><span></span><span></span><span></span></span>';
-
-  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle.\n\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Right knee tendon recovering — ramp lower body slowly.\n\nCycle ${currentCycle}:\n\n`;
-
-  PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-    const exercises = getExercises(day);
-    const unit = getUnit(currentCycle, day.id);
+  const btn = document.getElementById('genBtn'); const content = document.getElementById('aiContent');
+  btn.disabled = true; btn.innerHTML = '<span class="dot-loader"><span></span><span></span><span></span></span>';
+  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle.\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Right knee recovering — ramp slowly.\n\nCycle ${currentCycle}:\n\n`;
+  PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
+    const exercises = getExercises(day); const unit = getUnit(currentCycle, day.id);
     prompt += `${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
-    exercises.forEach((ex,ei)=>{
-      const customName = getExName(day.id, ei);
-      const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
+    exercises.forEach((ex,ei) => {
       const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
       if (!sets.some(v=>v)) return;
-      const setStr = sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ');
-      prompt += `  ${displayName} [${ex.tier}] (${ex.reps}): ${setStr}\n`;
+      prompt += `  ${getExName(day.id,ei)||ex.name} [${ex.tier}] (${ex.reps}): ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;
     });
     const bonus = getBonusExercises(currentCycle, day.id);
-    bonus.forEach(bex=>{
-      if (!bex.sets.some(v=>v)) return;
-      const setStr = bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ');
-      prompt += `  ${bex.name} [BONUS]: ${setStr}\n`;
-    });
-    const n = getNotes(currentCycle, day.id);
-    if(n) prompt += `  Notes: ${n}\n`;
+    bonus.forEach(bex => { if (!bex.sets||!bex.sets.some(v=>v)) return; prompt += `  ${bex.name} [BONUS]: ${bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`; });
+    const n = getNotes(currentCycle, day.id); if(n) prompt += `  Notes: ${n}\n`;
     prompt += '\n';
   });
-
   if (currentCycle > 1) {
     prompt += `\nPrev Cycle (${currentCycle-1}) top sets:\n`;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day=>{
-      const exercises = getExercises(day);
-      exercises.forEach((ex,ei)=>{
+    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
+      getExercises(day).forEach((ex,ei) => {
         const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
         if (sets.length) prompt += `  ${ex.name}: ${Math.max(...sets.map(Number))} top set\n`;
       });
     });
   }
-
-  prompt += `\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts with actual sets/weights\n3. **Next Cycle Targets** — specific weight suggestions for key lifts\n4. **Watch Points** — 1-2 adjustments including knee considerations\n\nBe direct. HTML <p> and <strong> tags only.`;
-
+  prompt += `\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts\n3. **Next Cycle Targets** — specific weight suggestions\n4. **Watch Points** — 1-2 adjustments\n\nBe direct. HTML <p> and <strong> tags only.`;
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
-    });
+    const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]}) });
     const data = await res.json();
     const text = data.content?.map(b=>b.text||'').join('')||'Could not generate.';
-    content.innerHTML = text;
-    setAI(currentCycle, text);
-  } catch(e) {
-    content.innerHTML = '<p style="color:var(--accent2)">Connection error. Try again.</p>';
-  }
-  btn.disabled = false;
-  btn.textContent = `Regenerate Cycle ${currentCycle} Recap`;
+    content.innerHTML = text; setAI(currentCycle, text);
+  } catch(e) { content.innerHTML = '<p style="color:var(--accent2)">Connection error. Try again.</p>'; }
+  btn.disabled = false; btn.textContent = `Regenerate Cycle ${currentCycle} Recap`;
 }
 
 loadFromCloud();
