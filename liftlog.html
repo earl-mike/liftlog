@@ -312,6 +312,31 @@ function setSyncStatus(state, label) {
 }
 
 async function loadFromCloud() {
+  const PROGRAM_VERSION = 'v5';
+  const storedVersion = localStorage.getItem('ll_version');
+
+  // If version mismatch — full reset to new program
+  if (storedVersion !== PROGRAM_VERSION) {
+    setSyncStatus('syncing', 'RESETTING...');
+    localStorage.removeItem('ll_backup');
+    cloudData = { cycles: {}, nameOverrides: {} };
+    try {
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+        body: JSON.stringify({ cycles: {}, nameOverrides: {} })
+      });
+      localStorage.setItem('ll_version', PROGRAM_VERSION);
+      setSyncStatus('synced', 'READY ✓');
+    } catch(e) {
+      setSyncStatus('error', 'RESET FAILED');
+    }
+    document.getElementById('loadingOverlay').style.display = 'none';
+    renderAll(true);
+    return;
+  }
+
+  // Normal load
   const cached = localStorage.getItem('ll_backup');
   if (cached) {
     try {
