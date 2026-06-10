@@ -231,7 +231,7 @@ const PROGRAM = [
     supersets:[
       { label:"SS1", exercises:[
         {name:"Incline Dumbbell Press", tier:"S+", reps:"8–10"},
-        {name:"Decline DB Row", tier:"S", reps:"10–12"},
+        {name:"Meadows Row", tier:"S+", reps:"10–12"},
       ]},
       { label:"SS2", exercises:[
         {name:"Incline Machine Press", tier:"S", reps:"10–12"},
@@ -494,18 +494,92 @@ function getOrderedExercises(day) {
   return result;
 }
 
+// Superset group order
+function getSupersetOrder(dayId) {
+  const k = `ssorder_${dayId}`;
+  const s = cloudData?.nameOverrides?.[k];
+  return s ? JSON.parse(s) : null;
+}
+
+function saveSupersetOrder(dayId, order) {
+  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+  cloudData.nameOverrides[`ssorder_${dayId}`] = JSON.stringify(order);
+  debouncedSave();
+}
+
+function getOrderedSupersets(day) {
+  if (!day.supersets) return [];
+  const order = getSupersetOrder(day.id);
+  if (!order) return day.supersets.map((ss, i) => ({ ss, origIdx: i }));
+  const result = [];
+  order.forEach(origIdx => { if (origIdx < day.supersets.length) result.push({ ss: day.supersets[origIdx], origIdx }); });
+  day.supersets.forEach((ss, i) => { if (!order.includes(i)) result.push({ ss, origIdx: i }); });
+  return result;
+}
+
+function moveSupersetGroup(dayId, di, ssIdx, direction) {
+  const day = PROGRAM[di];
+  if (!day.supersets) return;
+  const order = getSupersetOrder(dayId) || day.supersets.map((_,i) => i);
+  const pos = order.indexOf(ssIdx);
+  if (pos === -1) return;
+  const newPos = pos + direction;
+  if (newPos < 0 || newPos >= order.length) return;
+  order.splice(pos, 1); order.splice(newPos, 0, ssIdx);
+  saveSupersetOrder(dayId, order);
+  renderAndStay(di);
+}
+
 // Superset linking
 let supersetSelectingDi = null, supersetSelectingEi = null, supersetSelectingIsBonus = false;
 function getSupersets(c, dayId) { return cloudData?.cycles?.[`c${c}`]?.[dayId]?.supersets || []; }
 function saveSupersets(c, dayId, arr) { ensureDay(c, dayId); cloudData.cycles[`c${c}`][dayId].supersets = arr; debouncedSave(); }
+function isProgramSuperset(dayId, ei) {
+  // Check if this exercise index is part of a built-in program superset
+  const day = PROGRAM.find(d => d.id === dayId);
+  if (!day || !day.supersets) return false;
+  let runningEi = 0;
+  for (const ss of day.supersets) {
+    const start = runningEi;
+    const end = runningEi + ss.exercises.length - 1;
+    if (ei >= start && ei <= end) return true;
+    runningEi += ss.exercises.length;
+  }
+  return false;
+}
+
 function isSuperpaired(dayId, ei, isBonus) {
   const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
-  return getSupersets(currentCycle, dayId).some(ss => ss.includes(key));
+  // Check user-defined supersets in cloudData
+  if (getSupersets(currentCycle, dayId).some(ss => ss.includes(key))) return true;
+  // Also treat program-defined superset members as paired (unless explicitly unlinked)
+  if (!isBonus) {
+    const unlinked = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || [];
+    if (unlinked.includes(ei)) return false;
+    return isProgramSuperset(dayId, ei);
+  }
+  return false;
 }
 function toggleLink(dayId, di, ei, isBonus) {
   const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
   const supersets = getSupersets(currentCycle, dayId);
   const existing = supersets.find(ss => ss.includes(key));
+
+  // If it's a program superset member and not yet in user supersets, unlink it
+  if (!isBonus && !existing && isProgramSuperset(dayId, ei)) {
+    ensureDay(currentCycle, dayId);
+    const unlinked = cloudData.cycles[`c${currentCycle}`][dayId].unlinked || [];
+    if (unlinked.includes(ei)) {
+      // Re-link it
+      cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked.filter(u => u !== ei);
+    } else {
+      // Unlink it
+      unlinked.push(ei);
+      cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked;
+    }
+    debouncedSave(); renderAndStay(di); return;
+  }
+
   if (existing) {
     saveSupersets(currentCycle, dayId, supersets.filter(ss => ss !== existing));
     supersetSelectingDi = null; supersetSelectingEi = null; supersetSelectingIsBonus = false;
@@ -537,11 +611,34 @@ function moveExercise(dayId, di, ei, direction) {
 }
 
 function moveBonusExercise(dayId, di, bi, direction) {
-  const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
+  // bi is index in the full getBonusExercises array (includes carried)
+  // We need to reorder within the actual saved bonus array
+  const allBonus = getBonusExercises(currentCycle, dayId);
   const newBi = bi + direction;
-  if (newBi < 0 || newBi >= bonus.length) return;
-  const [moved] = bonus.splice(bi, 1); bonus.splice(newBi, 0, moved);
-  ensureDay(currentCycle, dayId); cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus;
+  if (newBi < 0 || newBi >= allBonus.length) return;
+
+  // Get the names at both positions and reorder in the saved array
+  const srcName = allBonus[bi].name;
+  const tgtName = allBonus[newBi].name;
+
+  // Work on saved bonus array
+  ensureDay(currentCycle, dayId);
+  const saved = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
+
+  // Also handle carried exercises — add them to saved if not there
+  allBonus.forEach(bex => {
+    if (!saved.find(b => b.name === bex.name)) {
+      saved.push({ name: bex.name, sets: ['','','',''] });
+    }
+  });
+
+  const srcIdx = saved.findIndex(b => b.name === srcName);
+  const tgtIdx = saved.findIndex(b => b.name === tgtName);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  const [moved] = saved.splice(srcIdx, 1);
+  saved.splice(tgtIdx, 0, moved);
+  cloudData.cycles[`c${currentCycle}`][dayId].bonus = saved;
   debouncedSave(); renderAndStay(di);
 }
 
@@ -633,13 +730,31 @@ function buildDay(day, di) {
   let bodyHtml = '';
 
   if (day.supersets) {
-    // Build superset groups
+    // Build superset groups in order, with group-level reorder buttons
+    // First build a flat index map so exercise indices stay consistent
+    const flatExMap = [];
+    day.supersets.forEach(ss => ss.exercises.forEach(ex => flatExMap.push(ex)));
+    if (day.finisher) day.finisher.forEach(ex => flatExMap.push(ex));
+
+    const orderedSS = getOrderedSupersets(day);
     let ei = 0;
-    day.supersets.forEach(ss => {
-      bodyHtml += `<div class="superset-group"><div class="superset-label">◈ ${ss.label}</div>`;
-      ss.exercises.forEach(ex => {
-        bodyHtml += buildExerciseRow(di, ei, ex, day.id, unit, true);
-        ei++;
+    // We need stable ei indices — build a lookup from ss origIdx to start ei
+    const ssStartEi = {};
+    let runningEi = 0;
+    day.supersets.forEach((ss, origIdx) => { ssStartEi[origIdx] = runningEi; runningEi += ss.exercises.length; });
+
+    orderedSS.forEach(({ ss, origIdx }) => {
+      const startEi = ssStartEi[origIdx];
+      bodyHtml += `<div class="superset-group">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <div class="superset-label" style="margin-bottom:0;">◈ ${ss.label}</div>
+          <div style="display:flex;gap:4px;">
+            <button class="reorder-btn" onclick="moveSupersetGroup('${day.id}',${di},${origIdx},-1)" style="font-size:11px;padding:2px 8px;border:1px solid var(--muted);border-radius:2px;">▲</button>
+            <button class="reorder-btn" onclick="moveSupersetGroup('${day.id}',${di},${origIdx},1)" style="font-size:11px;padding:2px 8px;border:1px solid var(--muted);border-radius:2px;">▼</button>
+          </div>
+        </div>`;
+      ss.exercises.forEach((ex, localIdx) => {
+        bodyHtml += buildExerciseRow(di, startEi + localIdx, ex, day.id, unit, true);
       });
       bodyHtml += `</div>`;
     });
