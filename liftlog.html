@@ -217,7 +217,7 @@ const PROGRAM = [
     id:'day3', label:"DAY 3", sub:"SHOULDERS + LEGS", type:'shoulders',
     exercises:[
       {name:"Arnold Press", tier:"S", reps:"8–10"},
-      {name:"Cable Front Raise", tier:"S", reps:"12–15"},
+      {name:"Machine Shoulder Press", tier:"A+", reps:"8–10"},
       {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
       {name:"Cable Upright Row", tier:"S", reps:"12–15"},
       {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
@@ -275,7 +275,7 @@ const PROGRAM = [
     id:'day6', label:"DAY 6", sub:"SHOULDERS + LEGS (GLUTE)", type:'shoulders-legs',
     exercises:[
       {name:"Arnold Press", tier:"S", reps:"8–10"},
-      {name:"Cable Front Raise", tier:"S", reps:"12–15"},
+      {name:"Machine Shoulder Press", tier:"A+", reps:"8–10"},
       {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
       {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
       {name:"Cable Upright Row", tier:"S", reps:"12–15"},
@@ -554,8 +554,8 @@ function isSuperpaired(dayId, ei, isBonus) {
   if (getSupersets(currentCycle, dayId).some(ss => ss.includes(key))) return true;
   // Also treat program-defined superset members as paired (unless explicitly unlinked)
   if (!isBonus) {
-    const unlinked = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || [];
-    if (unlinked.includes(ei)) return false;
+    const unlinked = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
+    if (unlinked.includes(Number(ei))) return false;
     return isProgramSuperset(dayId, ei);
   }
   return false;
@@ -574,7 +574,7 @@ function toggleLink(dayId, di, ei, isBonus) {
       cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked.filter(u => u !== ei);
     } else {
       // Unlink it
-      unlinked.push(ei);
+      unlinked.push(Number(ei));
       cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked;
     }
     debouncedSave(); renderAndStay(di); return;
@@ -702,14 +702,15 @@ function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
   const linkBtnClass = paired ? 'link-btn linked' : 'link-btn';
   const rowClass = (isSupersetMember || paired) ? 'exercise-row superset-row' : 'exercise-row';
   const badge = (isSupersetMember || paired) ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
+  const reorderBtns = isSupersetMember ? '' : `<div class="reorder-btns">
+    <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},-1)">▲</button>
+    <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},1)">▼</button>
+  </div>`;
   return `
     <div class="${rowClass}" id="exrow_${di}_${ei}">
       <div class="exercise-top">
         <div class="exercise-name-wrap">
-          <div class="reorder-btns">
-            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},-1)">▲</button>
-            <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},1)">▼</button>
-          </div>
+          ${reorderBtns}
           ${badge}
           <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
           <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
@@ -749,8 +750,8 @@ function buildDay(day, di) {
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
           <div class="superset-label" style="margin-bottom:0;">◈ ${ss.label}</div>
           <div style="display:flex;gap:4px;">
-            <button class="reorder-btn" onclick="moveSupersetGroup('${day.id}',${di},${origIdx},-1)" style="font-size:11px;padding:2px 8px;border:1px solid var(--muted);border-radius:2px;">▲</button>
-            <button class="reorder-btn" onclick="moveSupersetGroup('${day.id}',${di},${origIdx},1)" style="font-size:11px;padding:2px 8px;border:1px solid var(--muted);border-radius:2px;">▼</button>
+            <button onclick="moveSupersetGroup('${day.id}',${di},${origIdx},-1)" style="background:var(--surface2);border:1px solid var(--purple);color:var(--purple);font-size:11px;padding:3px 10px;cursor:pointer;border-radius:2px;font-family:'DM Mono',monospace;">▲</button>
+            <button onclick="moveSupersetGroup('${day.id}',${di},${origIdx},1)" style="background:var(--surface2);border:1px solid var(--purple);color:var(--purple);font-size:11px;padding:3px 10px;cursor:pointer;border-radius:2px;font-family:'DM Mono',monospace;">▼</button>
           </div>
         </div>`;
       ss.exercises.forEach((ex, localIdx) => {
