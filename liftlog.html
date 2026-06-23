@@ -548,15 +548,33 @@ function isProgramSuperset(dayId, ei) {
   return false;
 }
 
+function getProgramPartnerIndices(dayId, ei) {
+  // Returns the other exercise indices in the same program-defined superset group as ei
+  const day = PROGRAM.find(d => d.id === dayId);
+  if (!day || !day.supersets) return [];
+  let runningEi = 0;
+  for (const ss of day.supersets) {
+    const start = runningEi;
+    const indices = ss.exercises.map((_, i) => start + i);
+    runningEi += ss.exercises.length;
+    if (indices.includes(Number(ei))) return indices.filter(i => i !== Number(ei));
+  }
+  return [];
+}
+
 function isSuperpaired(dayId, ei, isBonus) {
   const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
   // Check user-defined supersets in cloudData
   if (getSupersets(currentCycle, dayId).some(ss => ss.includes(key))) return true;
-  // Also treat program-defined superset members as paired (unless explicitly unlinked)
+  // Also treat program-defined superset members as paired (unless explicitly unlinked,
+  // or unless its partner(s) have all been unlinked, leaving it a lone survivor)
   if (!isBonus) {
     const unlinked = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
     if (unlinked.includes(Number(ei))) return false;
-    return isProgramSuperset(dayId, ei);
+    if (!isProgramSuperset(dayId, ei)) return false;
+    const partners = getProgramPartnerIndices(dayId, ei);
+    const anyPartnerStillLinked = partners.some(p => !unlinked.includes(p));
+    return anyPartnerStillLinked;
   }
   return false;
 }
@@ -565,20 +583,21 @@ function toggleLink(dayId, di, ei, isBonus) {
   const supersets = getSupersets(currentCycle, dayId);
   const existing = supersets.find(ss => ss.includes(key));
 
-  // If it's a program superset member and not yet in user supersets, unlink it
-  if (!isBonus && !existing && isProgramSuperset(dayId, ei)) {
+  // Is this exercise CURRENTLY displayed as actively paired (button shows UNLINK)?
+  const currentlyPaired = !isBonus && isSuperpaired(dayId, ei, false);
+
+  // If it's a program superset member that's currently shown as paired, unlink it
+  if (!isBonus && !existing && isProgramSuperset(dayId, ei) && currentlyPaired) {
     ensureDay(currentCycle, dayId);
     const unlinked = cloudData.cycles[`c${currentCycle}`][dayId].unlinked || [];
-    if (unlinked.includes(ei)) {
-      // Re-link it
-      cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked.filter(u => u !== ei);
-    } else {
-      // Unlink it
-      unlinked.push(Number(ei));
-      cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked;
-    }
+    unlinked.push(Number(ei));
+    cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked;
     debouncedSave(); renderAndStay(di); return;
   }
+
+  // If this was previously unlinked (lone survivor or fully broken pair) and the
+  // button shows LINK, fall through to normal pairing-selection flow below instead
+  // of re-triggering the unlink branch.
 
   if (existing) {
     saveSupersets(currentCycle, dayId, supersets.filter(ss => ss !== existing));
@@ -694,6 +713,125 @@ function buildInputRow(di, ei, unit) {
   return `${prevRow}<div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>`;
 }
 
+// Unified tail (finisher + bonus) ordering
+function getTailOrder(dayId) {
+  const k = `tailorder_${dayId}`;
+  const s = cloudData?.nameOverrides?.[k];
+  return s ? JSON.parse(s) : null;
+}
+
+function saveTailOrder(dayId, order) {
+  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+  cloudData.nameOverrides[`tailorder_${dayId}`] = JSON.stringify(order);
+  debouncedSave();
+}
+
+function moveTailItem(dayId, di, tailPos, direction) {
+  const day = PROGRAM[di];
+  const finisherItems = (day.finisher || []).map((ex, i) => ({ type: 'finisher', idx: i }));
+  const bonus = getBonusExercises(currentCycle, dayId);
+  const bonusItems = bonus.map((bex, i) => ({ type: 'bonus', name: bex.name, idx: i }));
+  let tailItems = [...finisherItems, ...bonusItems];
+
+  const keyFor = (item) => item.type === 'finisher' ? `fin_${item.idx}` : `bon_${item.name}`;
+  let order = getTailOrder(dayId);
+  if (!order) order = tailItems.map(keyFor);
+
+  const pos = order.indexOf(keyFor(tailItems[tailPos]));
+  if (pos === -1) return;
+  const newPos = pos + direction;
+  if (newPos < 0 || newPos >= order.length) return;
+  order.splice(pos, 1); order.splice(newPos, 0, keyFor(tailItems[tailPos]));
+  saveTailOrder(dayId, order);
+  renderAndStay(di);
+}
+
+function buildExerciseRowWithTailControls(di, ei, ex, dayId, unit, isSupersetMember, tailPos, tailLen) {
+  const customName = getExName(dayId, ei);
+  const displayName = customName || ex.name;
+  const paired = isSuperpaired(dayId, ei, false);
+  const linkBtnLabel = paired ? 'UNLINK' : 'LINK';
+  const linkBtnClass = paired ? 'link-btn linked' : 'link-btn';
+  const rowClass = (isSupersetMember || paired) ? 'exercise-row superset-row' : 'exercise-row';
+  const badge = (isSupersetMember || paired) ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
+  return `
+    <div class="${rowClass}" id="exrow_${di}_${ei}">
+      <div class="exercise-top">
+        <div class="exercise-name-wrap">
+          <div class="reorder-btns">
+            <button class="reorder-btn" onclick="moveTailItem('${dayId}',${di},${tailPos},-1)">▲</button>
+            <button class="reorder-btn" onclick="moveTailItem('${dayId}',${di},${tailPos},1)">▼</button>
+          </div>
+          ${badge}
+          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
+          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
+          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
+          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="${linkBtnClass}" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">${linkBtnLabel}</button>
+          <div class="exercise-meta">${ex.reps}</div>
+        </div>
+      </div>
+      ${buildInputRow(di, ei, unit)}
+    </div>`;
+}
+
+// Unlinked exercise ordering (exercises pulled out of their program superset group)
+function getUnlinkedOrder(dayId) {
+  const k = `unlinkedorder_${dayId}`;
+  const s = cloudData?.nameOverrides?.[k];
+  return s ? JSON.parse(s) : null;
+}
+
+function saveUnlinkedOrder(dayId, order) {
+  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
+  cloudData.nameOverrides[`unlinkedorder_${dayId}`] = JSON.stringify(order);
+  debouncedSave();
+}
+
+function moveUnlinkedExercise(dayId, di, ei, direction) {
+  const unlinkedSet = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
+  let order = getUnlinkedOrder(dayId) || unlinkedSet.slice();
+  // Make sure order only contains currently-unlinked items, preserving relative order
+  order = order.filter(e => unlinkedSet.includes(e));
+  unlinkedSet.forEach(e => { if (!order.includes(e)) order.push(e); });
+
+  const pos = order.indexOf(Number(ei));
+  if (pos === -1) return;
+  const newPos = pos + direction;
+  if (newPos < 0 || newPos >= order.length) return;
+  order.splice(pos, 1); order.splice(newPos, 0, Number(ei));
+  saveUnlinkedOrder(dayId, order);
+  renderAndStay(di);
+}
+
+function buildExerciseRowUnlinked(di, ei, ex, dayId, unit, pos, len) {
+  const customName = getExName(dayId, ei);
+  const displayName = customName || ex.name;
+  return `
+    <div class="exercise-row" id="exrow_${di}_${ei}">
+      <div class="exercise-top">
+        <div class="exercise-name-wrap">
+          <div class="reorder-btns">
+            <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},-1)">▲</button>
+            <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},1)">▼</button>
+          </div>
+          ${tierBadge(ex.tier)}
+          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
+          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
+          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
+          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="link-btn" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">LINK</button>
+          <div class="exercise-meta">${ex.reps}</div>
+        </div>
+      </div>
+      ${buildInputRow(di, ei, unit)}
+    </div>`;
+}
+
 function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
   const customName = getExName(dayId, ei);
   const displayName = customName || ex.name;
@@ -732,11 +870,6 @@ function buildDay(day, di) {
 
   if (day.supersets) {
     // Build superset groups in order, with group-level reorder buttons
-    // First build a flat index map so exercise indices stay consistent
-    const flatExMap = [];
-    day.supersets.forEach(ss => ss.exercises.forEach(ex => flatExMap.push(ex)));
-    if (day.finisher) day.finisher.forEach(ex => flatExMap.push(ex));
-
     const orderedSS = getOrderedSupersets(day);
     let ei = 0;
     // We need stable ei indices — build a lookup from ss origIdx to start ei
@@ -744,8 +877,29 @@ function buildDay(day, di) {
     let runningEi = 0;
     day.supersets.forEach((ss, origIdx) => { ssStartEi[origIdx] = runningEi; runningEi += ss.exercises.length; });
 
+    const unlinkedSet = (cloudData?.cycles?.[`c${currentCycle}`]?.[day.id]?.unlinked || []).map(Number);
+    const unlinkedExercises = []; // collect {ex, ei} for exercises pulled out of their group
+
     orderedSS.forEach(({ ss, origIdx }) => {
       const startEi = ssStartEi[origIdx];
+      // Split this group's exercises into still-linked vs unlinked
+      const linkedMembers = [];
+      ss.exercises.forEach((ex, localIdx) => {
+        const ei2 = startEi + localIdx;
+        if (unlinkedSet.includes(ei2)) {
+          unlinkedExercises.push({ ex, ei: ei2 });
+        } else {
+          linkedMembers.push({ ex, ei: ei2 });
+        }
+      });
+
+      // If only one member remains linked (its partner was unlinked), treat the lone
+      // survivor as standalone too — a "superset" of one doesn't make sense.
+      if (linkedMembers.length <= 1) {
+        if (linkedMembers.length === 1) unlinkedExercises.push(linkedMembers[0]);
+        return;
+      }
+
       bodyHtml += `<div class="superset-group">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
           <div class="superset-label" style="margin-bottom:0;">◈ ${ss.label}</div>
@@ -754,19 +908,23 @@ function buildDay(day, di) {
             <button onclick="moveSupersetGroup('${day.id}',${di},${origIdx},1)" style="background:var(--surface2);border:1px solid var(--purple);color:var(--purple);font-size:11px;padding:3px 10px;cursor:pointer;border-radius:2px;font-family:'DM Mono',monospace;">▼</button>
           </div>
         </div>`;
-      ss.exercises.forEach((ex, localIdx) => {
-        bodyHtml += buildExerciseRow(di, startEi + localIdx, ex, day.id, unit, true);
+      linkedMembers.forEach(({ ex, ei: ei2 }) => {
+        bodyHtml += buildExerciseRow(di, ei2, ex, day.id, unit, true);
       });
       bodyHtml += `</div>`;
     });
-    // Finisher
-    if (day.finisher) {
-      bodyHtml += `<div class="finisher-section"><div class="finisher-label">◈ FINISHER</div>`;
-      day.finisher.forEach(ex => {
-        bodyHtml += buildExerciseRow(di, ei, ex, day.id, unit, false);
-        ei++;
+
+    // Render unlinked exercises as standalone, independently reorderable rows
+    if (unlinkedExercises.length > 0) {
+      const order = getUnlinkedOrder(day.id) || unlinkedExercises.map(u => u.ei);
+      const sortedUnlinked = order
+        .filter(ei2 => unlinkedExercises.some(u => u.ei === ei2))
+        .map(ei2 => unlinkedExercises.find(u => u.ei === ei2));
+      unlinkedExercises.forEach(u => { if (!order.includes(u.ei)) sortedUnlinked.push(u); });
+
+      sortedUnlinked.forEach(({ ex, ei: ei2 }, pos) => {
+        bodyHtml += buildExerciseRowUnlinked(di, ei2, ex, day.id, unit, pos, sortedUnlinked.length);
       });
-      bodyHtml += `</div>`;
     }
   } else {
     // Regular day
@@ -776,9 +934,35 @@ function buildDay(day, di) {
     });
   }
 
-  // Bonus exercises
+  // Unified tail section: finisher items + bonus exercises, all reorderable together
+  const finisherItems = (day.finisher || []).map((ex, i) => ({ type: 'finisher', ex, idx: i }));
   const bonus = getBonusExercises(currentCycle, day.id);
-  bonus.forEach((bex, bi) => {
+  const bonusItems = bonus.map((bex, i) => ({ type: 'bonus', bex, idx: i }));
+  let tailItems = [...finisherItems, ...bonusItems];
+
+  // Apply saved tail order if exists
+  const tailOrder = getTailOrder(day.id);
+  if (tailOrder) {
+    const keyFor = (item) => item.type === 'finisher' ? `fin_${item.idx}` : `bon_${item.bex.name}`;
+    const itemMap = {};
+    tailItems.forEach(item => { itemMap[keyFor(item)] = item; });
+    const ordered = [];
+    tailOrder.forEach(key => { if (itemMap[key]) { ordered.push(itemMap[key]); delete itemMap[key]; } });
+    Object.values(itemMap).forEach(item => ordered.push(item));
+    tailItems = ordered;
+  }
+
+  let finisherHeaderShown = false;
+  tailItems.forEach((item, tailPos) => {
+    if (item.type === 'finisher') {
+      if (!finisherHeaderShown) { bodyHtml += `<div class="finisher-section"><div class="finisher-label">◈ FINISHER</div>`; finisherHeaderShown = true; }
+      const ex = item.ex; const ei2 = item.idx;
+      bodyHtml += buildExerciseRowWithTailControls(di, ei2, ex, day.id, unit, false, tailPos, tailItems.length, day.id);
+      return;
+    }
+    if (finisherHeaderShown) { bodyHtml += `</div>`; finisherHeaderShown = false; }
+
+    const bex = item.bex; const bi = item.idx;
     const isCarried = !!bex.carried;
     const bonusPaired = isSuperpaired(day.id, bi, true);
     const bonusRowClass = bonusPaired ? 'exercise-row bonus superset-row' : 'exercise-row bonus';
@@ -792,8 +976,8 @@ function buildDay(day, di) {
         <div class="exercise-top">
           <div class="exercise-name-wrap">
             <div class="reorder-btns">
-              <button class="reorder-btn" onclick="moveBonusExercise('${day.id}',${di},${bi},-1)">▲</button>
-              <button class="reorder-btn" onclick="moveBonusExercise('${day.id}',${di},${bi},1)">▼</button>
+              <button class="reorder-btn" onclick="moveTailItem('${day.id}',${di},${tailPos},-1)">▲</button>
+              <button class="reorder-btn" onclick="moveTailItem('${day.id}',${di},${tailPos},1)">▼</button>
             </div>
             ${bonusPaired ? '<span class="superset-badge">SS</span>' : '<span class="tier-badge tier-a">+</span>'}
             <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
