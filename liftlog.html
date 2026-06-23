@@ -790,12 +790,31 @@ function saveUnlinkedOrder(dayId, order) {
   debouncedSave();
 }
 
-function moveUnlinkedExercise(dayId, di, ei, direction) {
+function getStandaloneIndices(dayId) {
+  // Computes the full set of exercise indices currently rendered as standalone —
+  // this includes explicitly-unlinked exercises AND "lone survivors" (exercises
+  // whose program-superset partner was unlinked, leaving them solo).
+  const day = PROGRAM.find(d => d.id === dayId);
+  if (!day || !day.supersets) return [];
   const unlinkedSet = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
-  let order = getUnlinkedOrder(dayId) || unlinkedSet.slice();
-  // Make sure order only contains currently-unlinked items, preserving relative order
-  order = order.filter(e => unlinkedSet.includes(e));
-  unlinkedSet.forEach(e => { if (!order.includes(e)) order.push(e); });
+  const standalone = new Set(unlinkedSet);
+
+  let runningEi = 0;
+  day.supersets.forEach(ss => {
+    const indices = ss.exercises.map((_, i) => runningEi + i);
+    runningEi += ss.exercises.length;
+    const stillLinked = indices.filter(i => !unlinkedSet.includes(i));
+    if (stillLinked.length === 1) standalone.add(stillLinked[0]);
+  });
+  return Array.from(standalone);
+}
+
+function moveUnlinkedExercise(dayId, di, ei, direction) {
+  const standaloneSet = getStandaloneIndices(dayId);
+  let order = getUnlinkedOrder(dayId) || standaloneSet.slice();
+  // Keep only currently-standalone items in the order, preserving relative order
+  order = order.filter(e => standaloneSet.includes(e));
+  standaloneSet.forEach(e => { if (!order.includes(e)) order.push(e); });
 
   const pos = order.indexOf(Number(ei));
   if (pos === -1) return;
@@ -809,15 +828,18 @@ function moveUnlinkedExercise(dayId, di, ei, direction) {
 function buildExerciseRowUnlinked(di, ei, ex, dayId, unit, pos, len) {
   const customName = getExName(dayId, ei);
   const displayName = customName || ex.name;
+  const isCustomPaired = getSupersets(currentCycle, dayId).some(ss => ss.includes(`ex_${ei}`));
+  const rowClass = isCustomPaired ? 'exercise-row superset-row' : 'exercise-row';
+  const badge = isCustomPaired ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
   return `
-    <div class="exercise-row" id="exrow_${di}_${ei}">
+    <div class="${rowClass}" id="exrow_${di}_${ei}">
       <div class="exercise-top">
         <div class="exercise-name-wrap">
           <div class="reorder-btns">
             <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},-1)">▲</button>
             <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},1)">▼</button>
           </div>
-          ${tierBadge(ex.tier)}
+          ${badge}
           <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
           <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
           <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
@@ -914,7 +936,9 @@ function buildDay(day, di) {
       bodyHtml += `</div>`;
     });
 
-    // Render unlinked exercises as standalone, independently reorderable rows
+    // Render unlinked exercises as standalone, independently reorderable rows.
+    // Any that are now custom-paired with each other get visually grouped together
+    // in a purple box, same as program supersets — but still independently movable.
     if (unlinkedExercises.length > 0) {
       const order = getUnlinkedOrder(day.id) || unlinkedExercises.map(u => u.ei);
       const sortedUnlinked = order
@@ -922,7 +946,30 @@ function buildDay(day, di) {
         .map(ei2 => unlinkedExercises.find(u => u.ei === ei2));
       unlinkedExercises.forEach(u => { if (!order.includes(u.ei)) sortedUnlinked.push(u); });
 
+      const customSupersets = getSupersets(currentCycle, day.id);
+      const renderedKeys = new Set();
+
       sortedUnlinked.forEach(({ ex, ei: ei2 }, pos) => {
+        const key = `ex_${ei2}`;
+        if (renderedKeys.has(key)) return; // already rendered as part of a pair below
+
+        const pairGroup = customSupersets.find(ss => ss.includes(key));
+        if (pairGroup) {
+          // Find the partner's entry in sortedUnlinked (it must also be standalone to pair visually)
+          const partnerKey = pairGroup.find(k => k !== key);
+          const partnerEi = partnerKey && partnerKey.startsWith('ex_') ? Number(partnerKey.replace('ex_','')) : null;
+          const partnerEntry = partnerEi !== null ? sortedUnlinked.find(u => u.ei === partnerEi) : null;
+
+          if (partnerEntry) {
+            renderedKeys.add(key); renderedKeys.add(partnerKey);
+            bodyHtml += `<div class="superset-group"><div class="superset-label">◈ CUSTOM PAIR</div>`;
+            bodyHtml += buildExerciseRowUnlinked(di, ei2, ex, day.id, unit, pos, sortedUnlinked.length);
+            bodyHtml += buildExerciseRowUnlinked(di, partnerEntry.ei, partnerEntry.ex, day.id, unit, pos, sortedUnlinked.length);
+            bodyHtml += `</div>`;
+            return;
+          }
+        }
+
         bodyHtml += buildExerciseRowUnlinked(di, ei2, ex, day.id, unit, pos, sortedUnlinked.length);
       });
     }
