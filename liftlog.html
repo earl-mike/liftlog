@@ -6,133 +6,179 @@
 <title>LiftLog</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a;
-    --border: #222222; --accent: #c8ff00; --accent2: #ff6b35;
-    --blue: #4fc3f7; --purple: #b388ff; --green: #69f0ae;
-    --text: #f0f0f0; --muted: #555555; --muted2: #888888;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 20px; }
-  header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 2px; line-height: 1; color: var(--accent); }
-  .logo span { color: var(--text); }
-  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-  .cycle-nav { display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted2); }
-  .cycle-nav button { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .cycle-nav button:hover { border-color: var(--accent); color: var(--accent); }
-  .sync-row { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
-  .sync-dot.syncing { background: var(--accent2); animation: pulse 0.8s infinite; }
-  .sync-dot.synced { background: var(--accent); }
-  .sync-dot.error { background: var(--accent2); }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-  .tabs { display: flex; gap: 2px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; }
-  .tab { background: var(--surface); border: 1px solid var(--border); color: var(--muted2); padding: 8px 12px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; transition: all 0.15s; }
-  .tab:hover { color: var(--text); border-color: var(--muted); }
-  .tab.active { color: #000; font-weight: 500; }
-  .tab.chest.active { background: var(--accent2); border-color: var(--accent2); }
-  .tab.back.active { background: var(--blue); border-color: var(--blue); }
-  .tab.shoulders.active { background: var(--purple); border-color: var(--purple); color: #fff; }
-  .tab.chest-back.active { background: var(--accent); border-color: var(--accent); }
-  .tab.arms.active { background: var(--green); border-color: var(--green); }
-  .tab.shoulders-legs.active { background: var(--purple); border-color: var(--purple); color: #fff; }
-  .tab.recap.active { background: var(--muted2); border-color: var(--muted2); }
-  .day-panel { display: none; }
-  .day-panel.active { display: block; }
-  .day-header { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 4px; color: var(--muted2); }
-  .day-header span { color: var(--text); }
-  .day-subheader { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 1px; margin-bottom: 16px; }
-  .superset-group { border-left: 2px solid var(--purple); padding-left: 10px; margin-bottom: 8px; }
-  .superset-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--purple); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
-  .tier-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 1px 5px; border-radius: 2px; flex-shrink: 0; font-weight: 500; }
-  .tier-sp { background: #ff6b3522; color: var(--accent2); border: 1px solid var(--accent2); }
-  .tier-s { background: #c8ff0015; color: var(--accent); border: 1px solid #c8ff0044; }
-  .tier-a { background: #4fc3f715; color: var(--blue); border: 1px solid #4fc3f744; }
-  .superset-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 1px 6px; background: #b388ff22; color: var(--purple); border: 1px solid var(--purple); border-radius: 2px; flex-shrink: 0; }
-  .exercise-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-  .exercise-row { background: var(--surface); border: 1px solid var(--border); transition: border-color 0.15s; padding: 10px 14px; }
-  .exercise-row.logged { border-color: var(--accent); }
-  .exercise-row.bonus { border-color: var(--blue); border-style: dashed; }
-  .exercise-row.bonus.logged { border-color: var(--accent); border-style: solid; }
-  .exercise-row.superset-row { border-color: var(--purple); }
-  .exercise-row.superset-row.logged { border-color: var(--accent); }
-  .exercise-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
-  .exercise-name-wrap { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
-  .exercise-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .exercise-name.custom { color: var(--accent); }
-  .exercise-name.bonus-name { color: var(--blue); }
-  .reorder-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; margin-right: 4px; }
-  .reorder-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 10px; padding: 1px 4px; line-height: 1; transition: color 0.15s; }
-  .reorder-btn:hover { color: var(--accent); }
-  .edit-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 4px; flex-shrink: 0; transition: color 0.15s; }
-  .edit-btn:hover { color: var(--accent); }
-  .delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 4px; flex-shrink: 0; transition: color 0.15s; }
-  .delete-btn:hover { color: var(--accent2); }
-  .link-btn { background: none; border: 1px solid var(--muted); color: var(--muted); cursor: pointer; font-size: 9px; padding: 2px 5px; flex-shrink: 0; transition: all 0.15s; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; border-radius: 2px; }
-  .link-btn:hover { border-color: var(--purple); color: var(--purple); }
-  .link-btn.selecting { border-color: var(--accent); color: var(--accent); animation: pulse 0.8s infinite; }
-  .link-btn.linked { border-color: var(--purple); color: var(--purple); background: #b388ff22; }
-  .name-edit-input { background: var(--surface2); border: 1px solid var(--accent); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 3px 8px; flex: 1; min-width: 0; display: none; }
-  .name-edit-input:focus { outline: none; }
-  .name-confirm-btn { background: var(--accent); border: none; color: #000; font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 8px; cursor: pointer; flex-shrink: 0; display: none; }
-  .exercise-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); flex-shrink: 0; }
-  .prev-weights { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.3px; }
-  .sets-row { display: flex; gap: 6px; align-items: center; }
-  .set-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
-  .set-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.5px; }
-  .set-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; width: 100%; padding: 6px 4px; text-align: center; transition: border-color 0.15s; -moz-appearance: textfield; }
-  .set-input::-webkit-outer-spin-button, .set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .set-input:focus { outline: none; border-color: var(--accent); }
-  .set-input.has-value { border-color: var(--accent); color: var(--accent); }
-  .unit { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); flex-shrink: 0; }
-  .progress-bar-wrap { height: 3px; background: var(--border); margin-bottom: 6px; }
-  .progress-bar { height: 100%; background: var(--accent); transition: width 0.3s; }
-  .logged-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted2); margin-bottom: 10px; }
-  .add-exercise-btn { width: 100%; background: transparent; border: 1px dashed var(--muted); color: var(--muted2); padding: 10px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-bottom: 14px; }
-  .add-exercise-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .notes-area { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; width: 100%; padding: 12px; resize: vertical; min-height: 70px; margin-bottom: 12px; }
-  .notes-area:focus { outline: none; border-color: var(--accent); }
-  .notes-area::placeholder { color: var(--muted); }
-  .autosave-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
-  .btn { padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; border: none; }
-  .btn-outline { background: transparent; border: 1px solid var(--muted); color: var(--muted2); }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-outline:disabled { opacity: 0.3; cursor: not-allowed; }
-  .btn-copy { background: var(--blue); color: #000; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
-  .btn-copy:hover { opacity: 0.85; }
-  .flash-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
-  .flash-msg.show { opacity: 1; }
-  .section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .recap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; margin-bottom: 24px; }
-  .recap-card { background: var(--surface); border: 1px solid var(--border); padding: 12px; }
-  .recap-card.bonus-card { border-color: var(--blue); }
-  .recap-card .day-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-  .recap-card .ex-name { font-size: 12px; font-weight: 500; margin-bottom: 6px; line-height: 1.3; }
-  .recap-sets { display: flex; gap: 4px; flex-wrap: wrap; }
-  .recap-set { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); line-height: 1; }
-  .recap-set .rs-unit { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); }
-  .recap-set.empty { color: var(--muted); font-size: 14px; }
-  .export-box { background: var(--surface); border: 1px solid var(--blue); border-left: 3px solid var(--blue); padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .export-box-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
-  .export-box-text strong { color: var(--blue); font-weight: 500; }
-  .ai-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 20px; margin-bottom: 16px; }
-  .ai-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
-  .ai-content { font-size: 13px; line-height: 1.75; color: var(--muted2); }
-  .ai-content p { margin-bottom: 10px; }
-  .ai-content p:last-child { margin-bottom: 0; }
-  .ai-content strong { color: var(--text); font-weight: 500; }
-  .recap-section { margin-bottom: 28px; }
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .loading-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 999; }
-  .load-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 4px; color: var(--accent); }
-  .dot-loader { display: inline-flex; gap: 5px; align-items: center; }
-  .dot-loader span { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: blink 1.2s infinite; }
-  .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
-  .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes blink { 0%,80%,100%{opacity:0.2}40%{opacity:1} }
-  .finisher-section { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
-  .finisher-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); letter-spacing: 2px; margin-bottom: 6px; }
+:root {
+  --bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--border:#222;
+  --accent:#c8ff00;--accent2:#ff6b35;--blue:#4fc3f7;--purple:#b388ff;--green:#69f0ae;
+  --text:#f0f0f0;--muted:#555;--muted2:#888;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* ── HOME SCREEN ── */
+#homeScreen{display:flex;flex-direction:column;min-height:100vh;padding:40px 24px;}
+.home-logo{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:3px;color:var(--accent);margin-bottom:4px;}
+.home-logo span{color:var(--text);}
+.home-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:2px;margin-bottom:48px;}
+.home-section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:14px;}
+.program-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:40px;}
+.program-card{background:var(--surface);border:1px solid var(--border);padding:20px;cursor:pointer;transition:all 0.15s;position:relative;}
+.program-card:hover{border-color:var(--accent);}
+.program-card.main-card{border-left:3px solid var(--accent);}
+.program-card.travel-card{border-left:3px solid var(--blue);}
+.card-emoji{font-size:24px;margin-bottom:10px;}
+.card-name-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;}
+.card-name.main{color:var(--accent);}
+.card-name.travel{color:var(--blue);}
+.card-rename-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 4px;transition:color 0.15s;}
+.card-rename-btn:hover{color:var(--accent);}
+.card-rename-input{background:var(--surface2);border:1px solid var(--accent);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;padding:4px 10px;display:none;width:200px;}
+.card-rename-input:focus{outline:none;}
+.card-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:0.5px;margin-bottom:14px;}
+.card-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+.card-open-btn{display:inline-block;margin-top:14px;background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+.main-card .card-open-btn:hover{border-color:var(--accent);color:var(--accent);}
+.travel-card .card-open-btn:hover{border-color:var(--blue);color:var(--blue);}
+.new-cycle-btn{background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;margin-top:8px;}
+.new-cycle-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ── APP SCREEN ── */
+#appScreen{display:none;padding:20px;}
+header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1;color:var(--accent);}
+.logo span{color:var(--text);}
+.logo.travel-logo{color:var(--blue);}
+.back-btn{background:none;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.cycle-nav{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted2);}
+.cycle-nav button{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.cycle-nav button:hover{border-color:var(--accent);color:var(--accent);}
+.sync-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background 0.3s;}
+.sync-dot.syncing{background:var(--accent2);animation:pulse 0.8s infinite;}
+.sync-dot.synced{background:var(--accent);}
+.sync-dot.error{background:var(--accent2);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.tabs{display:flex;gap:2px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
+.tab{background:var(--surface);border:1px solid var(--border);color:var(--muted2);padding:8px 12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;transition:all 0.15s;}
+.tab:hover{color:var(--text);border-color:var(--muted);}
+.tab.active{color:#000;font-weight:500;}
+.tab.chest.active{background:var(--accent2);border-color:var(--accent2);}
+.tab.back.active{background:var(--blue);border-color:var(--blue);}
+.tab.shoulders.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.tab.chest-back.active{background:var(--accent);border-color:var(--accent);}
+.tab.arms.active{background:var(--green);border-color:var(--green);}
+.tab.shoulders-legs.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.tab.upper.active{background:var(--accent2);border-color:var(--accent2);}
+.tab.lower.active{background:var(--green);border-color:var(--green);}
+.tab.arms-shoulders.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.tab.recap.active{background:var(--muted2);border-color:var(--muted2);}
+.day-panel{display:none;}
+.day-panel.active{display:block;}
+.day-header{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:4px;color:var(--muted2);}
+.day-header span{color:var(--text);}
+.day-subheader{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1px;margin-bottom:16px;}
+.superset-group{border-left:2px solid var(--purple);padding-left:10px;margin-bottom:8px;}
+.superset-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.tier-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:2px;flex-shrink:0;font-weight:500;}
+.tier-sp{background:#ff6b3522;color:var(--accent2);border:1px solid var(--accent2);}
+.tier-s{background:#c8ff0015;color:var(--accent);border:1px solid #c8ff0044;}
+.tier-a{background:#4fc3f715;color:var(--blue);border:1px solid #4fc3f744;}
+.superset-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;background:#b388ff22;color:var(--purple);border:1px solid var(--purple);border-radius:2px;flex-shrink:0;}
+.exercise-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.exercise-row{background:var(--surface);border:1px solid var(--border);transition:border-color 0.15s;padding:10px 14px;}
+.exercise-row.logged{border-color:var(--accent);}
+.exercise-row.bonus{border-color:var(--blue);border-style:dashed;}
+.exercise-row.superset-row{border-color:var(--purple);}
+.exercise-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
+.exercise-name-wrap{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
+.exercise-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exercise-name.custom{color:var(--accent);}
+.exercise-name.bonus-name{color:var(--blue);}
+.reorder-btns{display:flex;flex-direction:column;gap:2px;flex-shrink:0;margin-right:4px;}
+.reorder-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:1px 4px;line-height:1;transition:color 0.15s;}
+.reorder-btn:hover{color:var(--accent);}
+.edit-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 4px;flex-shrink:0;transition:color 0.15s;}
+.edit-btn:hover{color:var(--accent);}
+.delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;flex-shrink:0;transition:color 0.15s;}
+.delete-btn:hover{color:var(--accent2);}
+.link-btn{background:none;border:1px solid var(--muted);color:var(--muted);cursor:pointer;font-size:9px;padding:2px 5px;flex-shrink:0;transition:all 0.15s;font-family:'DM Mono',monospace;letter-spacing:0.5px;border-radius:2px;}
+.link-btn:hover{border-color:var(--purple);color:var(--purple);}
+.link-btn.selecting{border-color:var(--accent);color:var(--accent);animation:pulse 0.8s infinite;}
+.link-btn.linked{border-color:var(--purple);color:var(--purple);background:#b388ff22;}
+.name-edit-input{background:var(--surface2);border:1px solid var(--accent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:3px 8px;flex:1;min-width:0;display:none;}
+.name-edit-input:focus{outline:none;}
+.name-confirm-btn{background:var(--accent);border:none;color:#000;font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;cursor:pointer;flex-shrink:0;display:none;}
+.exercise-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);flex-shrink:0;}
+.prev-weights{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;letter-spacing:0.3px;}
+.sets-row{display:flex;gap:6px;align-items:center;}
+.set-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.set-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;}
+.set-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;width:100%;padding:6px 4px;text-align:center;transition:border-color 0.15s;-moz-appearance:textfield;}
+.set-input::-webkit-outer-spin-button,.set-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.set-input:focus{outline:none;border-color:var(--accent);}
+.set-input.has-value{border-color:var(--accent);color:var(--accent);}
+.unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;}
+.abs-circuit{background:var(--surface);border:1px solid var(--purple);border-left:3px solid var(--purple);padding:14px;margin-bottom:8px;}
+.abs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:2px;margin-bottom:10px;}
+.abs-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.abs-ex{font-size:13px;font-weight:500;}
+.abs-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);}
+.abs-rounds{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);margin-top:8px;letter-spacing:1px;}
+.progress-bar-wrap{height:3px;background:var(--border);margin-bottom:6px;}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s;}
+.logged-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);margin-bottom:10px;}
+.add-exercise-btn{width:100%;background:transparent;border:1px dashed var(--muted);color:var(--muted2);padding:10px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;margin-bottom:14px;}
+.add-exercise-btn:hover{border-color:var(--blue);color:var(--blue);}
+.notes-area{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;padding:12px;resize:vertical;min-height:70px;margin-bottom:12px;}
+.notes-area:focus{outline:none;border-color:var(--accent);}
+.notes-area::placeholder{color:var(--muted);}
+.autosave-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+.finish-btn{background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:24px;}
+.recap-card{background:var(--surface);border:1px solid var(--border);padding:12px;}
+.recap-card .day-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.recap-card .ex-name{font-size:12px;font-weight:500;margin-bottom:6px;line-height:1.3;}
+.recap-sets{display:flex;gap:4px;flex-wrap:wrap;}
+.recap-set{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);line-height:1;}
+.recap-set .rs-unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
+.recap-set.empty{color:var(--muted);font-size:14px;}
+.export-box{background:var(--surface);border:1px solid var(--blue);border-left:3px solid var(--blue);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.export-box-text{font-size:13px;color:var(--muted2);line-height:1.5;}
+.export-box-text strong{color:var(--blue);font-weight:500;}
+.ai-box{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:20px;margin-bottom:16px;}
+.ai-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
+.ai-content{font-size:13px;line-height:1.75;color:var(--muted2);}
+.ai-content p{margin-bottom:10px;}
+.ai-content strong{color:var(--text);font-weight:500;}
+.recap-section{margin-bottom:28px;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.btn{padding:10px 20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:none;}
+.btn-outline{background:transparent;border:1px solid var(--muted);color:var(--muted2);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-outline:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-copy{background:var(--blue);color:#000;font-weight:500;white-space:nowrap;flex-shrink:0;}
+.btn-copy:hover{opacity:0.85;}
+.flash-msg{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);opacity:0;transition:opacity 0.3s;}
+.flash-msg.show{opacity:1;}
+.loading-overlay{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;}
+.load-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;color:var(--accent);}
+.dot-loader{display:inline-flex;gap:5px;align-items:center;}
+.dot-loader span{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite;}
+.dot-loader span:nth-child(2){animation-delay:0.2s;}
+.dot-loader span:nth-child(3){animation-delay:0.4s;}
+@keyframes blink{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:998;padding:24px;}
+.modal{background:var(--surface);border:1px solid var(--border);padding:28px;max-width:400px;width:100%;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--accent2);margin-bottom:12px;}
+.modal-body{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:24px;}
+.modal-body strong{color:var(--text);}
+.modal-actions{display:flex;gap:10px;}
+.modal-cancel{flex:1;background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:11px;padding:10px;cursor:pointer;text-transform:uppercase;}
+.modal-confirm{flex:1;background:var(--accent2);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:11px;padding:10px;cursor:pointer;text-transform:uppercase;font-weight:500;}
 </style>
 </head>
 <body>
@@ -140,1195 +186,872 @@
 <div class="loading-overlay" id="loadingOverlay">
   <div class="load-logo">LIFT<span style="color:#f0f0f0">LOG</span></div>
   <div class="dot-loader"><span></span><span></span><span></span></div>
-  <div style="font-family:'DM Mono',monospace;font-size:11px;color:#555;letter-spacing:1px;margin-top:4px;">SYNCING DATA...</div>
 </div>
 
-<header>
-  <div class="logo">LIFT<span>LOG</span></div>
-  <div class="header-right">
-    <div class="cycle-nav">
-      <button onclick="changeCycle(-1)">&#8249;</button>
-      <span id="cycleLabel">CYCLE 1</span>
-      <button onclick="changeCycle(1)">&#8250;</button>
-    </div>
-    <div class="sync-row">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">LOADING</span>
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">START FRESH CYCLE?</div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">CANCEL</button>
+      <button class="modal-confirm" onclick="confirmNewCycle()">YES, RESET</button>
     </div>
   </div>
-</header>
+</div>
 
-<div class="tabs" id="tabBar"></div>
-<div id="panels"></div>
+<!-- HOME SCREEN -->
+<div id="homeScreen">
+  <div class="home-logo">LIFT<span>LOG</span></div>
+  <div class="home-sub">SELECT YOUR PROGRAM</div>
+
+  <div class="home-section-label">Programs</div>
+  <div class="program-cards">
+
+    <div class="program-card main-card">
+      <div class="card-emoji">🏋️</div>
+      <div class="card-name-wrap">
+        <div class="card-name main" id="mainCardName">LIFTLOG</div>
+        <button class="card-rename-btn" onclick="startRename('main')" title="Rename">✎</button>
+        <input class="card-rename-input" id="mainRenameInput" maxlength="20" onkeydown="if(event.key==='Enter')confirmRename('main')">
+        <button class="name-confirm-btn" id="mainRenameConfirm" onclick="confirmRename('main')">✓</button>
+      </div>
+      <div class="card-desc" id="mainCardDesc">6-DAY SPLIT · CHEST · BACK · SHOULDERS · ARMS · LEGS</div>
+      <div class="card-meta" id="mainCardMeta">Loading...</div>
+      <div class="card-actions">
+        <button class="card-open-btn" onclick="openProgram('main')">▶ OPEN PROGRAM</button>
+        <button class="new-cycle-btn" onclick="promptNewCycle('main')">↺ NEW CYCLE</button>
+      </div>
+    </div>
+
+    <div class="program-card travel-card">
+      <div class="card-emoji">✈️</div>
+      <div class="card-name-wrap">
+        <div class="card-name travel" id="travelCardName">TRAVEL</div>
+        <button class="card-rename-btn" onclick="startRename('travel')" title="Rename">✎</button>
+        <input class="card-rename-input" id="travelRenameInput" maxlength="20" onkeydown="if(event.key==='Enter')confirmRename('travel')">
+        <button class="name-confirm-btn" id="travelRenameConfirm" onclick="confirmRename('travel')">✓</button>
+      </div>
+      <div class="card-desc" id="travelCardDesc">5-DAY SPLIT · UPPER A/B · LOWER A/B · ARMS + SHOULDERS</div>
+      <div class="card-meta" id="travelCardMeta">Loading...</div>
+      <div class="card-actions">
+        <button class="card-open-btn" onclick="openProgram('travel')" style="border-color:var(--blue);color:var(--blue);">▶ OPEN PROGRAM</button>
+        <button class="new-cycle-btn" onclick="promptNewCycle('travel')">↺ NEW CYCLE</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <header>
+    <div>
+      <button class="back-btn" onclick="goHome()">← HOME</button>
+      <div class="logo" id="appLogo" style="margin-top:12px;">LIFT<span>LOG</span></div>
+    </div>
+    <div class="header-right">
+      <div class="cycle-nav">
+        <button onclick="changeCycle(-1)">&#8249;</button>
+        <span id="cycleLabel">CYCLE 1</span>
+        <button onclick="changeCycle(1)">&#8250;</button>
+      </div>
+      <div class="sync-row">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">LOADING</span>
+      </div>
+    </div>
+  </header>
+  <div class="tabs" id="tabBar"></div>
+  <div id="panels"></div>
+</div>
 
 <script>
-const API_KEY = '$2a$10$O7oW0lYtp956/on9QP2vn.QZyrXAPrVj/ubAanzM02gjSdb9Tu2NK';
-const BIN_ID = '69cc5e04aaba882197b1af4d';
+const MAIN_API_KEY = '$2a$10$O7oW0lYtp956/on9QP2vn.QZyrXAPrVj/ubAanzM02gjSdb9Tu2NK';
+const MAIN_BIN_ID = '69cc5e04aaba882197b1af4d';
+const TRAVEL_BIN_ID = '6a5203bef5f4af5e298028d3';
 const NUM_SETS = 4;
 
-let cloudData = { cycles: {}, nameOverrides: {} };
+let activeProgram = null; // 'main' or 'travel'
+let cloudData = {cycles:{},nameOverrides:{}};
 let saveTimer = null;
-
-// Program definition — supersets defined inline
-const PROGRAM = [
-  {
-    id:'day1', label:"DAY 1", sub:"CHEST + TRICEPS", type:'chest',
-    supersets:[
-      { label:"SS1", exercises:[
-        {name:"Incline Barbell Press", tier:"S+", reps:"6–8"},
-        {name:"Dips", tier:"S+", reps:"8–12"},
-      ]},
-      { label:"SS2", exercises:[
-        {name:"Barbell Bench Press", tier:"S+", reps:"6–8"},
-        {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
-      ]},
-      { label:"SS3", exercises:[
-        {name:"Machine Chest Press", tier:"S", reps:"10–12"},
-        {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
-      ]},
-      { label:"SS4", exercises:[
-        {name:"Dumbbell Fly", tier:"S", reps:"12–15"},
-        {name:"Rope Pushdown", tier:"A", reps:"15–20"},
-      ]},
-    ]
-  },
-  {
-    id:'day2', label:"DAY 2", sub:"BACK + BICEPS", type:'back',
-    supersets:[
-      { label:"SS1", exercises:[
-        {name:"Chest Supported Row", tier:"S+", reps:"8–10"},
-        {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-      ]},
-      { label:"SS2", exercises:[
-        {name:"Wide Grip Lat Pulldown", tier:"S", reps:"10–12"},
-        {name:"Preacher Curl", tier:"S", reps:"10–12"},
-      ]},
-      { label:"SS3", exercises:[
-        {name:"Single Arm Lat Pulldown", tier:"S", reps:"10–12"},
-        {name:"Hammer Curl", tier:"S", reps:"12–15"},
-      ]},
-      { label:"SS4", exercises:[
-        {name:"Single Arm Cable Row", tier:"S", reps:"10–12"},
-        {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-      ]},
-    ]
-  },
-  {
-    id:'day3', label:"DAY 3", sub:"SHOULDERS + LEGS", type:'shoulders',
-    exercises:[
-      {name:"Arnold Press", tier:"S", reps:"8–10"},
-      {name:"Machine Shoulder Press", tier:"A+", reps:"8–10"},
-      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
-      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
-      {name:"Front Squat", tier:"S+", reps:"5–8"},
-      {name:"Leg Press (high foot)", tier:"S", reps:"10–12"},
-      {name:"Leg Extension (controlled)", tier:"S", reps:"15–20"},
-    ]
-  },
-  {
-    id:'day4', label:"DAY 4", sub:"CHEST + BACK", type:'chest-back',
-    supersets:[
-      { label:"SS1", exercises:[
-        {name:"Incline Dumbbell Press", tier:"S+", reps:"8–10"},
-        {name:"Meadows Row", tier:"S+", reps:"10–12"},
-      ]},
-      { label:"SS2", exercises:[
-        {name:"Incline Machine Press", tier:"S", reps:"10–12"},
-        {name:"Close Grip Cable Row", tier:"S", reps:"10–12"},
-      ]},
-      { label:"SS3", exercises:[
-        {name:"Cable Pec Fly", tier:"S", reps:"12–15"},
-        {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-      ]},
-      { label:"SS4", exercises:[
-        {name:"Dumbbell Fly", tier:"S", reps:"12–15"},
-        {name:"Cable Y Raise", tier:"A", reps:"15–20"},
-      ]},
-    ],
-    finisher:[
-      {name:"Cable Lateral Raise", tier:"S", reps:"15–20"},
-    ]
-  },
-  {
-    id:'day5', label:"DAY 5", sub:"ARMS BLAST", type:'arms',
-    supersets:[
-      { label:"SS1", exercises:[
-        {name:"Bayesian Cable Curl", tier:"S+", reps:"10–12"},
-        {name:"Overhead Cable Tri Ext", tier:"S", reps:"12–15"},
-      ]},
-      { label:"SS2", exercises:[
-        {name:"Preacher Curl", tier:"S", reps:"10–12"},
-        {name:"EZ-Bar Skullcrusher", tier:"S", reps:"10–12"},
-      ]},
-      { label:"SS3", exercises:[
-        {name:"Hammer Curl", tier:"S", reps:"12–15"},
-        {name:"Rope Pushdown", tier:"A", reps:"15–20"},
-      ]},
-      { label:"SS4", exercises:[
-        {name:"Incline DB Curl", tier:"S", reps:"10–12"},
-        {name:"Single Arm Pushdown", tier:"A", reps:"15–20"},
-      ]},
-    ]
-  },
-  {
-    id:'day6', label:"DAY 6", sub:"SHOULDERS + LEGS (GLUTE)", type:'shoulders-legs',
-    exercises:[
-      {name:"Arnold Press", tier:"S", reps:"8–10"},
-      {name:"Machine Shoulder Press", tier:"A+", reps:"8–10"},
-      {name:"Lean Away Lateral Raise", tier:"S+", reps:"15–20"},
-      {name:"Rear Delt Cable Fly", tier:"S+", reps:"15–20"},
-      {name:"Cable Upright Row", tier:"S", reps:"12–15"},
-      {name:"Single Leg RDL", tier:"S+", reps:"10–12"},
-      {name:"Bulgarian Split Squat", tier:"S", reps:"10–12"},
-      {name:"Leg Extension (controlled)", tier:"A", reps:"15–20"},
-    ]
-  },
-  {id:'recap', label:"RECAP", sub:"", type:'recap', exercises:[]}
-];
-
-// Flatten all exercises for a day (including supersets and finisher)
-function getExercises(day) {
-  if (!day || day.type === 'recap') return [];
-  if (day.supersets) {
-    const main = day.supersets.flatMap(ss => ss.exercises);
-    const fin = day.finisher || [];
-    return [...main, ...fin];
-  }
-  return day.exercises || [];
-}
-
-// Get exercise index offset for finisher items
-function getFinisherStartIdx(day) {
-  if (!day.supersets) return 9999;
-  return day.supersets.flatMap(ss => ss.exercises).length;
-}
-
 let currentCycle = 1;
+let pendingNewCycleProgram = null;
 
-function setSyncStatus(state, label) {
-  document.getElementById('syncDot').className = 'sync-dot ' + state;
-  document.getElementById('syncLabel').textContent = label;
+const PROGRAMS = {
+  main: {
+    version: 'v5',
+    localKey: 'll_backup',
+    versionKey: 'll_version',
+    namesKey: 'll_names',
+    days: [
+      {id:'day1',label:'DAY 1',sub:'CHEST + TRICEPS',type:'chest',
+        supersets:[
+          {label:'SS1',exercises:[{name:'Incline Barbell Press',tier:'S+',reps:'6–8'},{name:'Dips',tier:'S+',reps:'8–12'}]},
+          {label:'SS2',exercises:[{name:'Barbell Bench Press',tier:'S+',reps:'6–8'},{name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'}]},
+          {label:'SS3',exercises:[{name:'Machine Chest Press',tier:'S',reps:'10–12'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'}]},
+          {label:'SS4',exercises:[{name:'Dumbbell Fly',tier:'S',reps:'12–15'},{name:'Rope Pushdown',tier:'A',reps:'15–20'}]},
+        ]},
+      {id:'day2',label:'DAY 2',sub:'BACK + BICEPS',type:'back',
+        supersets:[
+          {label:'SS1',exercises:[{name:'Chest Supported Row',tier:'S+',reps:'8–10'},{name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'}]},
+          {label:'SS2',exercises:[{name:'Wide Grip Lat Pulldown',tier:'S',reps:'10–12'},{name:'Preacher Curl',tier:'S',reps:'10–12'}]},
+          {label:'SS3',exercises:[{name:'Single Arm Lat Pulldown',tier:'S',reps:'10–12'},{name:'Hammer Curl',tier:'S',reps:'12–15'}]},
+          {label:'SS4',exercises:[{name:'Single Arm Cable Row',tier:'S',reps:'10–12'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'}]},
+        ]},
+      {id:'day3',label:'DAY 3',sub:'SHOULDERS + LEGS',type:'shoulders',
+        exercises:[
+          {name:'Arnold Press',tier:'S',reps:'8–10'},{name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},{name:'Cable Upright Row',tier:'S',reps:'12–15'},
+          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},{name:'Front Squat',tier:'S+',reps:'5–8'},
+          {name:'Leg Press (high foot)',tier:'S',reps:'10–12'},{name:'Leg Extension (controlled)',tier:'S',reps:'15–20'},
+        ]},
+      {id:'day4',label:'DAY 4',sub:'CHEST + BACK',type:'chest-back',
+        supersets:[
+          {label:'SS1',exercises:[{name:'Incline Dumbbell Press',tier:'S+',reps:'8–10'},{name:'Meadows Row',tier:'S+',reps:'10–12'}]},
+          {label:'SS2',exercises:[{name:'Incline Machine Press',tier:'S',reps:'10–12'},{name:'Close Grip Cable Row',tier:'S',reps:'10–12'}]},
+          {label:'SS3',exercises:[{name:'Cable Pec Fly',tier:'S',reps:'12–15'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'}]},
+          {label:'SS4',exercises:[{name:'Dumbbell Fly',tier:'S',reps:'12–15'},{name:'Cable Y Raise',tier:'A',reps:'15–20'}]},
+        ]},
+      {id:'day5',label:'DAY 5',sub:'ARMS BLAST',type:'arms',
+        supersets:[
+          {label:'SS1',exercises:[{name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'}]},
+          {label:'SS2',exercises:[{name:'Preacher Curl',tier:'S',reps:'10–12'},{name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'}]},
+          {label:'SS3',exercises:[{name:'Hammer Curl',tier:'S',reps:'12–15'},{name:'Rope Pushdown',tier:'A',reps:'15–20'}]},
+          {label:'SS4',exercises:[{name:'Incline DB Curl',tier:'S',reps:'10–12'},{name:'Single Arm Pushdown',tier:'A',reps:'15–20'}]},
+        ],
+        finisher:[{name:'Dumbbell Lateral Raise',tier:'S',reps:'15–20'},{name:'Cable Lateral Raise',tier:'S',reps:'15–20'}]},
+      {id:'day6',label:'DAY 6',sub:'SHOULDERS + LEGS (GLUTE)',type:'shoulders-legs',
+        exercises:[
+          {name:'Arnold Press',tier:'S',reps:'8–10'},{name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+          {name:'Cable Upright Row',tier:'S',reps:'12–15'},{name:'Single Leg RDL',tier:'S+',reps:'10–12'},
+          {name:'Bulgarian Split Squat',tier:'S',reps:'10–12'},{name:'Leg Extension (controlled)',tier:'A',reps:'15–20'},
+        ]},
+      {id:'recap',label:'RECAP',sub:'',type:'recap',exercises:[]}
+    ]
+  },
+  travel: {
+    version: 'tv1',
+    localKey: 'll_travel_backup',
+    versionKey: 'll_travel_version',
+    namesKey: 'll_travel_names',
+    days: [
+      {id:'t1',label:'UPPER A',sub:'CHEST + BACK',type:'upper',
+        exercises:[
+          {name:'DB Incline Press',tier:'S',reps:'8–10'},{name:'DB Chest Fly',tier:'S',reps:'12–15'},
+          {name:'Single Arm DB Row',tier:'S+',reps:'8–10'},{name:'Cable Lat Pulldown',tier:'S',reps:'10–12'},
+          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+        ]},
+      {id:'t2',label:'LOWER A',sub:'QUAD FOCUS + ABS',type:'lower',
+        exercises:[
+          {name:'DB Bulgarian Split Squat',tier:'S',reps:'10–12'},{name:'DB Romanian Deadlift',tier:'S',reps:'10–12'},
+          {name:'DB Reverse Lunge',tier:'S',reps:'10–12'},{name:'Seated DB Calf Raise',tier:'A',reps:'15–20'},
+        ],
+        absCircuit:{exercises:['Cable Rope Crunch','Hanging Leg Raise'],reps:['15–20','12–15'],rounds:4}},
+      {id:'t3',label:'UPPER B',sub:'SHOULDERS + BACK',type:'upper',
+        exercises:[
+          {name:'DB Arnold Press',tier:'S',reps:'8–10'},{name:'Lean Away DB Lateral Raise',tier:'S+',reps:'15–20'},
+          {name:'Cable Face Pull',tier:'S+',reps:'15–20'},{name:'Chest Supported DB Row',tier:'S+',reps:'8–10'},
+          {name:'Single Arm Cable Row',tier:'S',reps:'10–12'},{name:'Cable Straight Arm Pulldown',tier:'S',reps:'12–15'},
+          {name:'DB Preacher Curl',tier:'S',reps:'10–12'},{name:'DB Skullcrusher',tier:'S',reps:'10–12'},
+        ]},
+      {id:'t4',label:'LOWER B',sub:'GLUTE FOCUS + ABS',type:'lower',
+        exercises:[
+          {name:'DB Hip Thrust (floor)',tier:'S+',reps:'10–12'},{name:'DB Bulgarian Split Squat',tier:'S',reps:'10–12'},
+          {name:'DB Single Leg RDL',tier:'S+',reps:'10–12'},{name:'DB Sumo Squat',tier:'S',reps:'12–15'},
+        ],
+        absCircuit:{exercises:['Cable Rope Crunch','Hanging Leg Raise'],reps:['15–20','12–15'],rounds:4}},
+      {id:'t5',label:'ARMS + SHOULDERS',sub:'DELT + ARMS BLAST',type:'arms-shoulders',
+        exercises:[
+          {name:'DB Arnold Press',tier:'S',reps:'8–10'},{name:'Cable Upright Row',tier:'S',reps:'12–15'},
+          {name:'DB Incline Rear Delt Fly',tier:'S+',reps:'15–20'},{name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
+          {name:'DB Hammer Curl',tier:'S',reps:'12–15'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+          {name:'Cable Pushdown',tier:'A',reps:'15–20'},
+        ]},
+      {id:'trecap',label:'RECAP',sub:'',type:'recap',exercises:[]}
+    ]
+  }
+};
+
+// ── HOME SCREEN ──
+function getApiKey(){return MAIN_API_KEY;}
+function getBinId(prog){return prog==='main'?MAIN_BIN_ID:TRAVEL_BIN_ID;}
+
+function getProgramName(prog){
+  return localStorage.getItem(`ll_name_${prog}`) || (prog==='main'?'LIFTLOG':'TRAVEL');
+}
+function setProgramName(prog,name){localStorage.setItem(`ll_name_${prog}`,name);}
+
+function startRename(prog){
+  const nameEl=document.getElementById(`${prog}CardName`);
+  const inp=document.getElementById(`${prog}RenameInput`);
+  const conf=document.getElementById(`${prog}RenameConfirm`);
+  inp.value=nameEl.textContent;
+  nameEl.style.display='none';
+  inp.style.display='block';
+  conf.style.display='block';
+  inp.focus();inp.select();
+}
+function confirmRename(prog){
+  const nameEl=document.getElementById(`${prog}CardName`);
+  const inp=document.getElementById(`${prog}RenameInput`);
+  const conf=document.getElementById(`${prog}RenameConfirm`);
+  const val=inp.value.trim().toUpperCase();
+  if(val){nameEl.textContent=val;setProgramName(prog,val);}
+  nameEl.style.display='block';
+  inp.style.display='none';
+  conf.style.display='none';
 }
 
-async function loadFromCloud() {
-  const PROGRAM_VERSION = 'v5';
-  const storedVersion = localStorage.getItem('ll_version');
+function promptNewCycle(prog){
+  pendingNewCycleProgram=prog;
+  const name=getProgramName(prog);
+  document.getElementById('modalBody').innerHTML=
+    `This will <strong>wipe all cycle data</strong> for <strong>${name}</strong> and start fresh.<br><br>
+    Your <strong>last logged weights</strong> will be preserved as the starting reference for the new cycle.<br><br>
+    This cannot be undone.`;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function closeModal(){document.getElementById('modalOverlay').style.display='none';pendingNewCycleProgram=null;}
 
-  // If version mismatch — full reset to new program
-  if (storedVersion !== PROGRAM_VERSION) {
-    setSyncStatus('syncing', 'RESETTING...');
-    localStorage.removeItem('ll_backup');
-    cloudData = { cycles: {}, nameOverrides: {} };
-    try {
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-        body: JSON.stringify({ cycles: {}, nameOverrides: {} })
+async function confirmNewCycle(){
+  closeModal();
+  const prog=pendingNewCycleProgram;
+  if(!prog)return;
+  const cfg=PROGRAMS[prog];
+
+  // Load current data to extract last weights
+  let lastData={cycles:{},nameOverrides:{}};
+  try{
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${getBinId(prog)}/latest`,{headers:{'X-Master-Key':MAIN_API_KEY}});
+    const d=await r.json();
+    lastData=d.record||{cycles:{},nameOverrides:{}};
+  }catch(e){}
+
+  // Find highest cycle and extract top sets per exercise as new "last" reference
+  const cycleKeys=Object.keys(lastData.cycles||{});
+  let maxC=0;
+  cycleKeys.forEach(k=>{const n=parseInt(k.replace('c',''));if(n>maxC)maxC=n;});
+
+  // New data: carry nameOverrides but wipe cycles. Store last weights in a special key.
+  const lastWeights={};
+  if(maxC>0){
+    cfg.days.filter(d=>d.type!=='recap').forEach(day=>{
+      const exs=getAllDayItemsForDay(day);
+      exs.forEach((item,ei)=>{
+        const sets=Array.from({length:NUM_SETS},(_,s)=>lastData.cycles?.[`c${maxC}`]?.[day.id]?.[`e${ei}`]?.[s]||'');
+        if(sets.some(v=>v)) lastWeights[`${day.id}_${ei}`]=sets;
       });
-      localStorage.setItem('ll_version', PROGRAM_VERSION);
-      setSyncStatus('synced', 'READY ✓');
-    } catch(e) {
-      setSyncStatus('error', 'RESET FAILED');
+    });
+  }
+
+  const freshData={cycles:{},nameOverrides:lastData.nameOverrides||{},lastWeights};
+  try{
+    await fetch(`https://api.jsonbin.io/v3/b/${getBinId(prog)}`,{
+      method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MAIN_API_KEY},
+      body:JSON.stringify(freshData)
+    });
+    localStorage.setItem(cfg.localKey,JSON.stringify(freshData));
+    localStorage.removeItem(cfg.versionKey); // Force re-init next open
+    alert(`${getProgramName(prog)} reset! Last weights saved as reference.`);
+    updateHomeCardMeta();
+  }catch(e){alert('Reset failed — check connection.');}
+}
+
+function getAllDayItemsForDay(day){
+  const items=[];
+  let ei=0;
+  if(day.supersets){day.supersets.forEach(ss=>ss.exercises.forEach(ex=>{items.push({ei,ex});ei++;}));}
+  else if(day.exercises){day.exercises.forEach(ex=>{items.push({ei,ex});ei++;});}
+  (day.finisher||[]).forEach(ex=>{items.push({ei,ex});ei++;});
+  return items;
+}
+
+async function updateHomeCardMeta(){
+  ['main','travel'].forEach(prog=>{
+    const cfg=PROGRAMS[prog];
+    const cached=localStorage.getItem(cfg.localKey);
+    if(cached){
+      try{
+        const d=JSON.parse(cached);
+        const keys=Object.keys(d.cycles||{});
+        const maxC=keys.reduce((m,k)=>Math.max(m,parseInt(k.replace('c',''))||0),0);
+        const el=document.getElementById(`${prog}CardMeta`);
+        if(el)el.textContent=maxC>0?`CYCLE ${maxC} · ${keys.length} CYCLES LOGGED`:'NO DATA YET';
+      }catch(e){}
     }
-    document.getElementById('loadingOverlay').style.display = 'none';
-    renderAll(true);
-    return;
+    document.getElementById(`${prog}CardName`).textContent=getProgramName(prog);
+  });
+}
+
+function openProgram(prog){
+  activeProgram=prog;
+  cloudData={cycles:{},nameOverrides:{}};
+  currentCycle=1;
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  const logo=document.getElementById('appLogo');
+  const name=getProgramName(prog);
+  logo.innerHTML=`${name}<span style="color:var(--text)"> </span>`;
+  logo.style.color=prog==='travel'?'var(--blue)':'var(--accent)';
+  loadFromCloud();
+}
+
+function goHome(){
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('homeScreen').style.display='block';
+  updateHomeCardMeta();
+}
+
+// ── CLOUD SYNC ──
+function setSyncStatus(state,label){
+  document.getElementById('syncDot').className='sync-dot '+state;
+  document.getElementById('syncLabel').textContent=label;
+}
+
+async function loadFromCloud(){
+  const cfg=PROGRAMS[activeProgram];
+  const PROGRAM_VERSION=cfg.version;
+  const storedVersion=localStorage.getItem(cfg.versionKey);
+
+  if(storedVersion!==PROGRAM_VERSION){
+    setSyncStatus('syncing','RESETTING...');
+    localStorage.removeItem(cfg.localKey);
+    cloudData={cycles:{},nameOverrides:{}};
+    try{
+      await fetch(`https://api.jsonbin.io/v3/b/${getBinId(activeProgram)}`,{
+        method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MAIN_API_KEY},
+        body:JSON.stringify({cycles:{},nameOverrides:{}})
+      });
+      localStorage.setItem(cfg.versionKey,PROGRAM_VERSION);
+      setSyncStatus('synced','READY ✓');
+    }catch(e){setSyncStatus('error','RESET FAILED');}
+    document.getElementById('loadingOverlay').style.display='none';
+    renderAll(true);return;
   }
 
-  // Normal load
-  const cached = localStorage.getItem('ll_backup');
-  if (cached) {
-    try {
-      cloudData = JSON.parse(cached);
-      if (!cloudData.cycles) cloudData.cycles = {};
-      if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-    } catch(e) { cloudData = { cycles: {}, nameOverrides: {} }; }
-    document.getElementById('loadingOverlay').style.display = 'none';
+  const cached=localStorage.getItem(cfg.localKey);
+  if(cached){
+    try{cloudData=JSON.parse(cached);if(!cloudData.cycles)cloudData.cycles={};if(!cloudData.nameOverrides)cloudData.nameOverrides={};}
+    catch(e){cloudData={cycles:{},nameOverrides:{}};}
+    document.getElementById('loadingOverlay').style.display='none';
+    renderAll(true);setSyncStatus('syncing','SYNCING...');
+  }else{setSyncStatus('syncing','LOADING...');}
+
+  try{
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${getBinId(activeProgram)}/latest`,{headers:{'X-Master-Key':MAIN_API_KEY}});
+    const data=await res.json();
+    const fresh=data.record||{cycles:{},nameOverrides:{}};
+    if(!fresh.cycles)fresh.cycles={};if(!fresh.nameOverrides)fresh.nameOverrides={};
+    cloudData=fresh;
+    localStorage.setItem(cfg.localKey,JSON.stringify(cloudData));
+    setSyncStatus('synced','SYNCED');
+    document.getElementById('loadingOverlay').style.display='none';
     renderAll(true);
-    setSyncStatus('syncing', 'SYNCING...');
-  } else {
-    setSyncStatus('syncing', 'LOADING...');
-  }
-  try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
-    const data = await res.json();
-    const fresh = data.record || { cycles: {}, nameOverrides: {} };
-    if (!fresh.cycles) fresh.cycles = {};
-    if (!fresh.nameOverrides) fresh.nameOverrides = {};
-    cloudData = fresh;
-    localStorage.setItem('ll_backup', JSON.stringify(cloudData));
-    setSyncStatus('synced', 'SYNCED');
-    document.getElementById('loadingOverlay').style.display = 'none';
-    renderAll(true);
-  } catch(e) {
-    setSyncStatus('error', 'OFFLINE — using cache');
-    if (!cached) { cloudData = { cycles: {}, nameOverrides: {} }; document.getElementById('loadingOverlay').style.display = 'none'; renderAll(true); }
+  }catch(e){
+    setSyncStatus('error','OFFLINE — using cache');
+    if(!cached){cloudData={cycles:{},nameOverrides:{}};document.getElementById('loadingOverlay').style.display='none';renderAll(true);}
   }
 }
 
-async function saveToCloud() {
-  setSyncStatus('syncing', 'SAVING...');
-  localStorage.setItem('ll_backup', JSON.stringify(cloudData));
-  try {
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY }, body: JSON.stringify(cloudData) });
-    setSyncStatus('synced', 'SAVED ✓');
-  } catch(e) { setSyncStatus('error', 'SAVE FAILED'); }
+async function saveToCloud(){
+  setSyncStatus('syncing','SAVING...');
+  const cfg=PROGRAMS[activeProgram];
+  localStorage.setItem(cfg.localKey,JSON.stringify(cloudData));
+  try{
+    await fetch(`https://api.jsonbin.io/v3/b/${getBinId(activeProgram)}`,{
+      method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MAIN_API_KEY},
+      body:JSON.stringify(cloudData)
+    });
+    setSyncStatus('synced','SAVED ✓');
+  }catch(e){setSyncStatus('error','SAVE FAILED');}
 }
+function debouncedSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveToCloud,1500);}
 
-function debouncedSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 1500); }
-
-function ensureDay(c, d) {
-  if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {};
-  if (!cloudData.cycles[`c${c}`][d]) cloudData.cycles[`c${c}`][d] = {};
-}
-
-function getSet(c, d, e, s) {
-  const sets = cloudData?.cycles?.[`c${c}`]?.[d]?.[`e${e}`];
-  if (Array.isArray(sets)) return sets[s] || '';
-  if (s === 0 && sets && typeof sets === 'string') return sets;
+// ── DATA ACCESS ──
+function getDays(){return PROGRAMS[activeProgram].days;}
+function ensureDay(c,d){if(!cloudData.cycles[`c${c}`])cloudData.cycles[`c${c}`]={};if(!cloudData.cycles[`c${c}`][d])cloudData.cycles[`c${c}`][d]={};}
+function getSet(c,d,e,s){const sets=cloudData?.cycles?.[`c${c}`]?.[d]?.[`e${e}`];if(Array.isArray(sets))return sets[s]||'';return '';}
+function setSet(c,d,e,s,v){ensureDay(c,d);let arr=cloudData.cycles[`c${c}`][d][`e${e}`];if(!Array.isArray(arr))arr=['','','',''];arr[s]=v;cloudData.cycles[`c${c}`][d][`e${e}`]=arr;debouncedSave();}
+function getLastWeight(d,e,s){
+  // Check cloudData.lastWeights first (from new cycle reset), then previous cycle
+  const lw=cloudData?.lastWeights?.[`${d}_${e}`];
+  if(lw&&lw[s])return lw[s];
+  if(currentCycle>1){return getSet(currentCycle-1,d,e,s)||'';}
   return '';
 }
+function getExName(dayId,ei){return cloudData?.nameOverrides?.[`${dayId}_${ei}`]||null;}
+function setExName(dayId,ei,name){if(!cloudData.nameOverrides)cloudData.nameOverrides={};if(name)cloudData.nameOverrides[`${dayId}_${ei}`]=name;else delete cloudData.nameOverrides[`${dayId}_${ei}`];debouncedSave();}
+function getUnit(c,dayId){const s=cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;if(s)return s;for(let i=c-1;i>=1;i--){const p=cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;if(p)return p;}return 'kg';}
+function setUnit(c,dayId,unit){ensureDay(c,dayId);cloudData.cycles[`c${c}`][dayId].unit=unit;debouncedSave();}
+function getBonusExercises(c,d){
+  const thisCycle=cloudData?.cycles?.[`c${c}`]?.[d]?.bonus||[];
+  if(c<=1)return thisCycle;
+  const prevBonus=cloudData?.cycles?.[`c${c-1}`]?.[d]?.bonus||[];
+  const removed=cloudData?.cycles?.[`c${c}`]?.[d]?.bonusRemoved||[];
+  const thisNames=thisCycle.map(b=>b.name);
+  const toCarry=prevBonus.filter(b=>!removed.includes(b.name)&&!thisNames.includes(b.name));
+  const carried=toCarry.map(b=>({...b,sets:['','','',''],carried:true,prevSets:b.sets}));
+  return [...thisCycle,...carried];
+}
+function saveBonusExercises(c,d,arr){ensureDay(c,d);cloudData.cycles[`c${c}`][d].bonus=arr;debouncedSave();}
+function removeBonusPermanently(dayId,di,bonusName){
+  ensureDay(currentCycle,dayId);
+  const removed=cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved||[];
+  if(!removed.includes(bonusName))removed.push(bonusName);
+  cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved=removed;
+  cloudData.cycles[`c${currentCycle}`][dayId].bonus=(cloudData.cycles[`c${currentCycle}`][dayId].bonus||[]).filter(b=>b.name!==bonusName);
+  debouncedSave();renderAndStay(di);
+}
+function getNotes(c,d){return cloudData?.cycles?.[`c${c}`]?.[d]?.notes||'';}
+function setNotes(c,d,v){ensureDay(c,d);cloudData.cycles[`c${c}`][d].notes=v;debouncedSave();}
+function getAI(c){return cloudData?.cycles?.[`c${c}`]?.ai||'';}
+function setAI(c,v){if(!cloudData.cycles[`c${c}`])cloudData.cycles[`c${c}`]={};cloudData.cycles[`c${c}`].ai=v;debouncedSave();}
+function isSessionDone(c,dayId){return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done;}
+function markSessionDone(dayId,di){ensureDay(currentCycle,dayId);cloudData.cycles[`c${currentCycle}`][dayId].done=true;debouncedSave();const btn=document.getElementById(`finish-btn-${di}`);if(btn){btn.textContent='✓ DONE';btn.style.borderColor='var(--accent)';btn.style.color='var(--accent)';}}
+function getSupersets(c,dayId){return cloudData?.cycles?.[`c${c}`]?.[dayId]?.supersets||[];}
+function saveSupersets(c,dayId,arr){ensureDay(c,dayId);cloudData.cycles[`c${c}`][dayId].supersets=arr;debouncedSave();}
+function getUnifiedOrder(dayId){const k=`unifiedorder_${dayId}`;const s=cloudData?.nameOverrides?.[k];return s?JSON.parse(s):null;}
+function saveUnifiedOrder(dayId,order){if(!cloudData.nameOverrides)cloudData.nameOverrides={};cloudData.nameOverrides[`unifiedorder_${dayId}`]=JSON.stringify(order);debouncedSave();}
 
-function setSet(c, d, e, s, v) {
-  ensureDay(c, d);
-  let arr = cloudData.cycles[`c${c}`][d][`e${e}`];
-  if (!Array.isArray(arr)) arr = ['','','',''];
-  arr[s] = v;
-  cloudData.cycles[`c${c}`][d][`e${e}`] = arr;
-  debouncedSave();
+// ── EXERCISE INDEXING ──
+function getAllDayItems(day){
+  const items=[];let ei=0;
+  if(day.supersets){day.supersets.forEach(ss=>{ss.exercises.forEach(ex=>{items.push({type:'program',ei,ex});ei++;});});}
+  else if(day.exercises){day.exercises.forEach(ex=>{items.push({type:'program',ei,ex});ei++;});}
+  (day.finisher||[]).forEach(ex=>{items.push({type:'finisher',ei,ex});ei++;});
+  return items;
+}
+function itemKey(item){
+  if(item.type==='program'||item.type==='finisher')return`prog_${item.ei}`;
+  if(item.type==='bonus')return`bon_${item.name}`;return 'unknown';
+}
+function getExercises(day){
+  if(!day||day.type==='recap')return[];
+  if(day.supersets){return[...day.supersets.flatMap(ss=>ss.exercises),...(day.finisher||[])];}
+  return day.exercises||[];
+}
+function getOrderedDayItems(day){
+  const baseItems=getAllDayItems(day);
+  const bonus=getBonusExercises(currentCycle,day.id);
+  const bonusItems=bonus.map((bex,idx)=>({type:'bonus',idx,name:bex.name,bex}));
+  const allItems=[...baseItems,...bonusItems];
+  const order=getUnifiedOrder(day.id);
+  if(!order)return allItems;
+  const map={};allItems.forEach(item=>{map[itemKey(item)]=item;});
+  const ordered=[];
+  order.forEach(k=>{if(map[k]){ordered.push(map[k]);delete map[k];}});
+  Object.values(map).forEach(item=>ordered.push(item));
+  return ordered;
+}
+function isItemPaired(dayId,item){
+  const key=item.type==='bonus'?`bonus_${item.idx}`:`ex_${item.ei}`;
+  return getSupersets(currentCycle,dayId).some(ss=>ss.includes(key));
+}
+function isSuperpaired(dayId,ei,isBonus){
+  const key=isBonus?`bonus_${ei}`:`ex_${ei}`;
+  return getSupersets(currentCycle,dayId).some(ss=>ss.includes(key));
 }
 
-function getExName(dayId, ei) { return cloudData?.nameOverrides?.[`${dayId}_${ei}`] || null; }
-function setExName(dayId, ei, name) {
-  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  if (name) cloudData.nameOverrides[`${dayId}_${ei}`] = name;
-  else delete cloudData.nameOverrides[`${dayId}_${ei}`];
-  debouncedSave();
-}
+// ── NAVIGATION ──
+function changeCycle(dir){const n=currentCycle+dir;if(n<1)return;currentCycle=n;document.getElementById('cycleLabel').textContent=`CYCLE ${currentCycle}`;renderAll(false);}
+function switchTab(idx){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));document.querySelectorAll('.day-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));}
+function renderAndStay(di){renderAll(false);switchTab(di);}
 
-function getUnit(c, dayId) {
-  const stored = cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;
-  if (stored) return stored;
-  for (let i = c-1; i >= 1; i--) { const p = cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit; if (p) return p; }
-  return 'kg';
-}
-
-function setUnit(c, dayId, unit) { ensureDay(c, dayId); cloudData.cycles[`c${c}`][dayId].unit = unit; debouncedSave(); }
-
-function convertValue(val, toUnit) {
-  const num = parseFloat(val);
-  if (isNaN(num) || num === 0) return '';
-  return toUnit === 'kg' ? (num / 2.2046).toFixed(1) : (num * 2.2046).toFixed(1);
-}
-
-function toggleUnit(dayId, di) {
-  const current = getUnit(currentCycle, dayId);
-  const next = current === 'lbs' ? 'kg' : 'lbs';
-  setUnit(currentCycle, dayId, next);
-  document.querySelectorAll(`.unit-label-${di}`).forEach(el => el.textContent = next);
-  const day = PROGRAM[di];
-  if (!day) return;
-  getExercises(day).forEach((ex, ei) => {
-    for (let s = 0; s < NUM_SETS; s++) {
-      const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
-      if (!inp) continue;
-      if (inp.value) {
-        const converted = convertValue(inp.value, next);
-        inp.value = converted;
-        setSet(currentCycle, dayId, ei, s, converted);
-        inp.classList.add('has-value'); inp.style.color = 'var(--accent)';
-      }
+function findMostRecentDayIdx(){
+  const days=getDays();
+  const cycleKeys=Object.keys(cloudData.cycles||{});
+  let maxCycle=1;
+  cycleKeys.forEach(k=>{const n=parseInt(k.replace('c',''));if(!isNaN(n)&&n>maxCycle)maxCycle=n;});
+  for(let c=maxCycle;c>=1;c--){
+    let lastDataDayIdx=-1,lastDoneDayIdx=-1;
+    for(let di=0;di<days.length-1;di++){
+      const day=days[di];if(day.type==='recap')continue;
+      const exercises=getExercises(day);
+      const hasData=exercises.some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
+      const done=isSessionDone(c,day.id);
+      if(hasData)lastDataDayIdx=di;
+      if(hasData&&done)lastDoneDayIdx=di;
     }
-  });
-  const btn = document.getElementById(`unit-toggle-${di}`);
-  if (btn) btn.textContent = next === 'kg' ? 'Switch to LBS' : 'Switch to KG';
-}
-
-function getBonusExercises(c, d) {
-  const thisCycle = cloudData?.cycles?.[`c${c}`]?.[d]?.bonus || [];
-  if (c <= 1) return thisCycle;
-  const prevBonus = cloudData?.cycles?.[`c${c-1}`]?.[d]?.bonus || [];
-  const removed = cloudData?.cycles?.[`c${c}`]?.[d]?.bonusRemoved || [];
-  const thisNames = thisCycle.map(b => b.name);
-  const toCarry = prevBonus.filter(b => !removed.includes(b.name) && !thisNames.includes(b.name));
-  const carried = toCarry.map(b => ({ ...b, sets: ['','','',''], carried: true, prevSets: b.sets }));
-  return [...thisCycle, ...carried];
-}
-
-function saveBonusExercises(c, d, arr) { ensureDay(c, d); cloudData.cycles[`c${c}`][d].bonus = arr; debouncedSave(); }
-
-function removeBonusPermanently(dayId, di, bonusName) {
-  ensureDay(currentCycle, dayId);
-  const removed = cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved || [];
-  if (!removed.includes(bonusName)) removed.push(bonusName);
-  cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved = removed;
-  const bonus = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
-  cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
-  debouncedSave(); renderAndStay(di);
-}
-
-function getNotes(c, d) { return cloudData?.cycles?.[`c${c}`]?.[d]?.notes || ''; }
-function setNotes(c, d, v) { ensureDay(c, d); cloudData.cycles[`c${c}`][d].notes = v; debouncedSave(); }
-function getAI(c) { return cloudData?.cycles?.[`c${c}`]?.ai || ''; }
-function setAI(c, v) { if (!cloudData.cycles[`c${c}`]) cloudData.cycles[`c${c}`] = {}; cloudData.cycles[`c${c}`].ai = v; debouncedSave(); }
-function isSessionDone(c, dayId) { return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done; }
-function markSessionDone(dayId, di) {
-  ensureDay(currentCycle, dayId);
-  cloudData.cycles[`c${currentCycle}`][dayId].done = true;
-  debouncedSave();
-  const btn = document.getElementById(`finish-btn-${di}`);
-  if (btn) { btn.textContent = '✓ SESSION DONE'; btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; }
-}
-
-// Exercise order
-function getExerciseOrder(dayId) { const k = `order_${dayId}`; const s = cloudData?.nameOverrides?.[k]; return s ? JSON.parse(s) : null; }
-function saveExerciseOrder(dayId, order) { if (!cloudData.nameOverrides) cloudData.nameOverrides = {}; cloudData.nameOverrides[`order_${dayId}`] = JSON.stringify(order); debouncedSave(); }
-function getOrderedExercises(day) {
-  const exercises = getExercises(day);
-  const order = getExerciseOrder(day.id);
-  if (!order) return exercises.map((ex, i) => ({ ex, origIdx: i }));
-  const result = [];
-  order.forEach(origIdx => { if (origIdx < exercises.length) result.push({ ex: exercises[origIdx], origIdx }); });
-  exercises.forEach((ex, i) => { if (!order.includes(i)) result.push({ ex, origIdx: i }); });
-  return result;
-}
-
-// Superset group order
-function getSupersetOrder(dayId) {
-  const k = `ssorder_${dayId}`;
-  const s = cloudData?.nameOverrides?.[k];
-  return s ? JSON.parse(s) : null;
-}
-
-function saveSupersetOrder(dayId, order) {
-  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  cloudData.nameOverrides[`ssorder_${dayId}`] = JSON.stringify(order);
-  debouncedSave();
-}
-
-function getOrderedSupersets(day) {
-  if (!day.supersets) return [];
-  const order = getSupersetOrder(day.id);
-  if (!order) return day.supersets.map((ss, i) => ({ ss, origIdx: i }));
-  const result = [];
-  order.forEach(origIdx => { if (origIdx < day.supersets.length) result.push({ ss: day.supersets[origIdx], origIdx }); });
-  day.supersets.forEach((ss, i) => { if (!order.includes(i)) result.push({ ss, origIdx: i }); });
-  return result;
-}
-
-function moveSupersetGroup(dayId, di, ssIdx, direction) {
-  const day = PROGRAM[di];
-  if (!day.supersets) return;
-  const order = getSupersetOrder(dayId) || day.supersets.map((_,i) => i);
-  const pos = order.indexOf(ssIdx);
-  if (pos === -1) return;
-  const newPos = pos + direction;
-  if (newPos < 0 || newPos >= order.length) return;
-  order.splice(pos, 1); order.splice(newPos, 0, ssIdx);
-  saveSupersetOrder(dayId, order);
-  renderAndStay(di);
-}
-
-// Superset linking
-let supersetSelectingDi = null, supersetSelectingEi = null, supersetSelectingIsBonus = false;
-function getSupersets(c, dayId) { return cloudData?.cycles?.[`c${c}`]?.[dayId]?.supersets || []; }
-function saveSupersets(c, dayId, arr) { ensureDay(c, dayId); cloudData.cycles[`c${c}`][dayId].supersets = arr; debouncedSave(); }
-function isProgramSuperset(dayId, ei) {
-  // Check if this exercise index is part of a built-in program superset
-  const day = PROGRAM.find(d => d.id === dayId);
-  if (!day || !day.supersets) return false;
-  let runningEi = 0;
-  for (const ss of day.supersets) {
-    const start = runningEi;
-    const end = runningEi + ss.exercises.length - 1;
-    if (ei >= start && ei <= end) return true;
-    runningEi += ss.exercises.length;
-  }
-  return false;
-}
-
-function getProgramPartnerIndices(dayId, ei) {
-  // Returns the other exercise indices in the same program-defined superset group as ei
-  const day = PROGRAM.find(d => d.id === dayId);
-  if (!day || !day.supersets) return [];
-  let runningEi = 0;
-  for (const ss of day.supersets) {
-    const start = runningEi;
-    const indices = ss.exercises.map((_, i) => start + i);
-    runningEi += ss.exercises.length;
-    if (indices.includes(Number(ei))) return indices.filter(i => i !== Number(ei));
-  }
-  return [];
-}
-
-function isSuperpaired(dayId, ei, isBonus) {
-  const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
-  // Check user-defined supersets in cloudData
-  if (getSupersets(currentCycle, dayId).some(ss => ss.includes(key))) return true;
-  // Also treat program-defined superset members as paired (unless explicitly unlinked,
-  // or unless its partner(s) have all been unlinked, leaving it a lone survivor)
-  if (!isBonus) {
-    const unlinked = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
-    if (unlinked.includes(Number(ei))) return false;
-    if (!isProgramSuperset(dayId, ei)) return false;
-    const partners = getProgramPartnerIndices(dayId, ei);
-    const anyPartnerStillLinked = partners.some(p => !unlinked.includes(p));
-    return anyPartnerStillLinked;
-  }
-  return false;
-}
-function toggleLink(dayId, di, ei, isBonus) {
-  const key = isBonus ? `bonus_${ei}` : `ex_${ei}`;
-  const supersets = getSupersets(currentCycle, dayId);
-  const existing = supersets.find(ss => ss.includes(key));
-
-  // Is this exercise CURRENTLY displayed as actively paired (button shows UNLINK)?
-  const currentlyPaired = !isBonus && isSuperpaired(dayId, ei, false);
-
-  // If it's a program superset member that's currently shown as paired, unlink it
-  if (!isBonus && !existing && isProgramSuperset(dayId, ei) && currentlyPaired) {
-    ensureDay(currentCycle, dayId);
-    const unlinked = cloudData.cycles[`c${currentCycle}`][dayId].unlinked || [];
-    unlinked.push(Number(ei));
-    cloudData.cycles[`c${currentCycle}`][dayId].unlinked = unlinked;
-    debouncedSave(); renderAndStay(di); return;
-  }
-
-  // If this was previously unlinked (lone survivor or fully broken pair) and the
-  // button shows LINK, fall through to normal pairing-selection flow below instead
-  // of re-triggering the unlink branch.
-
-  if (existing) {
-    saveSupersets(currentCycle, dayId, supersets.filter(ss => ss !== existing));
-    supersetSelectingDi = null; supersetSelectingEi = null; supersetSelectingIsBonus = false;
-    renderAndStay(di); return;
-  }
-  if (supersetSelectingDi === null) {
-    supersetSelectingDi = di; supersetSelectingEi = ei; supersetSelectingIsBonus = isBonus;
-    const btnId = isBonus ? `linkbtn_bonus_${di}_${ei}` : `linkbtn_${di}_${ei}`;
-    const btn = document.getElementById(btnId);
-    if (btn) btn.classList.add('selecting');
-  } else {
-    const firstKey = supersetSelectingIsBonus ? `bonus_${supersetSelectingEi}` : `ex_${supersetSelectingEi}`;
-    if (firstKey !== key) { supersets.push([firstKey, key]); saveSupersets(currentCycle, dayId, supersets); }
-    supersetSelectingDi = null; supersetSelectingEi = null; supersetSelectingIsBonus = false;
-    renderAndStay(di);
-  }
-}
-
-function moveExercise(dayId, di, ei, direction) {
-  const day = PROGRAM[di];
-  const exercises = getExercises(day);
-  const currentOrder = getExerciseOrder(dayId) || exercises.map((_,i) => i);
-  const pos = currentOrder.indexOf(ei);
-  if (pos === -1) return;
-  const newPos = pos + direction;
-  if (newPos < 0 || newPos >= currentOrder.length) return;
-  currentOrder.splice(pos, 1); currentOrder.splice(newPos, 0, ei);
-  saveExerciseOrder(dayId, currentOrder); renderAndStay(di);
-}
-
-function moveBonusExercise(dayId, di, bi, direction) {
-  // bi is index in the full getBonusExercises array (includes carried)
-  // We need to reorder within the actual saved bonus array
-  const allBonus = getBonusExercises(currentCycle, dayId);
-  const newBi = bi + direction;
-  if (newBi < 0 || newBi >= allBonus.length) return;
-
-  // Get the names at both positions and reorder in the saved array
-  const srcName = allBonus[bi].name;
-  const tgtName = allBonus[newBi].name;
-
-  // Work on saved bonus array
-  ensureDay(currentCycle, dayId);
-  const saved = cloudData.cycles[`c${currentCycle}`][dayId].bonus || [];
-
-  // Also handle carried exercises — add them to saved if not there
-  allBonus.forEach(bex => {
-    if (!saved.find(b => b.name === bex.name)) {
-      saved.push({ name: bex.name, sets: ['','','',''] });
-    }
-  });
-
-  const srcIdx = saved.findIndex(b => b.name === srcName);
-  const tgtIdx = saved.findIndex(b => b.name === tgtName);
-  if (srcIdx === -1 || tgtIdx === -1) return;
-
-  const [moved] = saved.splice(srcIdx, 1);
-  saved.splice(tgtIdx, 0, moved);
-  cloudData.cycles[`c${currentCycle}`][dayId].bonus = saved;
-  debouncedSave(); renderAndStay(di);
-}
-
-function renderAndStay(di) { renderAll(false); switchTab(di); }
-
-function changeCycle(dir) {
-  const n = currentCycle + dir; if (n < 1) return;
-  currentCycle = n; document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`; renderAll(false);
-}
-
-function switchTab(idx) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
-  document.querySelectorAll('.day-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
-}
-
-function findMostRecentDayIdx() {
-  const cycleKeys = Object.keys(cloudData.cycles || {});
-  let maxCycle = 1;
-  cycleKeys.forEach(k => { const n = parseInt(k.replace('c','')); if (!isNaN(n) && n > maxCycle) maxCycle = n; });
-  for (let c = maxCycle; c >= 1; c--) {
-    let lastDataDayIdx = -1, lastDoneDayIdx = -1;
-    for (let di = 0; di < PROGRAM.length - 1; di++) {
-      const day = PROGRAM[di]; if (day.type === 'recap') continue;
-      const exercises = getExercises(day);
-      const hasData = exercises.some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
-      const done = isSessionDone(c, day.id);
-      if (hasData) lastDataDayIdx = di;
-      if (hasData && done) lastDoneDayIdx = di;
-    }
-    if (lastDataDayIdx >= 0) {
-      if (c !== currentCycle) { currentCycle = c; document.getElementById('cycleLabel').textContent = `CYCLE ${currentCycle}`; }
-      if (lastDoneDayIdx === lastDataDayIdx) { const nextIdx = lastDataDayIdx + 1; return nextIdx < PROGRAM.length - 1 ? nextIdx : lastDataDayIdx; }
+    if(lastDataDayIdx>=0){
+      if(c!==currentCycle){currentCycle=c;document.getElementById('cycleLabel').textContent=`CYCLE ${currentCycle}`;}
+      if(lastDoneDayIdx===lastDataDayIdx){const nx=lastDataDayIdx+1;return nx<days.length-1?nx:lastDataDayIdx;}
       return lastDataDayIdx;
     }
   }
   return 0;
 }
 
-function tierBadge(tier) {
-  const cls = tier === 'S+' ? 'tier-sp' : tier === 'S' ? 'tier-s' : 'tier-a';
-  return `<span class="tier-badge ${cls}">${tier}</span>`;
+// ── LINK/UNLINK ──
+let supersetSelectingDi=null,supersetSelectingEi=null,supersetSelectingIsBonus=false;
+function toggleLink(dayId,di,ei,isBonus){
+  const key=isBonus?`bonus_${ei}`:`ex_${ei}`;
+  const supersets=getSupersets(currentCycle,dayId);
+  const existing=supersets.find(ss=>ss.includes(key));
+  if(existing){saveSupersets(currentCycle,dayId,supersets.filter(ss=>ss!==existing));supersetSelectingDi=null;supersetSelectingEi=null;supersetSelectingIsBonus=false;renderAndStay(di);return;}
+  if(supersetSelectingDi===null){
+    supersetSelectingDi=di;supersetSelectingEi=ei;supersetSelectingIsBonus=isBonus;
+    const btn=document.getElementById(isBonus?`linkbtn_bonus_${di}_${ei}`:`linkbtn_${di}_${ei}`);
+    if(btn)btn.classList.add('selecting');
+  }else{
+    const firstKey=supersetSelectingIsBonus?`bonus_${supersetSelectingEi}`:`ex_${supersetSelectingEi}`;
+    if(firstKey!==key){supersets.push([firstKey,key]);saveSupersets(currentCycle,dayId,supersets);}
+    supersetSelectingDi=null;supersetSelectingEi=null;supersetSelectingIsBonus=false;renderAndStay(di);
+  }
 }
 
-function buildInputRow(di, ei, unit) {
-  const prevWeights = currentCycle > 1 ? Array.from({length:NUM_SETS}, (_,s) => getSet(currentCycle-1, PROGRAM[di].id, ei, s)) : [];
-  const hasPrev = prevWeights.some(v => v);
-  const prevRow = hasPrev ? `<div class="prev-weights">LAST: ${prevWeights.map(v => v||'—').join(' · ')}</div>` : '';
-  const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-    <div class="set-wrap">
-      <div class="set-label">S${s+1}</div>
-      <input type="number" class="set-input" id="inp_${di}_${ei}_${s}" placeholder="${prevWeights[s]||'—'}" min="0" step="2.5">
+function moveUnifiedItem(dayId,di,key,direction){
+  const day=getDays().find(d=>d.id===dayId);
+  const allItems=getOrderedDayItems(day);
+  let order=getUnifiedOrder(dayId)||allItems.map(itemKey);
+  const pos=order.indexOf(key);if(pos===-1)return;
+  const newPos=pos+direction;if(newPos<0||newPos>=order.length)return;
+  order.splice(pos,1);order.splice(newPos,0,key);
+  saveUnifiedOrder(dayId,order);renderAndStay(di);
+}
+
+// ── RENDERING ──
+function tierBadge(tier){const cls=tier==='S+'?'tier-sp':tier==='S'?'tier-s':'tier-a';return`<span class="tier-badge ${cls}">${tier}</span>`;}
+
+function buildUnifiedRow(di,item,dayId,unit){
+  const isBonus=item.type==='bonus';
+  const ei=isBonus?item.idx:item.ei;
+  const ex=isBonus?null:item.ex;
+  const bex=isBonus?item.bex:null;
+  const key=itemKey(item);
+  const paired=isItemPaired(dayId,item);
+  const linkLabel=paired?'UNLINK':'LINK';
+  const linkClass=paired?'link-btn linked':'link-btn';
+  const rowClass=paired?'exercise-row superset-row':(isBonus?'exercise-row bonus':'exercise-row');
+  const reps=isBonus?'':ex.reps;
+  let nameHtml,badgeHtml,editBtnHtml,deleteBtnHtml='';
+  if(isBonus){
+    const isCarried=!!bex.carried;
+    const carriedBadge=isCarried?`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>`:'';
+    badgeHtml=paired?'<span class="superset-badge">SS</span>':'<span class="tier-badge tier-a">+</span>';
+    nameHtml=`<span class="exercise-name bonus-name" id="bonus_exname_${di}_${ei}">${bex.name}</span>${carriedBadge}`;
+    editBtnHtml=!isCarried?`<button class="edit-btn" id="bonus_edit_${di}_${ei}" onclick="startEditBonusName(${di},${ei},'${dayId}')">✎</button><input class="name-edit-input" id="bonus_name_${di}_${ei}" type="text" maxlength="40"><button class="name-confirm-btn" id="bonus_confirm_${di}_${ei}" onclick="confirmBonusName(${di},${ei},'${dayId}')">✓</button>`:'';
+    deleteBtnHtml=`<button class="delete-btn" onclick="deleteBonusExercise('${dayId}',${di},'${bex.name}',${isCarried})">✕</button>`;
+  }else{
+    const customName=getExName(dayId,ei);
+    const displayName=customName||ex.name;
+    badgeHtml=paired?'<span class="superset-badge">SS</span>':tierBadge(ex.tier);
+    nameHtml=`<span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>`;
+    editBtnHtml=`<button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button><input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40"><button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>`;
+  }
+  const linkOnclick=isBonus?`toggleLink('${dayId}',${di},${ei},true)`:`toggleLink('${dayId}',${di},${ei},false)`;
+  const linkBtnId=isBonus?`linkbtn_bonus_${di}_${ei}`:`linkbtn_${di}_${ei}`;
+  const prevRow=(()=>{
+    const prevWeights=Array.from({length:NUM_SETS},(_,s)=>getLastWeight(dayId,ei,s));
+    const hasPrev=prevWeights.some(v=>v);
+    return hasPrev?`<div class="prev-weights">LAST: ${prevWeights.map(v=>v||'—').join(' · ')}</div>`:'';
+  })();
+  const setBoxes=Array.from({length:NUM_SETS},(_,s)=>`
+    <div class="set-wrap"><div class="set-label">S${s+1}</div>
+      <input type="number" class="set-input" id="${isBonus?`binp_${di}_${ei}_${s}`:`inp_${di}_${ei}_${s}`}" placeholder="—" min="0" step="2.5">
     </div>`).join('');
-  return `${prevRow}<div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>`;
-}
-
-// Unified tail (finisher + bonus) ordering
-function getTailOrder(dayId) {
-  const k = `tailorder_${dayId}`;
-  const s = cloudData?.nameOverrides?.[k];
-  return s ? JSON.parse(s) : null;
-}
-
-function saveTailOrder(dayId, order) {
-  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  cloudData.nameOverrides[`tailorder_${dayId}`] = JSON.stringify(order);
-  debouncedSave();
-}
-
-function moveTailItem(dayId, di, tailPos, direction) {
-  const day = PROGRAM[di];
-  const finisherItems = (day.finisher || []).map((ex, i) => ({ type: 'finisher', idx: i }));
-  const bonus = getBonusExercises(currentCycle, dayId);
-  const bonusItems = bonus.map((bex, i) => ({ type: 'bonus', name: bex.name, idx: i }));
-  let tailItems = [...finisherItems, ...bonusItems];
-
-  const keyFor = (item) => item.type === 'finisher' ? `fin_${item.idx}` : `bon_${item.name}`;
-  let order = getTailOrder(dayId);
-  if (!order) order = tailItems.map(keyFor);
-
-  const pos = order.indexOf(keyFor(tailItems[tailPos]));
-  if (pos === -1) return;
-  const newPos = pos + direction;
-  if (newPos < 0 || newPos >= order.length) return;
-  order.splice(pos, 1); order.splice(newPos, 0, keyFor(tailItems[tailPos]));
-  saveTailOrder(dayId, order);
-  renderAndStay(di);
-}
-
-function buildExerciseRowWithTailControls(di, ei, ex, dayId, unit, isSupersetMember, tailPos, tailLen) {
-  const customName = getExName(dayId, ei);
-  const displayName = customName || ex.name;
-  const paired = isSuperpaired(dayId, ei, false);
-  const linkBtnLabel = paired ? 'UNLINK' : 'LINK';
-  const linkBtnClass = paired ? 'link-btn linked' : 'link-btn';
-  const rowClass = (isSupersetMember || paired) ? 'exercise-row superset-row' : 'exercise-row';
-  const badge = (isSupersetMember || paired) ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
-  return `
+  return`
     <div class="${rowClass}" id="exrow_${di}_${ei}">
       <div class="exercise-top">
         <div class="exercise-name-wrap">
           <div class="reorder-btns">
-            <button class="reorder-btn" onclick="moveTailItem('${dayId}',${di},${tailPos},-1)">▲</button>
-            <button class="reorder-btn" onclick="moveTailItem('${dayId}',${di},${tailPos},1)">▼</button>
+            <button class="reorder-btn" onclick="moveUnifiedItem('${dayId}',${di},'${key}',-1)">▲</button>
+            <button class="reorder-btn" onclick="moveUnifiedItem('${dayId}',${di},'${key}',1)">▼</button>
           </div>
-          ${badge}
-          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
-          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
-          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
+          ${badgeHtml}${nameHtml}${editBtnHtml}
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="${linkBtnClass}" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">${linkBtnLabel}</button>
-          <div class="exercise-meta">${ex.reps}</div>
+          <button class="${linkClass}" id="${linkBtnId}" onclick="${linkOnclick}">${linkLabel}</button>
+          ${reps?`<div class="exercise-meta">${reps}</div>`:''}
+          ${deleteBtnHtml}
         </div>
       </div>
-      ${buildInputRow(di, ei, unit)}
+      ${prevRow}
+      <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
     </div>`;
 }
 
-// Unlinked exercise ordering (exercises pulled out of their program superset group)
-function getUnlinkedOrder(dayId) {
-  const k = `unlinkedorder_${dayId}`;
-  const s = cloudData?.nameOverrides?.[k];
-  return s ? JSON.parse(s) : null;
-}
-
-function saveUnlinkedOrder(dayId, order) {
-  if (!cloudData.nameOverrides) cloudData.nameOverrides = {};
-  cloudData.nameOverrides[`unlinkedorder_${dayId}`] = JSON.stringify(order);
-  debouncedSave();
-}
-
-function getStandaloneIndices(dayId) {
-  // Computes the full set of exercise indices currently rendered as standalone —
-  // this includes explicitly-unlinked exercises AND "lone survivors" (exercises
-  // whose program-superset partner was unlinked, leaving them solo).
-  const day = PROGRAM.find(d => d.id === dayId);
-  if (!day || !day.supersets) return [];
-  const unlinkedSet = (cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.unlinked || []).map(Number);
-  const standalone = new Set(unlinkedSet);
-
-  let runningEi = 0;
-  day.supersets.forEach(ss => {
-    const indices = ss.exercises.map((_, i) => runningEi + i);
-    runningEi += ss.exercises.length;
-    const stillLinked = indices.filter(i => !unlinkedSet.includes(i));
-    if (stillLinked.length === 1) standalone.add(stillLinked[0]);
-  });
-  return Array.from(standalone);
-}
-
-function moveUnlinkedExercise(dayId, di, ei, direction) {
-  const standaloneSet = getStandaloneIndices(dayId);
-  let order = getUnlinkedOrder(dayId) || standaloneSet.slice();
-  // Keep only currently-standalone items in the order, preserving relative order
-  order = order.filter(e => standaloneSet.includes(e));
-  standaloneSet.forEach(e => { if (!order.includes(e)) order.push(e); });
-
-  const pos = order.indexOf(Number(ei));
-  if (pos === -1) return;
-  const newPos = pos + direction;
-  if (newPos < 0 || newPos >= order.length) return;
-  order.splice(pos, 1); order.splice(newPos, 0, Number(ei));
-  saveUnlinkedOrder(dayId, order);
-  renderAndStay(di);
-}
-
-function buildExerciseRowUnlinked(di, ei, ex, dayId, unit, pos, len) {
-  const customName = getExName(dayId, ei);
-  const displayName = customName || ex.name;
-  const isCustomPaired = getSupersets(currentCycle, dayId).some(ss => ss.includes(`ex_${ei}`));
-  const rowClass = isCustomPaired ? 'exercise-row superset-row' : 'exercise-row';
-  const badge = isCustomPaired ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
-  return `
-    <div class="${rowClass}" id="exrow_${di}_${ei}">
-      <div class="exercise-top">
-        <div class="exercise-name-wrap">
-          <div class="reorder-btns">
-            <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},-1)">▲</button>
-            <button class="reorder-btn" onclick="moveUnlinkedExercise('${dayId}',${di},${ei},1)">▼</button>
-          </div>
-          ${badge}
-          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
-          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
-          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="link-btn" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">LINK</button>
-          <div class="exercise-meta">${ex.reps}</div>
-        </div>
-      </div>
-      ${buildInputRow(di, ei, unit)}
-    </div>`;
-}
-
-function buildExerciseRow(di, ei, ex, dayId, unit, isSupersetMember) {
-  const customName = getExName(dayId, ei);
-  const displayName = customName || ex.name;
-  const paired = isSuperpaired(dayId, ei, false);
-  const linkBtnLabel = paired ? 'UNLINK' : 'LINK';
-  const linkBtnClass = paired ? 'link-btn linked' : 'link-btn';
-  const rowClass = (isSupersetMember || paired) ? 'exercise-row superset-row' : 'exercise-row';
-  const badge = (isSupersetMember || paired) ? `<span class="superset-badge">SS</span>` : tierBadge(ex.tier);
-  const reorderBtns = isSupersetMember ? '' : `<div class="reorder-btns">
-    <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},-1)">▲</button>
-    <button class="reorder-btn" onclick="moveExercise('${dayId}',${di},${ei},1)">▼</button>
-  </div>`;
-  return `
-    <div class="${rowClass}" id="exrow_${di}_${ei}">
-      <div class="exercise-top">
-        <div class="exercise-name-wrap">
-          ${reorderBtns}
-          ${badge}
-          <span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>
-          <button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button>
-          <input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40">
-          <button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="${linkBtnClass}" id="linkbtn_${di}_${ei}" onclick="toggleLink('${dayId}',${di},${ei},false)">${linkBtnLabel}</button>
-          <div class="exercise-meta">${ex.reps}</div>
-        </div>
-      </div>
-      ${buildInputRow(di, ei, unit)}
-    </div>`;
-}
-
-function buildDay(day, di) {
-  const unit = getUnit(currentCycle, day.id);
-  let bodyHtml = '';
-
-  if (day.supersets) {
-    // Build superset groups in order, with group-level reorder buttons
-    const orderedSS = getOrderedSupersets(day);
-    let ei = 0;
-    // We need stable ei indices — build a lookup from ss origIdx to start ei
-    const ssStartEi = {};
-    let runningEi = 0;
-    day.supersets.forEach((ss, origIdx) => { ssStartEi[origIdx] = runningEi; runningEi += ss.exercises.length; });
-
-    const unlinkedSet = (cloudData?.cycles?.[`c${currentCycle}`]?.[day.id]?.unlinked || []).map(Number);
-    const unlinkedExercises = []; // collect {ex, ei} for exercises pulled out of their group
-
-    orderedSS.forEach(({ ss, origIdx }) => {
-      const startEi = ssStartEi[origIdx];
-      // Split this group's exercises into still-linked vs unlinked
-      const linkedMembers = [];
-      ss.exercises.forEach((ex, localIdx) => {
-        const ei2 = startEi + localIdx;
-        if (unlinkedSet.includes(ei2)) {
-          unlinkedExercises.push({ ex, ei: ei2 });
-        } else {
-          linkedMembers.push({ ex, ei: ei2 });
-        }
-      });
-
-      // If only one member remains linked (its partner was unlinked), treat the lone
-      // survivor as standalone too — a "superset" of one doesn't make sense.
-      if (linkedMembers.length <= 1) {
-        if (linkedMembers.length === 1) unlinkedExercises.push(linkedMembers[0]);
-        return;
+function buildDay(day,di){
+  const unit=getUnit(currentCycle,day.id);
+  const orderedItems=getOrderedDayItems(day);
+  const customSupersets=getSupersets(currentCycle,day.id);
+  let bodyHtml='';
+  const rendered=new Set();
+  orderedItems.forEach((item)=>{
+    const key=itemKey(item);
+    if(rendered.has(key))return;
+    if(isItemPaired(day.id,item)){
+      const itemSSKey=item.type==='bonus'?`bonus_${item.idx}`:`ex_${item.ei}`;
+      const pairGroup=customSupersets.find(ss=>ss.includes(itemSSKey));
+      const partnerKey=pairGroup?pairGroup.find(k=>k!==itemSSKey):null;
+      let partnerItem=null;
+      if(partnerKey){
+        if(partnerKey.startsWith('bonus_')){const pIdx=Number(partnerKey.replace('bonus_',''));partnerItem=orderedItems.find(it=>it.type==='bonus'&&it.idx===pIdx);}
+        else{const pEi=Number(partnerKey.replace('ex_',''));partnerItem=orderedItems.find(it=>it.type!=='bonus'&&it.ei===pEi);}
       }
-
-      bodyHtml += `<div class="superset-group">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
-          <div class="superset-label" style="margin-bottom:0;">◈ ${ss.label}</div>
-          <div style="display:flex;gap:4px;">
-            <button onclick="moveSupersetGroup('${day.id}',${di},${origIdx},-1)" style="background:var(--surface2);border:1px solid var(--purple);color:var(--purple);font-size:11px;padding:3px 10px;cursor:pointer;border-radius:2px;font-family:'DM Mono',monospace;">▲</button>
-            <button onclick="moveSupersetGroup('${day.id}',${di},${origIdx},1)" style="background:var(--surface2);border:1px solid var(--purple);color:var(--purple);font-size:11px;padding:3px 10px;cursor:pointer;border-radius:2px;font-family:'DM Mono',monospace;">▼</button>
-          </div>
-        </div>`;
-      linkedMembers.forEach(({ ex, ei: ei2 }) => {
-        bodyHtml += buildExerciseRow(di, ei2, ex, day.id, unit, true);
-      });
-      bodyHtml += `</div>`;
-    });
-
-    // Render unlinked exercises as standalone, independently reorderable rows.
-    // Any that are now custom-paired with each other get visually grouped together
-    // in a purple box, same as program supersets — but still independently movable.
-    if (unlinkedExercises.length > 0) {
-      const order = getUnlinkedOrder(day.id) || unlinkedExercises.map(u => u.ei);
-      const sortedUnlinked = order
-        .filter(ei2 => unlinkedExercises.some(u => u.ei === ei2))
-        .map(ei2 => unlinkedExercises.find(u => u.ei === ei2));
-      unlinkedExercises.forEach(u => { if (!order.includes(u.ei)) sortedUnlinked.push(u); });
-
-      const customSupersets = getSupersets(currentCycle, day.id);
-      const renderedKeys = new Set();
-
-      sortedUnlinked.forEach(({ ex, ei: ei2 }, pos) => {
-        const key = `ex_${ei2}`;
-        if (renderedKeys.has(key)) return; // already rendered as part of a pair below
-
-        const pairGroup = customSupersets.find(ss => ss.includes(key));
-        if (pairGroup) {
-          // Find the partner's entry in sortedUnlinked (it must also be standalone to pair visually)
-          const partnerKey = pairGroup.find(k => k !== key);
-          const partnerEi = partnerKey && partnerKey.startsWith('ex_') ? Number(partnerKey.replace('ex_','')) : null;
-          const partnerEntry = partnerEi !== null ? sortedUnlinked.find(u => u.ei === partnerEi) : null;
-
-          if (partnerEntry) {
-            renderedKeys.add(key); renderedKeys.add(partnerKey);
-            bodyHtml += `<div class="superset-group"><div class="superset-label">◈ CUSTOM PAIR</div>`;
-            bodyHtml += buildExerciseRowUnlinked(di, ei2, ex, day.id, unit, pos, sortedUnlinked.length);
-            bodyHtml += buildExerciseRowUnlinked(di, partnerEntry.ei, partnerEntry.ex, day.id, unit, pos, sortedUnlinked.length);
-            bodyHtml += `</div>`;
-            return;
-          }
-        }
-
-        bodyHtml += buildExerciseRowUnlinked(di, ei2, ex, day.id, unit, pos, sortedUnlinked.length);
-      });
+      if(partnerItem){
+        rendered.add(key);rendered.add(itemKey(partnerItem));
+        bodyHtml+=`<div class="superset-group"><div class="superset-label">◈ LINKED PAIR</div>`;
+        bodyHtml+=buildUnifiedRow(di,item,day.id,unit);
+        bodyHtml+=buildUnifiedRow(di,partnerItem,day.id,unit);
+        bodyHtml+=`</div>`;return;
+      }
     }
-  } else {
-    // Regular day
-    const orderedExercises = getOrderedExercises(day);
-    orderedExercises.forEach(({ ex, origIdx }) => {
-      bodyHtml += buildExerciseRow(di, origIdx, ex, day.id, unit, false);
-    });
-  }
-
-  // Unified tail section: finisher items + bonus exercises, all reorderable together
-  const finisherItems = (day.finisher || []).map((ex, i) => ({ type: 'finisher', ex, idx: i }));
-  const bonus = getBonusExercises(currentCycle, day.id);
-  const bonusItems = bonus.map((bex, i) => ({ type: 'bonus', bex, idx: i }));
-  let tailItems = [...finisherItems, ...bonusItems];
-
-  // Apply saved tail order if exists
-  const tailOrder = getTailOrder(day.id);
-  if (tailOrder) {
-    const keyFor = (item) => item.type === 'finisher' ? `fin_${item.idx}` : `bon_${item.bex.name}`;
-    const itemMap = {};
-    tailItems.forEach(item => { itemMap[keyFor(item)] = item; });
-    const ordered = [];
-    tailOrder.forEach(key => { if (itemMap[key]) { ordered.push(itemMap[key]); delete itemMap[key]; } });
-    Object.values(itemMap).forEach(item => ordered.push(item));
-    tailItems = ordered;
-  }
-
-  let finisherHeaderShown = false;
-  tailItems.forEach((item, tailPos) => {
-    if (item.type === 'finisher') {
-      if (!finisherHeaderShown) { bodyHtml += `<div class="finisher-section"><div class="finisher-label">◈ FINISHER</div>`; finisherHeaderShown = true; }
-      const ex = item.ex; const ei2 = item.idx;
-      bodyHtml += buildExerciseRowWithTailControls(di, ei2, ex, day.id, unit, false, tailPos, tailItems.length, day.id);
-      return;
-    }
-    if (finisherHeaderShown) { bodyHtml += `</div>`; finisherHeaderShown = false; }
-
-    const bex = item.bex; const bi = item.idx;
-    const isCarried = !!bex.carried;
-    const bonusPaired = isSuperpaired(day.id, bi, true);
-    const bonusRowClass = bonusPaired ? 'exercise-row bonus superset-row' : 'exercise-row bonus';
-    const carriedBadge = isCarried ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑ CARRIED</span>` : '';
-    const setBoxes = Array.from({length: NUM_SETS}, (_, s) => `
-      <div class="set-wrap"><div class="set-label">S${s+1}</div>
-        <input type="number" class="set-input" id="binp_${di}_${bi}_${s}" placeholder="—" min="0" step="2.5">
-      </div>`).join('');
-    bodyHtml += `
-      <div class="${bonusRowClass}${isCarried?' carried':''}">
-        <div class="exercise-top">
-          <div class="exercise-name-wrap">
-            <div class="reorder-btns">
-              <button class="reorder-btn" onclick="moveTailItem('${day.id}',${di},${tailPos},-1)">▲</button>
-              <button class="reorder-btn" onclick="moveTailItem('${day.id}',${di},${tailPos},1)">▼</button>
-            </div>
-            ${bonusPaired ? '<span class="superset-badge">SS</span>' : '<span class="tier-badge tier-a">+</span>'}
-            <span class="exercise-name bonus-name" id="bonus_exname_${di}_${bi}">${bex.name}</span>
-            ${carriedBadge}
-            ${!isCarried ? `<button class="edit-btn" id="bonus_edit_${di}_${bi}" onclick="startEditBonusName(${di},${bi},'${day.id}')">✎</button>
-            <input class="name-edit-input" id="bonus_name_${di}_${bi}" type="text" maxlength="40">
-            <button class="name-confirm-btn" id="bonus_confirm_${di}_${bi}" onclick="confirmBonusName(${di},${bi},'${day.id}')">✓</button>` : ''}
-          </div>
-          <button class="delete-btn" onclick="deleteBonusExercise('${day.id}',${di},'${bex.name}',${isCarried})">✕</button>
-        </div>
-        <div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div>
-      </div>`;
+    rendered.add(key);
+    bodyHtml+=buildUnifiedRow(di,item,day.id,unit);
   });
 
-  const totalEx = getExercises(day).length;
-  return `
+  // Abs circuit if present
+  let absHtml='';
+  if(day.absCircuit){
+    const ac=day.absCircuit;
+    absHtml=`<div class="abs-circuit">
+      <div class="abs-label">◈ ABS CIRCUIT</div>
+      ${ac.exercises.map((ex,i)=>`<div class="abs-row"><div class="abs-ex">${ex}</div><div class="abs-meta">${ac.reps[i]} reps</div></div>`).join('')}
+      <div class="abs-rounds">× ${ac.rounds} ROUNDS · MINIMAL REST</div>
+    </div>`;
+  }
+
+  const totalEx=getExercises(day).length;
+  return`
     <div class="day-header"><span>${day.label}</span></div>
     <div class="day-subheader">${day.sub}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span id="unit-display-${di}" style="color:var(--accent)">${unit.toUpperCase()}</span></div>
-      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit === 'kg' ? 'Switch to LBS' : 'Switch to KG'}</button>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
+      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit==='kg'?'Switch to LBS':'Switch to KG'}</button>
     </div>
     <div class="exercise-grid">${bodyHtml}</div>
-    <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}', ${di})">+ Add Exercise</button>
+    ${absHtml}
+    <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}',${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
     <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
       <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>
-      <button id="finish-btn-${di}" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;">FINISH SESSION</button>
+      <button class="finish-btn" id="finish-btn-${di}" onclick="markSessionDone('${day.id}',${di})">FINISH SESSION</button>
     </div>`;
 }
 
-function buildRecap() {
-  const savedAI = getAI(currentCycle);
-  const cards = PROGRAM.filter(d=>d.type!=='recap').map(day => {
-    const exercises = getExercises(day);
-    const unit = getUnit(currentCycle, day.id);
-    const regularCards = exercises.map((ex, ei) => {
-      const customName = getExName(day.id, ei);
-      const displayName = customName || ex.name;
-      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
-      const hasAny = sets.some(v=>v);
-      const setDisplay = sets.map(v => v ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>` : `<div class="recap-set empty">·</div>`).join('');
-      return `<div class="recap-card" style="${!hasAny?'opacity:0.35':''}"><div class="day-label">${day.label}</div><div class="ex-name">${displayName}</div><div class="recap-sets">${setDisplay}</div></div>`;
+function buildRecap(){
+  const days=getDays();
+  const savedAI=getAI(currentCycle);
+  const cards=days.filter(d=>d.type!=='recap').map(day=>{
+    const exercises=getExercises(day);
+    const unit=getUnit(currentCycle,day.id);
+    return exercises.map((ex,ei)=>{
+      const customName=getExName(day.id,ei);
+      const displayName=customName||ex.name;
+      const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
+      const hasAny=sets.some(v=>v);
+      const setDisplay=sets.map(v=>v?`<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`:`<div class="recap-set empty">·</div>`).join('');
+      return`<div class="recap-card" style="${!hasAny?'opacity:0.35':''}"><div class="day-label">${day.label}</div><div class="ex-name">${displayName}</div><div class="recap-sets">${setDisplay}</div></div>`;
     }).join('');
-    const bonus = getBonusExercises(currentCycle, day.id);
-    const bonusCards = bonus.map(bex => {
-      const hasAny = bex.sets.some(v=>v);
-      const setDisplay = bex.sets.map(v => v ? `<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>` : `<div class="recap-set empty">·</div>`).join('');
-      return `<div class="recap-card bonus-card" style="${!hasAny?'opacity:0.35':''}"><div class="day-label">${day.label} · BONUS</div><div class="ex-name">${bex.name}</div><div class="recap-sets">${setDisplay}</div></div>`;
-    }).join('');
-    return regularCards + bonusCards;
   }).join('');
-
-  const aiHtml = savedAI
-    ? `<div class="ai-box"><div class="ai-label">◈ AI Coach — Cycle ${currentCycle}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
-    : `<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes on this cycle.</p></div></div>`;
-
-  return `
+  const aiHtml=savedAI
+    ?`<div class="ai-box"><div class="ai-label">◈ AI Coach — Cycle ${currentCycle}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
+    :`<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes.</p></div></div>`;
+  return`
     <div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
-    <div class="day-subheader">D1 · D2 · D3 · REST · D4 · D5 · D6 · REST</div>
     <div class="recap-section"><div class="section-label">Logged Weights</div><div class="recap-grid">${cards}</div></div>
     <div class="recap-section">
       <div class="export-box">
-        <div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude for your check-in.</div>
+        <div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude.</div>
         <button class="btn btn-copy" onclick="exportCycle()">⬆ Copy for Claude</button>
       </div>
-      <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied! Paste into Claude.</span>
+      <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied!</span>
     </div>
     <div class="recap-section">
-      <div class="section-label">AI Coaching Analysis</div>
-      ${aiHtml}
+      <div class="section-label">AI Coaching Analysis</div>${aiHtml}
       <div class="btn-row" style="margin-top:14px;">
         <button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Cycle ${currentCycle} Recap</button>
       </div>
     </div>`;
 }
 
-function renderAll(smartOpen = false) {
-  const openIdx = smartOpen ? findMostRecentDayIdx() : 0;
-  document.getElementById('tabBar').innerHTML = PROGRAM.map((d,i) =>
+function renderAll(smartOpen=false){
+  const days=getDays();
+  const openIdx=smartOpen?findMostRecentDayIdx():0;
+  document.getElementById('tabBar').innerHTML=days.map((d,i)=>
     `<button class="tab ${d.type}${i===openIdx?' active':''}" onclick="switchTab(${i})">${d.label}</button>`
   ).join('');
-  const container = document.getElementById('panels');
-  container.innerHTML = '';
-  PROGRAM.forEach((day, di) => {
-    const panel = document.createElement('div');
-    panel.className = 'day-panel' + (di===openIdx?' active':'');
-    panel.innerHTML = day.type==='recap' ? buildRecap() : buildDay(day, di);
+  const container=document.getElementById('panels');
+  container.innerHTML='';
+  days.forEach((day,di)=>{
+    const panel=document.createElement('div');
+    panel.className='day-panel'+(di===openIdx?' active':'');
+    panel.innerHTML=day.type==='recap'?buildRecap():buildDay(day,di);
     container.appendChild(panel);
   });
-  PROGRAM.forEach((day, di) => {
-    if (day.type==='recap') return;
-    const exercises = getExercises(day);
-    exercises.forEach((ex, ei) => {
-      const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-      if (inputEl) inputEl.addEventListener('keydown', e => { if(e.key==='Enter') confirmEditName(di,ei,day.id); });
-      for (let s = 0; s < NUM_SETS; s++) {
-        const inp = document.getElementById(`inp_${di}_${ei}_${s}`);
-        if (!inp) continue;
-        const val = getSet(currentCycle, day.id, ei, s);
-        const prevVal = currentCycle > 1 ? getSet(currentCycle-1, day.id, ei, s) : '';
-        inp.value = val;
-        if (val) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
-        else if (prevVal) { inp.style.color = 'var(--muted2)'; }
-        inp.addEventListener('focus', () => { if (!inp.value) inp.style.color = 'var(--text)'; });
-        inp.addEventListener('blur', () => { if (!inp.value && prevVal) inp.style.color = 'var(--muted2)'; });
-        inp.addEventListener('input', () => {
-          setSet(currentCycle, day.id, ei, s, inp.value);
-          inp.classList.toggle('has-value', !!inp.value);
-          inp.style.color = inp.value ? 'var(--accent)' : (prevVal ? 'var(--muted2)' : 'var(--text)');
+  days.forEach((day,di)=>{
+    if(day.type==='recap')return;
+    const exercises=getExercises(day);
+    exercises.forEach((ex,ei)=>{
+      const inputEl=document.getElementById(`exinput_${di}_${ei}`);
+      if(inputEl)inputEl.addEventListener('keydown',e=>{if(e.key==='Enter')confirmEditName(di,ei,day.id);});
+      for(let s=0;s<NUM_SETS;s++){
+        const inp=document.getElementById(`inp_${di}_${ei}_${s}`);
+        if(!inp)continue;
+        const val=getSet(currentCycle,day.id,ei,s);
+        const prevVal=getLastWeight(day.id,ei,s);
+        inp.value=val;
+        if(val){inp.classList.add('has-value');inp.style.color='var(--accent)';}
+        else if(prevVal){inp.style.color='var(--muted2)';}
+        inp.addEventListener('focus',()=>{if(!inp.value)inp.style.color='var(--text)';});
+        inp.addEventListener('blur',()=>{if(!inp.value&&prevVal)inp.style.color='var(--muted2)';});
+        inp.addEventListener('input',()=>{
+          setSet(currentCycle,day.id,ei,s,inp.value);
+          inp.classList.toggle('has-value',!!inp.value);
+          inp.style.color=inp.value?'var(--accent)':(prevVal?'var(--muted2)':'var(--text)');
           updateProgress(di);
         });
       }
     });
-    const bonus = getBonusExercises(currentCycle, day.id);
-    bonus.forEach((bex, bi) => {
-      const nameInp = document.getElementById(`bonus_name_${di}_${bi}`);
-      if (nameInp) nameInp.addEventListener('keydown', e => { if(e.key==='Enter') confirmBonusName(di,bi,day.id); });
-      for (let s = 0; s < NUM_SETS; s++) {
-        const inp = document.getElementById(`binp_${di}_${bi}_${s}`);
-        if (!inp) continue;
-        inp.value = bex.sets[s] || '';
-        if (inp.value) { inp.classList.add('has-value'); inp.style.color = 'var(--accent)'; }
-        inp.addEventListener('input', () => {
-          ensureDay(currentCycle, day.id);
-          let saved = cloudData.cycles[`c${currentCycle}`][day.id].bonus || [];
-          const existing = saved.find(b => b.name === bex.name);
-          if (existing) { existing.sets[s] = inp.value; }
-          else { const newEntry = { name: bex.name, sets: ['','','',''] }; newEntry.sets[s] = inp.value; saved.push(newEntry); cloudData.cycles[`c${currentCycle}`][day.id].bonus = saved; }
-          debouncedSave();
-          inp.classList.toggle('has-value', !!inp.value);
-          inp.style.color = inp.value ? 'var(--accent)' : 'var(--text)';
-          updateProgress(di);
+    const bonus=getBonusExercises(currentCycle,day.id);
+    bonus.forEach((bex,bi)=>{
+      const nameInp=document.getElementById(`bonus_name_${di}_${bi}`);
+      if(nameInp)nameInp.addEventListener('keydown',e=>{if(e.key==='Enter')confirmBonusName(di,bi,day.id);});
+      for(let s=0;s<NUM_SETS;s++){
+        const inp=document.getElementById(`binp_${di}_${bi}_${s}`);
+        if(!inp)continue;
+        inp.value=bex.sets[s]||'';
+        if(inp.value){inp.classList.add('has-value');inp.style.color='var(--accent)';}
+        inp.addEventListener('input',()=>{
+          ensureDay(currentCycle,day.id);
+          let saved=cloudData.cycles[`c${currentCycle}`][day.id].bonus||[];
+          const existing=saved.find(b=>b.name===bex.name);
+          if(existing){existing.sets[s]=inp.value;}else{const ne={name:bex.name,sets:['','','','']};ne.sets[s]=inp.value;saved.push(ne);cloudData.cycles[`c${currentCycle}`][day.id].bonus=saved;}
+          debouncedSave();inp.classList.toggle('has-value',!!inp.value);inp.style.color=inp.value?'var(--accent)':'var(--text)';updateProgress(di);
         });
       }
     });
-    const notes = document.getElementById(`notes_${di}`);
-    if (notes) { notes.value = getNotes(currentCycle, day.id); notes.addEventListener('input', () => setNotes(currentCycle, day.id, notes.value)); }
-    const finishBtn = document.getElementById(`finish-btn-${di}`);
-    if (finishBtn) {
-      if (isSessionDone(currentCycle, day.id)) { finishBtn.textContent = '✓ SESSION DONE'; finishBtn.style.borderColor = 'var(--accent)'; finishBtn.style.color = 'var(--accent)'; }
-      finishBtn.addEventListener('click', () => markSessionDone(day.id, di));
-    }
+    const notes=document.getElementById(`notes_${di}`);
+    if(notes){notes.value=getNotes(currentCycle,day.id);notes.addEventListener('input',()=>setNotes(currentCycle,day.id,notes.value));}
+    const fb=document.getElementById(`finish-btn-${di}`);
+    if(fb&&isSessionDone(currentCycle,day.id)){fb.textContent='✓ DONE';fb.style.borderColor='var(--accent)';fb.style.color='var(--accent)';}
     updateProgress(di);
   });
 }
 
-function updateProgress(di) {
-  const day = PROGRAM[di]; if (!day || day.type==='recap') return;
-  const exercises = getExercises(day);
-  let n = 0;
-  exercises.forEach((_,ei) => { for (let s = 0; s < NUM_SETS; s++) { if (getSet(currentCycle, day.id, ei, s)) { n++; break; } } });
-  const pct = Math.round(n / exercises.length * 100);
-  const bar = document.getElementById(`prog_${di}`); const cnt = document.getElementById(`cnt_${di}`);
-  if(bar) bar.style.width = pct+'%';
-  if(cnt) cnt.textContent = `${n} / ${exercises.length} logged`;
+function updateProgress(di){
+  const day=getDays()[di];if(!day||day.type==='recap')return;
+  const exercises=getExercises(day);let n=0;
+  exercises.forEach((_,ei)=>{for(let s=0;s<NUM_SETS;s++){if(getSet(currentCycle,day.id,ei,s)){n++;break;}}});
+  const pct=Math.round(n/exercises.length*100);
+  const bar=document.getElementById(`prog_${di}`);const cnt=document.getElementById(`cnt_${di}`);
+  if(bar)bar.style.width=pct+'%';if(cnt)cnt.textContent=`${n} / ${exercises.length} logged`;
 }
 
-function startEditName(di, ei, dayId) {
-  const nameEl = document.getElementById(`exname_${di}_${ei}`); const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`); const editBtn = document.getElementById(`exedit_${di}_${ei}`);
-  inputEl.value = nameEl.textContent; nameEl.style.display = 'none'; editBtn.style.display = 'none';
-  inputEl.style.display = 'block'; confirmEl.style.display = 'block'; inputEl.focus(); inputEl.select();
+function toggleUnit(dayId,di){
+  const current=getUnit(currentCycle,dayId);const next=current==='lbs'?'kg':'lbs';
+  setUnit(currentCycle,dayId,next);
+  document.querySelectorAll(`.unit-label-${di}`).forEach(el=>el.textContent=next);
+  const day=getDays()[di];if(!day)return;
+  getExercises(day).forEach((ex,ei)=>{
+    for(let s=0;s<NUM_SETS;s++){
+      const inp=document.getElementById(`inp_${di}_${ei}_${s}`);
+      if(!inp||!inp.value)continue;
+      const num=parseFloat(inp.value);if(isNaN(num))continue;
+      const converted=next==='kg'?(num/2.2046).toFixed(1):(num*2.2046).toFixed(1);
+      inp.value=converted;setSet(currentCycle,dayId,ei,s,converted);
+    }
+  });
+  const btn=document.getElementById(`unit-toggle-${di}`);if(btn)btn.textContent=next==='kg'?'Switch to LBS':'Switch to KG';
 }
 
-function confirmEditName(di, ei, dayId) {
-  const nameEl = document.getElementById(`exname_${di}_${ei}`); const inputEl = document.getElementById(`exinput_${di}_${ei}`);
-  const confirmEl = document.getElementById(`exconfirm_${di}_${ei}`); const editBtn = document.getElementById(`exedit_${di}_${ei}`);
-  const newName = inputEl.value.trim();
-  const exercises = getExercises(PROGRAM[di]);
-  const defaultName = exercises[ei]?.name || '';
-  if (newName && newName !== defaultName) { nameEl.textContent = newName; nameEl.classList.add('custom'); setExName(dayId, ei, newName); }
-  else { nameEl.textContent = defaultName; nameEl.classList.remove('custom'); setExName(dayId, ei, null); }
-  nameEl.style.display = 'block'; editBtn.style.display = 'block'; inputEl.style.display = 'none'; confirmEl.style.display = 'none';
+// ── EDIT NAMES ──
+function startEditName(di,ei,dayId){const n=document.getElementById(`exname_${di}_${ei}`);const i=document.getElementById(`exinput_${di}_${ei}`);const c=document.getElementById(`exconfirm_${di}_${ei}`);const b=document.getElementById(`exedit_${di}_${ei}`);i.value=n.textContent;n.style.display='none';if(b)b.style.display='none';i.style.display='block';c.style.display='block';i.focus();i.select();}
+function confirmEditName(di,ei,dayId){const n=document.getElementById(`exname_${di}_${ei}`);const i=document.getElementById(`exinput_${di}_${ei}`);const c=document.getElementById(`exconfirm_${di}_${ei}`);const b=document.getElementById(`exedit_${di}_${ei}`);const newName=i.value.trim();const exercises=getExercises(getDays()[di]);const defaultName=exercises[ei]?.name||'';if(newName&&newName!==defaultName){n.textContent=newName;n.classList.add('custom');setExName(dayId,ei,newName);}else{n.textContent=defaultName;n.classList.remove('custom');setExName(dayId,ei,null);}n.style.display='block';if(b)b.style.display='block';i.style.display='none';c.style.display='none';}
+function startEditBonusName(di,bi,dayId){const n=document.getElementById(`bonus_exname_${di}_${bi}`);const i=document.getElementById(`bonus_name_${di}_${bi}`);const c=document.getElementById(`bonus_confirm_${di}_${bi}`);const b=document.getElementById(`bonus_edit_${di}_${bi}`);i.value=n.textContent;n.style.display='none';if(b)b.style.display='none';i.style.display='block';c.style.display='block';i.focus();i.select();}
+function confirmBonusName(di,bi,dayId){const n=document.getElementById(`bonus_exname_${di}_${bi}`);const i=document.getElementById(`bonus_name_${di}_${bi}`);const c=document.getElementById(`bonus_confirm_${di}_${bi}`);const b=document.getElementById(`bonus_edit_${di}_${bi}`);const newName=i.value.trim()||'New Exercise';n.textContent=newName;n.style.display='block';if(b)b.style.display='block';i.style.display='none';c.style.display='none';const bonus=getBonusExercises(currentCycle,dayId);if(bonus[bi]){bonus[bi].name=newName;saveBonusExercises(currentCycle,dayId,bonus);}}
+
+// ── BONUS EXERCISES ──
+function addBonusExercise(dayId,di){
+  const bonus=getBonusExercises(currentCycle,dayId);
+  bonus.push({name:'New Exercise',sets:['','','','']});
+  saveBonusExercises(currentCycle,dayId,bonus);
+  renderAll(false);switchTab(di);
+  const bi=bonus.length-1;
+  const inp=document.getElementById(`bonus_name_${di}_${bi}`);if(inp){inp.style.display='block';inp.focus();inp.select();}
+  const nameEl=document.getElementById(`bonus_exname_${di}_${bi}`);if(nameEl)nameEl.style.display='none';
+  const confirmEl=document.getElementById(`bonus_confirm_${di}_${bi}`);if(confirmEl)confirmEl.style.display='block';
+  const editBtn=document.getElementById(`bonus_edit_${di}_${bi}`);if(editBtn)editBtn.style.display='none';
+}
+function deleteBonusExercise(dayId,di,bonusName,isCarried){
+  if(isCarried){removeBonusPermanently(dayId,di,bonusName);return;}
+  ensureDay(currentCycle,dayId);
+  cloudData.cycles[`c${currentCycle}`][dayId].bonus=(cloudData.cycles[`c${currentCycle}`][dayId].bonus||[]).filter(b=>b.name!==bonusName);
+  debouncedSave();renderAndStay(di);
 }
 
-function addBonusExercise(dayId, di) {
-  const bonus = getBonusExercises(currentCycle, dayId);
-  bonus.push({ name: 'New Exercise', sets: ['','','',''] });
-  saveBonusExercises(currentCycle, dayId, bonus);
-  renderAll(false); switchTab(di);
-  const bi = bonus.length - 1;
-  const inp = document.getElementById(`bonus_name_${di}_${bi}`);
-  if (inp) { inp.style.display = 'block'; inp.focus(); inp.select(); }
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); if (nameEl) nameEl.style.display = 'none';
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); if (confirmEl) confirmEl.style.display = 'block';
-  const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`); if (editBtn) editBtn.style.display = 'none';
-}
-
-function startEditBonusName(di, bi, dayId) {
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
-  inputEl.value = nameEl.textContent; nameEl.style.display = 'none'; editBtn.style.display = 'none';
-  inputEl.style.display = 'block'; confirmEl.style.display = 'block'; inputEl.focus(); inputEl.select();
-}
-
-function confirmBonusName(di, bi, dayId) {
-  const nameEl = document.getElementById(`bonus_exname_${di}_${bi}`); const inputEl = document.getElementById(`bonus_name_${di}_${bi}`);
-  const confirmEl = document.getElementById(`bonus_confirm_${di}_${bi}`); const editBtn = document.getElementById(`bonus_edit_${di}_${bi}`);
-  const newName = inputEl.value.trim() || 'New Exercise';
-  nameEl.textContent = newName; nameEl.style.display = 'block'; editBtn.style.display = 'block';
-  inputEl.style.display = 'none'; confirmEl.style.display = 'none';
-  const bonus = getBonusExercises(currentCycle, dayId);
-  if (bonus[bi]) { bonus[bi].name = newName; saveBonusExercises(currentCycle, dayId, bonus); }
-}
-
-function deleteBonusExercise(dayId, di, bonusName, isCarried) {
-  if (isCarried) { removeBonusPermanently(dayId, di, bonusName); return; }
-  const bonus = cloudData?.cycles?.[`c${currentCycle}`]?.[dayId]?.bonus || [];
-  ensureDay(currentCycle, dayId);
-  cloudData.cycles[`c${currentCycle}`][dayId].bonus = bonus.filter(b => b.name !== bonusName);
-  debouncedSave(); renderAndStay(di);
-}
-
-function exportCycle() {
-  const cycleKeys = Object.keys(cloudData.cycles || {});
-  let maxCycle = 1;
-  cycleKeys.forEach(k => { const n = parseInt(k.replace('c','')); if (!isNaN(n) && n > maxCycle) maxCycle = n; });
-  let text = `LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\nCurrent Cycle: ${currentCycle} | Total Cycles: ${maxCycle}\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
-  for (let c = 1; c <= maxCycle; c++) {
-    let cycleHasData = false;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
-      if (getExercises(day).some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v))) cycleHasData = true;
-    });
-    if (!cycleHasData) continue;
-    text += `── CYCLE ${c} ──\n`;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
-      const exercises = getExercises(day); const unit = getUnit(c, day.id); const notes = getNotes(c, day.id);
-      let hasData = exercises.some((_,ei) => Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
-      const bonus = cloudData?.cycles?.[`c${c}`]?.[day.id]?.bonus || [];
-      if (!hasData && !bonus.some(b=>b.sets&&b.sets.some(v=>v)) && !notes) return;
-      text += `${day.label} [${unit.toUpperCase()}]\n`;
-      exercises.forEach((ex,ei) => {
-        const customName = getExName(day.id, ei);
-        const displayName = customName ? `${customName} (sub for ${ex.name})` : ex.name;
-        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s));
-        if (!sets.some(v=>v)) return;
-        text += `  ${displayName}: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;
+// ── EXPORT ──
+function exportCycle(){
+  const days=getDays();
+  const cycleKeys=Object.keys(cloudData.cycles||{});let maxCycle=1;
+  cycleKeys.forEach(k=>{const n=parseInt(k.replace('c',''));if(!isNaN(n)&&n>maxCycle)maxCycle=n;});
+  const programName=getProgramName(activeProgram);
+  let text=`${programName} — FULL TRAINING HISTORY\n${'='.repeat(36)}\nCurrent Cycle: ${currentCycle} | Total Cycles: ${maxCycle}\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
+  for(let c=1;c<=maxCycle;c++){
+    let hasData=false;
+    days.filter(d=>d.type!=='recap').forEach(day=>{if(getExercises(day).some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)))hasData=true;});
+    if(!hasData)continue;
+    text+=`── CYCLE ${c} ──\n`;
+    days.filter(d=>d.type!=='recap').forEach(day=>{
+      const exercises=getExercises(day);const unit=getUnit(c,day.id);const notes=getNotes(c,day.id);
+      let hasD=exercises.some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
+      const bonus=cloudData?.cycles?.[`c${c}`]?.[day.id]?.bonus||[];
+      if(!hasD&&!bonus.some(b=>b.sets&&b.sets.some(v=>v))&&!notes)return;
+      text+=`${day.label} [${unit.toUpperCase()}]\n`;
+      exercises.forEach((ex,ei)=>{
+        const customName=getExName(day.id,ei);const displayName=customName?`${customName} (sub for ${ex.name})`:ex.name;
+        const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s));
+        if(!sets.some(v=>v))return;
+        text+=`  ${displayName}: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;
       });
-      bonus.forEach(bex => {
-        if (!bex.sets||!bex.sets.some(v=>v)) return;
-        text += `  ${bex.name} [BONUS]: ${bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;
-      });
-      if (notes) text += `  Notes: ${notes}\n`;
+      bonus.forEach(bex=>{if(!bex.sets||!bex.sets.some(v=>v))return;text+=`  ${bex.name} [BONUS]: ${bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;});
+      if(notes)text+=`  Notes: ${notes}\n`;
     });
-    text += '\n';
+    text+='\n';
   }
-  text += `── PROGRESSION SUMMARY (top set per cycle) ──\n`;
-  PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
-    getExercises(day).forEach((ex,ei) => {
-      const history = [];
-      for (let c = 1; c <= maxCycle; c++) {
-        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).filter(Boolean);
-        if (sets.length) history.push(`C${c}:${Math.max(...sets.map(Number))}`);
-      }
-      if (history.length > 1) text += `  ${getExName(day.id,ei)||ex.name}: ${history.join(' → ')}\n`;
+  text+=`── PROGRESSION SUMMARY ──\n`;
+  days.filter(d=>d.type!=='recap').forEach(day=>{
+    getExercises(day).forEach((ex,ei)=>{
+      const history=[];
+      for(let c=1;c<=maxCycle;c++){const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).filter(Boolean);if(sets.length)history.push(`C${c}:${Math.max(...sets.map(Number))}`);}
+      if(history.length>1)text+=`  ${getExName(day.id,ei)||ex.name}: ${history.join(' → ')}\n`;
     });
   });
-  text += `\nPaste into Claude and say "cycle check-in".`;
-  navigator.clipboard.writeText(text).then(() => {
-    const el = document.getElementById('exportFlash');
-    if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
-  }).catch(() => { prompt('Copy this:', text); });
+  text+=`\nPaste into Claude and say "cycle check-in".`;
+  navigator.clipboard.writeText(text).then(()=>{const el=document.getElementById('exportFlash');if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}}).catch(()=>{prompt('Copy this:',text);});
 }
 
-async function generateRecap() {
-  const btn = document.getElementById('genBtn'); const content = document.getElementById('aiContent');
-  btn.disabled = true; btn.innerHTML = '<span class="dot-loader"><span></span><span></span><span></span></span>';
-  let prompt = `You are an expert strength and hypertrophy coach. Analyze this training cycle.\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Right knee recovering — ramp slowly.\n\nCycle ${currentCycle}:\n\n`;
-  PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
-    const exercises = getExercises(day); const unit = getUnit(currentCycle, day.id);
-    prompt += `${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
-    exercises.forEach((ex,ei) => {
-      const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));
-      if (!sets.some(v=>v)) return;
-      prompt += `  ${getExName(day.id,ei)||ex.name} [${ex.tier}] (${ex.reps}): ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;
-    });
-    const bonus = getBonusExercises(currentCycle, day.id);
-    bonus.forEach(bex => { if (!bex.sets||!bex.sets.some(v=>v)) return; prompt += `  ${bex.name} [BONUS]: ${bex.sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`; });
-    const n = getNotes(currentCycle, day.id); if(n) prompt += `  Notes: ${n}\n`;
-    prompt += '\n';
+// ── AI RECAP ──
+async function generateRecap(){
+  const btn=document.getElementById('genBtn');const content=document.getElementById('aiContent');
+  btn.disabled=true;btn.innerHTML='<span class="dot-loader"><span></span><span></span><span></span></span>';
+  const days=getDays();
+  let prompt=`You are an expert strength and hypertrophy coach. Analyze this training cycle.\nGoals: Lean bulk. Focus: chest, shoulder width, rear delts, bicep size, quad rebuild. Right knee recovering.\n\nCycle ${currentCycle}:\n\n`;
+  days.filter(d=>d.type!=='recap').forEach(day=>{
+    const exercises=getExercises(day);const unit=getUnit(currentCycle,day.id);
+    prompt+=`${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
+    exercises.forEach((ex,ei)=>{const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));if(!sets.some(v=>v))return;prompt+=`  ${getExName(day.id,ei)||ex.name} [${ex.tier}] (${ex.reps}): ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;});
+    const n=getNotes(currentCycle,day.id);if(n)prompt+=`  Notes: ${n}\n`;prompt+='\n';
   });
-  if (currentCycle > 1) {
-    prompt += `\nPrev Cycle (${currentCycle-1}) top sets:\n`;
-    PROGRAM.filter(d=>d.type!=='recap').forEach(day => {
-      getExercises(day).forEach((ex,ei) => {
-        const sets = Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle-1,day.id,ei,s)).filter(Boolean);
-        if (sets.length) prompt += `  ${ex.name}: ${Math.max(...sets.map(Number))} top set\n`;
-      });
-    });
-  }
-  prompt += `\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts\n3. **Next Cycle Targets** — specific weight suggestions\n4. **Watch Points** — 1-2 adjustments\n\nBe direct. HTML <p> and <strong> tags only.`;
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]}) });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('')||'Could not generate.';
-    content.innerHTML = text; setAI(currentCycle, text);
-  } catch(e) { content.innerHTML = '<p style="color:var(--accent2)">Connection error. Try again.</p>'; }
-  btn.disabled = false; btn.textContent = `Regenerate Cycle ${currentCycle} Recap`;
+  prompt+=`\nProvide:\n1. **Overview** — 2 sentences\n2. **Wins** — 2-3 specific callouts\n3. **Next Cycle Targets** — specific weight suggestions\n4. **Watch Points** — 1-2 adjustments\n\nBe direct. HTML <p> and <strong> tags only.`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();const text=data.content?.map(b=>b.text||'').join('')||'Could not generate.';
+    content.innerHTML=text;setAI(currentCycle,text);
+  }catch(e){content.innerHTML='<p style="color:var(--accent2)">Connection error. Try again.</p>';}
+  btn.disabled=false;btn.textContent=`Regenerate Cycle ${currentCycle} Recap`;
 }
 
-loadFromCloud();
+// ── INIT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  updateHomeCardMeta();
+  document.getElementById('loadingOverlay').style.display='none';
+});
 </script>
 </body>
 </html>
