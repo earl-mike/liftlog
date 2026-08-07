@@ -224,6 +224,22 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
       </div>
     </div>
 
+    <div class="program-card" style="border-left:3px solid var(--green);">
+      <div class="card-emoji">🏕️</div>
+      <div class="card-name-wrap">
+        <div class="card-name" style="color:var(--green);" id="camperCardName">CAMPER</div>
+        <button class="card-rename-btn" onclick="startRename('camper')" title="Rename">✎</button>
+        <input class="card-rename-input" id="camperRenameInput" maxlength="20" onkeydown="if(event.key==='Enter')confirmRename('camper')">
+        <button class="name-confirm-btn" id="camperRenameConfirm" onclick="confirmRename('camper')">✓</button>
+      </div>
+      <div class="card-desc" id="camperCardDesc">6-DAY CAMP · DUMBBELLS + BANDS + BODYWEIGHT · HIGH REP PUMP</div>
+      <div class="card-meta" id="camperCardMeta">No cloud sync · stored locally</div>
+      <div class="card-actions">
+        <button class="card-open-btn" onclick="openProgram('camper')" style="border-color:var(--green);color:var(--green);">▶ OPEN PROGRAM</button>
+        <button class="new-cycle-btn" onclick="promptNewCycle('camper')">↺ RESET</button>
+      </div>
+    </div>
+
     <div class="program-card travel-card">
       <div class="card-emoji">✈️</div>
       <div class="card-name-wrap">
@@ -280,73 +296,172 @@ let pendingNewCycleProgram = null;
 
 const PROGRAMS = {
   main: {
-    version: 'v5',
+    version: 'v6',
     localKey: 'll_backup',
     versionKey: 'll_version',
     namesKey: 'll_names',
     days: [
       {id:'day1',label:'DAY 1',sub:'CHEST + TRICEPS',type:'chest',
-        supersets:[
-          {label:'SS1',exercises:[{name:'Incline Barbell Press',tier:'S+',reps:'6–8'},{name:'Dips',tier:'S+',reps:'8–12'}]},
-          {label:'SS2',exercises:[{name:'Barbell Bench Press',tier:'S+',reps:'6–8'},{name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'}]},
-          {label:'SS3',exercises:[{name:'Machine Chest Press',tier:'S',reps:'10–12'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'}]},
-          {label:'SS4',exercises:[{name:'Dumbbell Fly',tier:'S',reps:'12–15'},{name:'Rope Pushdown',tier:'A',reps:'15–20'}]},
+        exercises:[
+          {name:'Incline Barbell Press',tier:'S+',reps:'6–8'},
+          {name:'Barbell Bench Press',tier:'S+',reps:'6–8'},
+          {name:'Machine Chest Press',tier:'S',reps:'10–12'},
+          {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
+          {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
+          {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+          {name:'Rope Pushdown',tier:'A',reps:'15–20'},
+          {name:'Dips',tier:'S+',reps:'8–12'},
         ]},
       {id:'day2',label:'DAY 2',sub:'BACK + BICEPS',type:'back',
-        supersets:[
-          {label:'SS1',exercises:[{name:'Chest Supported Row',tier:'S+',reps:'8–10'},{name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'}]},
-          {label:'SS2',exercises:[{name:'Wide Grip Lat Pulldown',tier:'S',reps:'10–12'},{name:'Preacher Curl',tier:'S',reps:'10–12'}]},
-          {label:'SS3',exercises:[{name:'Single Arm Lat Pulldown',tier:'S',reps:'10–12'},{name:'Hammer Curl',tier:'S',reps:'12–15'}]},
-          {label:'SS4',exercises:[{name:'Single Arm Cable Row',tier:'S',reps:'10–12'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'}]},
-        ]},
-      {id:'day3',label:'DAY 3',sub:'SHOULDERS + LEGS',type:'shoulders',
         exercises:[
-          {name:'Arnold Press',tier:'S',reps:'8–10'},{name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
-          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},{name:'Cable Upright Row',tier:'S',reps:'12–15'},
-          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},{name:'Front Squat',tier:'S+',reps:'5–8'},
-          {name:'Leg Press (high foot)',tier:'S',reps:'10–12'},{name:'Leg Extension (controlled)',tier:'S',reps:'15–20'},
+          {name:'Chest Supported Row',tier:'S+',reps:'8–10'},
+          {name:'Wide Grip Lat Pulldown',tier:'S',reps:'10–12'},
+          {name:'Single Arm Lat Pulldown',tier:'S',reps:'10–12'},
+          {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
+          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
+          {name:'Preacher Curl',tier:'S',reps:'10–12'},
+          {name:'Hammer Curl',tier:'S',reps:'12–15'},
+          {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+        ]},
+      {id:'day3',label:'DAY 3',sub:'SHOULDERS + LEGS (QUAD)',type:'shoulders',
+        exercises:[
+          {name:'Arnold Press',tier:'S',reps:'8–10'},
+          {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
+          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},
+          {name:'Cable Upright Row',tier:'S',reps:'12–15'},
+          {name:'Leg Press (high foot)',tier:'S',reps:'10–12'},
+          {name:'Leg Extension (controlled)',tier:'S',reps:'15–20'},
+          {name:'Hack Squat',tier:'S',reps:'10–12'},
         ]},
       {id:'day4',label:'DAY 4',sub:'CHEST + BACK',type:'chest-back',
-        supersets:[
-          {label:'SS1',exercises:[{name:'Incline Dumbbell Press',tier:'S+',reps:'8–10'},{name:'Meadows Row',tier:'S+',reps:'10–12'}]},
-          {label:'SS2',exercises:[{name:'Incline Machine Press',tier:'S',reps:'10–12'},{name:'Close Grip Cable Row',tier:'S',reps:'10–12'}]},
-          {label:'SS3',exercises:[{name:'Cable Pec Fly',tier:'S',reps:'12–15'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'}]},
-          {label:'SS4',exercises:[{name:'Dumbbell Fly',tier:'S',reps:'12–15'},{name:'Cable Y Raise',tier:'A',reps:'15–20'}]},
+        exercises:[
+          {name:'Incline Dumbbell Press',tier:'S+',reps:'8–10'},
+          {name:'Meadows Row',tier:'S+',reps:'10–12'},
+          {name:'Incline Machine Press',tier:'S',reps:'10–12'},
+          {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
+          {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
+          {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+          {name:'Dumbbell Fly',tier:'S',reps:'12–15'},
+          {name:'Cable Y Raise',tier:'A',reps:'15–20'},
         ]},
       {id:'day5',label:'DAY 5',sub:'ARMS BLAST',type:'arms',
-        supersets:[
-          {label:'SS1',exercises:[{name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},{name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'}]},
-          {label:'SS2',exercises:[{name:'Preacher Curl',tier:'S',reps:'10–12'},{name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'}]},
-          {label:'SS3',exercises:[{name:'Hammer Curl',tier:'S',reps:'12–15'},{name:'Rope Pushdown',tier:'A',reps:'15–20'}]},
-          {label:'SS4',exercises:[{name:'Incline DB Curl',tier:'S',reps:'10–12'},{name:'Single Arm Pushdown',tier:'A',reps:'15–20'}]},
-        ],
-        finisher:[{name:'Dumbbell Lateral Raise',tier:'S',reps:'15–20'},{name:'Cable Lateral Raise',tier:'S',reps:'15–20'}]},
+        exercises:[
+          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
+          {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+          {name:'Preacher Curl',tier:'S',reps:'10–12'},
+          {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
+          {name:'Hammer Curl',tier:'S',reps:'12–15'},
+          {name:'Rope Pushdown',tier:'A',reps:'15–20'},
+          {name:'Incline DB Curl',tier:'S',reps:'10–12'},
+          {name:'Single Arm Pushdown',tier:'A',reps:'15–20'},
+        ]},
       {id:'day6',label:'DAY 6',sub:'SHOULDERS + LEGS (GLUTE)',type:'shoulders-legs',
         exercises:[
-          {name:'Arnold Press',tier:'S',reps:'8–10'},{name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
-          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},{name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
-          {name:'Cable Upright Row',tier:'S',reps:'12–15'},{name:'Single Leg RDL',tier:'S+',reps:'10–12'},
-          {name:'Bulgarian Split Squat',tier:'S',reps:'10–12'},{name:'Leg Extension (controlled)',tier:'A',reps:'15–20'},
+          {name:'Arnold Press',tier:'S',reps:'8–10'},
+          {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+          {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
+          {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+          {name:'Cable Upright Row',tier:'S',reps:'12–15'},
+          {name:'Hip Thrust',tier:'S+',reps:'10–12'},
+          {name:'Romanian Deadlift',tier:'S',reps:'8–10'},
+          {name:'Leg Extension (controlled)',tier:'A',reps:'15–20'},
         ]},
       {id:'recap',label:'RECAP',sub:'',type:'recap',exercises:[]}
     ]
   },
+  camper: {
+    version: 'camp1',
+    localKey: 'll_camper_backup',
+    versionKey: 'll_camper_version',
+    namesKey: 'll_camper_names',
+    localOnly: true,
+    days: [
+      {id:'c1',label:'DAY 1',sub:'PUSH — CHEST + SHOULDERS + TRICEPS',type:'chest',
+        exercises:[
+          {name:'DB Press',tier:'S',reps:'15–20'},
+          {name:'DB Chest Fly',tier:'S',reps:'15–20'},
+          {name:'DB Overhead Press',tier:'S',reps:'15–20'},
+          {name:'Band Lateral Raise',tier:'S',reps:'20–25'},
+          {name:'Band Front Raise',tier:'A',reps:'20–25'},
+          {name:'Pike Push Up',tier:'S',reps:'15–20'},
+          {name:'Band Tricep Pushdown',tier:'S',reps:'20–25'},
+          {name:'Step Push Up',tier:'A',reps:'15–20'},
+        ]},
+      {id:'c2',label:'DAY 2',sub:'PULL — BACK + BICEPS',type:'back',
+        exercises:[
+          {name:'Single Arm DB Row',tier:'S+',reps:'15–20'},
+          {name:'Renegade Row',tier:'S',reps:'12–15'},
+          {name:'Band Pull Apart',tier:'S',reps:'20–25'},
+          {name:'Band Seated Row',tier:'S',reps:'20–25'},
+          {name:'DB Curl',tier:'S',reps:'15–20'},
+          {name:'Hammer Curl',tier:'S',reps:'15–20'},
+          {name:'Band Curl',tier:'A',reps:'20–25'},
+          {name:'Superman Hold',tier:'A',reps:'12–15'},
+        ]},
+      {id:'c3',label:'DAY 3',sub:'LEGS + GLUTES',type:'lower',
+        exercises:[
+          {name:'DB Squat',tier:'S',reps:'15–20'},
+          {name:'DB Romanian Deadlift',tier:'S',reps:'15–20'},
+          {name:'DB Bulgarian Split Squat',tier:'S',reps:'12–15'},
+          {name:'Step Up',tier:'S',reps:'15–20'},
+          {name:'Band Glute Bridge',tier:'S+',reps:'20–25'},
+          {name:'DB Sumo Squat',tier:'S',reps:'15–20'},
+          {name:'Band Abduction',tier:'A',reps:'20–25'},
+          {name:'Single Leg Calf Raise',tier:'A',reps:'20–25'},
+        ]},
+      {id:'c4',label:'DAY 4',sub:'UPPER FULL PUMP',type:'upper',
+        exercises:[
+          {name:'DB Incline Press',tier:'S',reps:'15–20'},
+          {name:'DB Fly',tier:'S',reps:'15–20'},
+          {name:'Single Arm DB Row',tier:'S+',reps:'15–20'},
+          {name:'DB Lateral Raise',tier:'S',reps:'20–25'},
+          {name:'DB Curl',tier:'S',reps:'15–20'},
+          {name:'Band Face Pull',tier:'S+',reps:'20–25'},
+          {name:'Band Tricep Ext',tier:'S',reps:'20–25'},
+          {name:'Push Up',tier:'A',reps:'15–20'},
+        ]},
+      {id:'c5',label:'DAY 5',sub:'LEGS + POSTERIOR CHAIN',type:'lower',
+        exercises:[
+          {name:'DB Reverse Lunge',tier:'S',reps:'15–20'},
+          {name:'DB Single Leg RDL',tier:'S+',reps:'12–15'},
+          {name:'Step Up',tier:'S',reps:'15–20'},
+          {name:'Band Squat',tier:'S',reps:'20–25'},
+          {name:'DB Sumo Squat',tier:'S',reps:'15–20'},
+          {name:'Band Glute Bridge',tier:'S+',reps:'20–25'},
+          {name:'Band Abduction',tier:'A',reps:'20–25'},
+          {name:'Single Leg Calf Raise',tier:'A',reps:'20–25'},
+        ]},
+      {id:'c6',label:'DAY 6',sub:'FULL BODY FINISHER',type:'arms',
+        exercises:[
+          {name:'DB Press',tier:'S',reps:'15–20'},
+          {name:'Single Arm DB Row',tier:'S+',reps:'15–20'},
+          {name:'DB Curl',tier:'S',reps:'15–20'},
+          {name:'DB Squat',tier:'S',reps:'15–20'},
+          {name:'DB Romanian Deadlift',tier:'S',reps:'15–20'},
+          {name:'DB Lateral Raise',tier:'S',reps:'20–25'},
+          {name:'Band Tricep Pushdown',tier:'S',reps:'20–25'},
+          {name:'Push Up',tier:'A',reps:'15–20'},
+        ]},
+      {id:'crecap',label:'RECAP',sub:'',type:'recap',exercises:[]}
+    ]
+  },
   travel: {
-    version: 'tv2',
+    version: 'tv3',
     localKey: 'll_travel_backup',
     versionKey: 'll_travel_version',
     namesKey: 'll_travel_names',
     days: [
       {id:'t1',label:'DAY 1',sub:'CHEST + BACK',type:'chest',
         exercises:[
-          {name:'DB Incline Press',tier:'S+',reps:'8–10'},
-          {name:'DB Flat Press',tier:'S',reps:'8–10'},
+          {name:'DB Incline Press',tier:'S+',reps:'10–12'},
+          {name:'DB Flat Press',tier:'S',reps:'10–12'},
           {name:'DB Chest Fly',tier:'S',reps:'12–15'},
-          {name:'Single Arm DB Row',tier:'S+',reps:'8–10'},
-          {name:'Cable Lat Pulldown',tier:'S',reps:'10–12'},
-          {name:'Chest Supported DB Row',tier:'S+',reps:'8–10'},
-          {name:'Cable Straight Arm Pulldown',tier:'S',reps:'12–15'},
-          {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+          {name:'Single Arm DB Row',tier:'S+',reps:'10–12'},
+          {name:'DB Chest Supported Row',tier:'S+',reps:'10–12'},
+          {name:'Renegade Row',tier:'S',reps:'10–12'},
+          {name:'DB Rear Delt Fly',tier:'S+',reps:'12–15'},
+          {name:'DB Pullover',tier:'S',reps:'12–15'},
         ]},
       {id:'t2',label:'DAY 2',sub:'LOWER + DELTS + ARMS',type:'lower',
         exercises:[
@@ -354,21 +469,21 @@ const PROGRAMS = {
           {name:'DB Romanian Deadlift',tier:'S',reps:'10–12'},
           {name:'DB Reverse Lunge',tier:'S',reps:'10–12'},
           {name:'Seated DB Calf Raise',tier:'A',reps:'15–20'},
-          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},
-          {name:'Lean Away DB Lateral Raise',tier:'S+',reps:'15–20'},
-          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
-          {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+          {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
+          {name:'Lean Away DB Lateral Raise',tier:'S+',reps:'12–15'},
+          {name:'DB Curl',tier:'S+',reps:'10–12'},
+          {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
         ]},
       {id:'t3',label:'DAY 3',sub:'CHEST + BACK + ARMS',type:'chest',
         exercises:[
-          {name:'DB Incline Press',tier:'S',reps:'8–10'},
-          {name:'DB Chest Fly',tier:'S',reps:'12–15'},
-          {name:'Single Arm DB Row',tier:'S+',reps:'8–10'},
-          {name:'Single Arm Cable Row',tier:'S',reps:'10–12'},
-          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
-          {name:'Incline DB Curl',tier:'S',reps:'10–12'},
-          {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
-          {name:'Cable Pushdown',tier:'A',reps:'15–20'},
+          {name:'DB Incline Press',tier:'S',reps:'10–12'},
+          {name:'DB Incline Fly',tier:'S',reps:'12–15'},
+          {name:'Single Arm DB Row',tier:'S+',reps:'10–12'},
+          {name:'DB Chest Supported Row',tier:'S',reps:'10–12'},
+          {name:'DB Hammer Curl',tier:'S',reps:'10–12'},
+          {name:'DB Incline Curl',tier:'S',reps:'10–12'},
+          {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
+          {name:'DB Skullcrusher',tier:'S',reps:'12–15'},
         ]},
       {id:'t4',label:'DAY 4',sub:'LOWER + DELTS',type:'lower',
         exercises:[
@@ -376,21 +491,21 @@ const PROGRAMS = {
           {name:'DB Single Leg RDL',tier:'S+',reps:'10–12'},
           {name:'DB Sumo Squat',tier:'S',reps:'12–15'},
           {name:'Seated DB Calf Raise',tier:'A',reps:'15–20'},
-          {name:'Arnold Press',tier:'S',reps:'8–10'},
-          {name:'Cable Upright Row',tier:'S',reps:'12–15'},
-          {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
-          {name:'DB Skullcrusher',tier:'S',reps:'10–12'},
+          {name:'DB Arnold Press',tier:'S',reps:'10–12'},
+          {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
+          {name:'DB Rear Delt Fly',tier:'S+',reps:'12–15'},
+          {name:'DB Skullcrusher',tier:'S',reps:'12–15'},
         ]},
       {id:'t5',label:'DAY 5',sub:'DELTS + ARMS BLAST',type:'arms-shoulders',
         exercises:[
-          {name:'Arnold Press',tier:'S',reps:'8–10'},
-          {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},
-          {name:'DB Incline Rear Delt Fly',tier:'S+',reps:'15–20'},
-          {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
-          {name:'Preacher Curl',tier:'S',reps:'10–12'},
-          {name:'Hammer Curl',tier:'S',reps:'12–15'},
-          {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
-          {name:'DB Skullcrusher',tier:'S',reps:'10–12'},
+          {name:'DB Arnold Press',tier:'S',reps:'10–12'},
+          {name:'DB Shoulder Press',tier:'S',reps:'10–12'},
+          {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
+          {name:'DB Incline Rear Delt Fly',tier:'S+',reps:'12–15'},
+          {name:'DB Curl',tier:'S+',reps:'10–12'},
+          {name:'DB Preacher Curl',tier:'S',reps:'10–12'},
+          {name:'DB Hammer Curl',tier:'S',reps:'12–15'},
+          {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
         ]},
       {id:'trecap',label:'RECAP',sub:'',type:'recap',exercises:[]}
     ]
@@ -475,8 +590,16 @@ async function confirmNewCycle(){
       method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MAIN_API_KEY},
       body:JSON.stringify(freshData)
     });
+    // Save fresh data locally AND keep version key so it doesn't re-trigger reset
     localStorage.setItem(cfg.localKey,JSON.stringify(freshData));
-    localStorage.removeItem(cfg.versionKey); // Force re-init next open
+    localStorage.setItem(cfg.versionKey,cfg.version);
+    // If currently in this program, update live cloudData and re-render
+    if(activeProgram===prog){
+      cloudData=freshData;
+      currentCycle=1;
+      document.getElementById('cycleLabel').textContent='CYCLE 1';
+      renderAll(false);
+    }
     alert(`${getProgramName(prog)} reset! Last weights saved as reference.`);
     updateHomeCardMeta();
   }catch(e){alert('Reset failed — check connection.');}
@@ -492,7 +615,7 @@ function getAllDayItemsForDay(day){
 }
 
 async function updateHomeCardMeta(){
-  ['main','travel'].forEach(prog=>{
+  ['main','travel','camper'].forEach(prog=>{
     const cfg=PROGRAMS[prog];
     const cached=localStorage.getItem(cfg.localKey);
     if(cached){
@@ -512,12 +635,14 @@ function openProgram(prog){
   activeProgram=prog;
   cloudData={cycles:{},nameOverrides:{}};
   currentCycle=1;
+  localStorage.setItem('ll_lastProgram',prog);
   document.getElementById('homeScreen').style.display='none';
   document.getElementById('appScreen').style.display='block';
   const logo=document.getElementById('appLogo');
   const name=getProgramName(prog);
-  logo.innerHTML=`${name}<span style="color:var(--text)"> </span>`;
-  logo.style.color=prog==='travel'?'var(--blue)':'var(--accent)';
+  const colors={main:'var(--accent)',travel:'var(--blue)',camper:'var(--green)'};
+  logo.innerHTML=`${name}`;
+  logo.style.color=colors[prog]||'var(--accent)';
   loadFromCloud();
 }
 
@@ -537,6 +662,22 @@ async function loadFromCloud(){
   const cfg=PROGRAMS[activeProgram];
   const PROGRAM_VERSION=cfg.version;
   const storedVersion=localStorage.getItem(cfg.versionKey);
+
+  // Local-only programs (no cloud sync)
+  if(cfg.localOnly){
+    if(storedVersion!==PROGRAM_VERSION){
+      localStorage.removeItem(cfg.localKey);
+      cloudData={cycles:{},nameOverrides:{}};
+      localStorage.setItem(cfg.versionKey,PROGRAM_VERSION);
+    } else {
+      const cached=localStorage.getItem(cfg.localKey);
+      if(cached){try{cloudData=JSON.parse(cached);if(!cloudData.cycles)cloudData.cycles={};if(!cloudData.nameOverrides)cloudData.nameOverrides={};}catch(e){cloudData={cycles:{},nameOverrides:{}};}}
+      else{cloudData={cycles:{},nameOverrides:{}};}
+    }
+    setSyncStatus('synced','LOCAL ONLY');
+    document.getElementById('loadingOverlay').style.display='none';
+    renderAll(true);return;
+  }
 
   if(storedVersion!==PROGRAM_VERSION){
     setSyncStatus('syncing','RESETTING...');
@@ -579,9 +720,10 @@ async function loadFromCloud(){
 }
 
 async function saveToCloud(){
-  setSyncStatus('syncing','SAVING...');
   const cfg=PROGRAMS[activeProgram];
   localStorage.setItem(cfg.localKey,JSON.stringify(cloudData));
+  if(cfg.localOnly){setSyncStatus('synced','SAVED LOCALLY ✓');return;}
+  setSyncStatus('syncing','SAVING...');
   try{
     await fetch(`https://api.jsonbin.io/v3/b/${getBinId(activeProgram)}`,{
       method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MAIN_API_KEY},
@@ -727,11 +869,15 @@ function toggleLink(dayId,di,ei,isBonus){
 function moveUnifiedItem(dayId,di,key,direction){
   const day=getDays().find(d=>d.id===dayId);
   const allItems=getOrderedDayItems(day);
-  let order=getUnifiedOrder(dayId)||allItems.map(itemKey);
-  const pos=order.indexOf(key);if(pos===-1)return;
-  const newPos=pos+direction;if(newPos<0||newPos>=order.length)return;
-  order.splice(pos,1);order.splice(newPos,0,key);
-  saveUnifiedOrder(dayId,order);renderAndStay(di);
+  const allKeys=allItems.map(itemKey);
+  let order=getUnifiedOrder(dayId)||[];
+  // Merge: keep stored order but add any new items not yet in it
+  const merged=[...order.filter(k=>allKeys.includes(k))];
+  allKeys.forEach(k=>{if(!merged.includes(k))merged.push(k);});
+  const pos=merged.indexOf(key);if(pos===-1)return;
+  const newPos=pos+direction;if(newPos<0||newPos>=merged.length)return;
+  merged.splice(pos,1);merged.splice(newPos,0,key);
+  saveUnifiedOrder(dayId,merged);renderAndStay(di);
 }
 
 // ── RENDERING ──
@@ -1072,7 +1218,13 @@ async function generateRecap(){
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
   updateHomeCardMeta();
-  document.getElementById('loadingOverlay').style.display='none';
+  // Auto-open last used program
+  const lastProg=localStorage.getItem('ll_lastProgram');
+  if(lastProg&&PROGRAMS[lastProg]){
+    openProgram(lastProg);
+  } else {
+    document.getElementById('loadingOverlay').style.display='none';
+  }
 });
 </script>
 </body>
