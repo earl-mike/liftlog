@@ -2,591 +2,484 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LiftLog</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--border:#222;--accent:#c8ff00;--accent2:#ff6b35;--blue:#4fc3f7;--purple:#b388ff;--green:#69f0ae;--text:#f0f0f0;--muted:#555;--muted2:#888;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:20px;}
-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1;color:var(--accent);}
-.logo span{color:var(--text);}
-.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
-.cycle-nav{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted2);}
-.cycle-nav button{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-.cycle-nav button:hover{border-color:var(--accent);color:var(--accent);}
-.sync-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;}
-.sync-dot.syncing{background:var(--accent2);animation:pulse .8s infinite;}
-.sync-dot.synced{background:var(--accent);}
-.sync-dot.error{background:var(--accent2);}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.tabs{display:flex;gap:2px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
-.tab{background:var(--surface);border:1px solid var(--border);color:var(--muted2);padding:8px 12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
-.tab.active{color:#000;font-weight:500;}
-.tab.chest.active{background:var(--accent2);border-color:var(--accent2);}
-.tab.back.active{background:var(--blue);border-color:var(--blue);}
-.tab.shoulders.active{background:var(--purple);border-color:var(--purple);color:#fff;}
-.tab.chest-back.active{background:var(--accent);border-color:var(--accent);}
-.tab.arms.active{background:var(--green);border-color:var(--green);}
-.tab.shoulders-legs.active{background:var(--purple);border-color:var(--purple);color:#fff;}
-.tab.recap.active{background:var(--muted2);border-color:var(--muted2);}
-.day-panel{display:none;}
-.day-panel.active{display:block;}
-.day-header{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:4px;color:var(--muted2);}
-.day-header span{color:var(--text);}
-.day-subheader{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1px;margin-bottom:16px;}
-.superset-group{border-left:2px solid var(--purple);padding-left:10px;margin-bottom:8px;}
-.superset-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:2px;margin-bottom:5px;}
-.tier-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:2px;flex-shrink:0;font-weight:500;}
-.tier-sp{background:#ff6b3522;color:var(--accent2);border:1px solid var(--accent2);}
-.tier-s{background:#c8ff0015;color:var(--accent);border:1px solid #c8ff0044;}
-.tier-a{background:#4fc3f715;color:var(--blue);border:1px solid #4fc3f744;}
-.superset-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;background:#b388ff22;color:var(--purple);border:1px solid var(--purple);border-radius:2px;flex-shrink:0;}
-.exercise-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
-.exercise-row{background:var(--surface);border:1px solid var(--border);padding:10px 14px;}
-.exercise-row.bonus{border-color:var(--blue);border-style:dashed;}
-.exercise-row.superset-row{border-color:var(--purple);}
-.exercise-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
-.exercise-name-wrap{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
-.exercise-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.exercise-name.custom{color:var(--accent);}
-.exercise-name.bonus-name{color:var(--blue);}
-.reorder-btns{display:flex;flex-direction:column;gap:2px;flex-shrink:0;margin-right:4px;}
-.reorder-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:1px 4px;line-height:1;}
-.reorder-btn:hover{color:var(--accent);}
-.edit-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 4px;flex-shrink:0;}
-.edit-btn:hover{color:var(--accent);}
-.delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;flex-shrink:0;}
-.delete-btn:hover{color:var(--accent2);}
-.link-btn{background:none;border:1px solid var(--muted);color:var(--muted);cursor:pointer;font-size:9px;padding:2px 5px;flex-shrink:0;font-family:'DM Mono',monospace;border-radius:2px;}
-.link-btn:hover{border-color:var(--purple);color:var(--purple);}
-.link-btn.selecting{border-color:var(--accent);color:var(--accent);animation:pulse .8s infinite;}
-.link-btn.linked{border-color:var(--purple);color:var(--purple);background:#b388ff22;}
-.name-edit-input{background:var(--surface2);border:1px solid var(--accent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;padding:3px 8px;flex:1;min-width:0;display:none;}
-.name-edit-input:focus{outline:none;}
-.name-confirm-btn{background:var(--accent);border:none;color:#000;font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;cursor:pointer;flex-shrink:0;display:none;}
-.exercise-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);flex-shrink:0;}
-.prev-weights{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;}
-.sets-row{display:flex;gap:6px;align-items:center;}
-.set-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
-.set-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
-.set-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;width:100%;padding:6px 4px;text-align:center;-moz-appearance:textfield;}
-.set-input::-webkit-outer-spin-button,.set-input::-webkit-inner-spin-button{-webkit-appearance:none;}
-.set-input:focus{outline:none;border-color:var(--accent);}
-.set-input.has-value{border-color:var(--accent);color:var(--accent);}
-.unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;}
-.progress-bar-wrap{height:3px;background:var(--border);margin-bottom:6px;}
-.progress-bar{height:100%;background:var(--accent);}
-.logged-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);margin-bottom:10px;}
-.add-exercise-btn{width:100%;background:transparent;border:1px dashed var(--muted);color:var(--muted2);padding:10px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-bottom:14px;}
-.add-exercise-btn:hover{border-color:var(--blue);color:var(--blue);}
-.notes-area{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;padding:12px;resize:vertical;min-height:70px;margin-bottom:12px;}
-.notes-area:focus{outline:none;border-color:var(--accent);}
-.notes-area::placeholder{color:var(--muted);}
-.autosave-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-.finish-btn{background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;text-transform:uppercase;}
-.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:24px;}
-.recap-card{background:var(--surface);border:1px solid var(--border);padding:12px;}
-.recap-card .day-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-bottom:4px;}
-.recap-card .ex-name{font-size:12px;font-weight:500;margin-bottom:6px;line-height:1.3;}
-.recap-sets{display:flex;gap:4px;flex-wrap:wrap;}
-.recap-set{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);line-height:1;}
-.recap-set .rs-unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
-.recap-set.empty{color:var(--muted);font-size:14px;}
-.export-box{background:var(--surface);border:1px solid var(--blue);border-left:3px solid var(--blue);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.export-box-text{font-size:13px;color:var(--muted2);line-height:1.5;}
-.export-box-text strong{color:var(--blue);font-weight:500;}
-.ai-box{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:20px;margin-bottom:16px;}
-.ai-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
-.ai-content{font-size:13px;line-height:1.75;color:var(--muted2);}
-.ai-content p{margin-bottom:10px;}
-.ai-content strong{color:var(--text);font-weight:500;}
-.recap-section{margin-bottom:28px;}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.btn{padding:10px 20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;}
-.btn-outline{background:transparent;border:1px solid var(--muted);color:var(--muted2);}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
-.btn-outline:disabled{opacity:.3;cursor:not-allowed;}
-.btn-copy{background:var(--blue);color:#000;font-weight:500;white-space:nowrap;flex-shrink:0;}
-.flash-msg{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);opacity:0;}
-.flash-msg.show{opacity:1;}
-.loading-overlay{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;}
-.load-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;color:var(--accent);}
-.dot-loader{display:inline-flex;gap:5px;align-items:center;}
-.dot-loader span{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite;}
-.dot-loader span:nth-child(2){animation-delay:.2s;}
-.dot-loader span:nth-child(3){animation-delay:.4s;}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+:root{--bg:#0d0d0f;--card:#17171b;--card2:#1f1f25;--line:#2a2a32;
+  --lime:#c8ff00;--dim:#6b6b78;--dim2:#9a9aa8;--txt:#f2f2f5;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;padding:0 0 40px;}
+.top{padding:22px 20px 0;}
+.title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;line-height:1;}
+.title span{color:var(--lime);}
+.wknav{display:flex;align-items:center;gap:14px;margin-top:12px;}
+.wkbtn{background:var(--card);border:1.5px solid var(--line);border-radius:10px;color:var(--dim2);
+  font-size:17px;width:34px;height:34px;cursor:pointer;line-height:1;}
+.wkbtn:disabled{opacity:.3;}
+.wklbl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
+.unit{margin-left:auto;background:var(--card);border:1.5px solid var(--line);border-radius:10px;
+  color:var(--dim2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  padding:8px 14px;cursor:pointer;}
+.unit b{color:var(--lime);}
+.saved{font-size:12px;color:var(--dim);margin-top:10px;display:flex;align-items:center;gap:6px;}
+.saved .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);}
+.saved.ok .dot{background:var(--lime);}.saved.ok{color:var(--lime);}
+.days{display:flex;gap:8px;overflow-x:auto;padding:20px;scrollbar-width:none;}
+.days::-webkit-scrollbar{display:none;}
+.day{flex-shrink:0;background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+  padding:12px 18px;cursor:pointer;text-align:center;min-width:76px;transition:.15s;}
+.day .n{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--dim2);}
+.day .l{font-size:10px;color:var(--dim);margin-top:3px;letter-spacing:.5px;}
+.day.on{background:var(--lime);border-color:var(--lime);}
+.day.on .n,.day.on .l{color:#000;}
+.day.done .n{color:var(--lime);}
+.wrap{padding:0 20px;}
+.dayname{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;margin-bottom:2px;}
+.daysub{font-size:13px;color:var(--dim);}
+.bar{height:5px;background:var(--card2);border-radius:99px;overflow:hidden;margin:14px 0 6px;}
+.fill{height:100%;background:var(--lime);border-radius:99px;transition:width .3s;}
+.count{font-size:12px;color:var(--dim);margin-bottom:20px;}
+.ex{background:var(--card);border:1.5px solid var(--line);border-radius:16px;
+  padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:.15s;}
+.ex.filled{border-color:var(--lime);}
+.exmain{flex:1;min-width:0;}
+.exname{font-size:16px;font-weight:500;line-height:1.25;}
+.tier{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;padding:2px 6px;
+  border-radius:5px;margin-right:7px;vertical-align:2px;}
+.t-sp{background:#ff6b3524;color:#ff6b35;}
+.t-s{background:#c8ff0018;color:var(--lime);}
+.t-a{background:#4fc3f718;color:#4fc3f7;}
+.exreps{font-size:12px;color:var(--dim);margin-top:3px;}
+.exlast{font-size:12px;color:var(--dim);margin-top:3px;}
+.exlast b{color:var(--dim2);font-weight:500;}
+.sugtag{font-size:11px;color:var(--dim);margin-top:3px;font-style:italic;}
+.wbox{display:flex;align-items:center;gap:2px;background:var(--card2);border:1.5px solid var(--line);
+  border-radius:12px;padding:0 12px 0 4px;flex-shrink:0;transition:.15s;}
+.ex.filled .wbox{border-color:var(--lime);background:#c8ff000d;}
+.ex.sug .wbox{border-style:dashed;}
+.winp{background:none;border:none;color:var(--txt);font-family:'Bebas Neue',sans-serif;
+  font-size:30px;width:74px;text-align:center;padding:12px 0;outline:none;
+  -moz-appearance:textfield;letter-spacing:1px;}
+.winp::-webkit-outer-spin-button,.winp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.winp::placeholder{color:var(--dim);}
+.ex.filled .winp{color:var(--lime);}
+.ex.sug .winp{color:var(--dim);}
+.u{font-size:12px;color:var(--dim);}
+.ok{background:none;border:1.5px solid var(--lime);border-radius:9px;color:var(--lime);
+  font-size:15px;padding:9px 11px;margin-left:8px;cursor:pointer;flex-shrink:0;line-height:1;}
+.notes{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:16px;
+  color:var(--txt);font-family:'DM Sans',sans-serif;font-size:15px;padding:16px 18px;
+  resize:none;min-height:80px;margin-top:18px;outline:none;}
+.notes:focus{border-color:var(--lime);}
+.notes::placeholder{color:var(--dim);}
+.fin{width:100%;margin-top:12px;background:none;border:1.5px solid var(--line);border-radius:16px;
+  color:var(--dim2);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
+  padding:17px;cursor:pointer;transition:.15s;}
+.fin.done{background:var(--lime);border-color:var(--lime);color:#000;}
+.next{width:100%;margin-top:10px;background:var(--lime);border:none;border-radius:16px;color:#000;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;padding:17px;cursor:pointer;}
+.copy{width:100%;margin-top:10px;background:none;border:1.5px solid var(--line);border-radius:16px;
+  color:var(--dim2);font-family:'DM Sans',sans-serif;font-size:14px;padding:15px;cursor:pointer;}
+.editbtn{background:var(--card);border:1.5px solid var(--line);border-radius:10px;color:var(--dim2);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 14px;cursor:pointer;}
+.editbtn.on{background:var(--lime);border-color:var(--lime);color:#000;}
+.rowtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+.arr{display:flex;flex-direction:column;gap:3px;flex-shrink:0;margin-right:2px;}
+.arr button{background:var(--card2);border:1px solid var(--line);border-radius:6px;color:var(--dim2);
+  font-size:9px;padding:3px 7px;cursor:pointer;line-height:1;}
+.arr button:active{background:var(--lime);color:#000;}
+.tools{display:flex;gap:6px;margin-top:9px;}
+.right{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex-shrink:0;}
+.tool{background:var(--card2);border:1px solid var(--line);border-radius:7px;color:var(--dim2);
+  font-size:11px;padding:5px 9px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.tool.lk{border-color:#b388ff;color:#b388ff;}
+.tool.sel{border-color:var(--lime);color:var(--lime);}
+.tool.del{border-color:#ff6b35;color:#ff6b35;}
+.pen{background:none;border:none;color:var(--dim);font-size:12px;padding:2px 5px;cursor:pointer;flex-shrink:0;}
+.pen:hover{color:var(--lime);}
+.nameinp{background:var(--card2);border:1.5px solid var(--lime);border-radius:8px;color:var(--lime);
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;padding:6px 10px;
+  flex:1;min-width:0;outline:none;display:none;}
+.nameok{background:var(--lime);border:none;border-radius:7px;color:#000;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:700;padding:7px 10px;cursor:pointer;flex-shrink:0;display:none;margin-left:6px;}
+.namewrap{display:flex;align-items:center;gap:2px;}
+.exname.custom{color:var(--lime);}
+.ex.pair{border-color:#b388ff;}
+.pairlbl{font-size:10px;color:#b388ff;letter-spacing:1.5px;margin:4px 0 6px 2px;font-weight:700;}
+.pairwrap{border-left:2px solid #b388ff;padding-left:10px;margin-bottom:10px;}
+.ex.bonus{border-style:dashed;border-color:#4fc3f7;}
+.ex.bonus .exname{color:#4fc3f7;}
+.addbtn{width:100%;background:none;border:1.5px dashed var(--line);border-radius:16px;color:var(--dim);
+  font-family:'DM Sans',sans-serif;font-size:14px;padding:15px;cursor:pointer;margin-bottom:10px;}
+.load{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;
+  justify-content:center;z-index:99;font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--lime);}
 </style>
 </head>
 <body>
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="load-logo">LIFT<span style="color:#f0f0f0">LOG</span></div>
-  <div class="dot-loader"><span></span><span></span><span></span></div>
-</div>
-<header>
-  <div class="logo">LIFT<span>LOG</span></div>
-  <div class="header-right">
-    <div class="cycle-nav">
-      <button onclick="changeCycle(-1)">&#8249;</button>
-      <span id="cycleLabel">CYCLE 1</span>
-      <button onclick="changeCycle(1)">&#8250;</button>
-    </div>
-    <div class="sync-row">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">LOADING</span>
-    </div>
+<div class="load" id="load">LIFTLOG</div>
+<div class="top">
+  <div class="title">LIFT<span>LOG</span></div>
+  <div class="wknav">
+    <button class="wkbtn" id="wkprev" onclick="wk(-1)">‹</button>
+    <div class="wklbl" id="cyc">WEEK 1</div>
+    <button class="wkbtn" id="wknext" onclick="wk(1)">›</button>
+    <button class="unit" id="unitbtn" onclick="tog()"></button>
   </div>
-</header>
-<div class="tabs" id="tabBar"></div>
-<div id="panels"></div>
+  <div class="saved" id="save"><span class="dot"></span><span id="savetxt">Loading</span></div>
+</div>
+<div class="days" id="days"></div>
+<div class="wrap" id="body"></div>
 <script>
-const API_KEY='$2a$10$O7oW0lYtp956/on9QP2vn.QZyrXAPrVj/ubAanzM02gjSdb9Tu2NK';
-const BIN_ID='69cc5e04aaba882197b1af4d';
-const NUM_SETS=4;
-const PROGRAM_VERSION='v6';
-let cloudData={cycles:{},nameOverrides:{}};
-let saveTimer=null;
-let currentCycle=1;
+const KEY='$2a$10$O7oW0lYtp956/on9QP2vn.QZyrXAPrVj/ubAanzM02gjSdb9Tu2NK';
+const BIN='69cc5e04aaba882197b1af4d';
+let D={cycles:{}},cur=1,day=0,timer=null,edit=false,linkFrom=null;
 
-const DAYS=[
-  {id:'day1',label:'DAY 1',sub:'CHEST + TRICEPS',type:'chest',exercises:[
-    {name:'Incline Barbell Press',tier:'S+',reps:'6–8'},
-    {name:'Barbell Bench Press',tier:'S+',reps:'6–8'},
-    {name:'Machine Chest Press',tier:'S',reps:'10–12'},
-    {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
-    {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
-    {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
-    {name:'Rope Pushdown',tier:'A',reps:'15–20'},
-    {name:'Cable Crossover',tier:'S',reps:'12–15'},
-  ]},
-  {id:'day2',label:'DAY 2',sub:'BACK + BICEPS',type:'back',exercises:[
-    {name:'Chest Supported Row',tier:'S+',reps:'8–10'},
-    {name:'Wide Grip Lat Pulldown',tier:'S',reps:'10–12'},
-    {name:'Single Arm Lat Pulldown',tier:'S',reps:'10–12'},
-    {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
-    {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
-    {name:'Preacher Curl',tier:'S',reps:'10–12'},
-    {name:'Hammer Curl',tier:'S',reps:'12–15'},
-    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
-  ]},
-  {id:'day3',label:'DAY 3',sub:'SHOULDERS + LEGS (QUAD)',type:'shoulders',exercises:[
-    {name:'Arnold Press',tier:'S',reps:'8–10'},
-    {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
-    {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
-    {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},
-    {name:'Cable Upright Row',tier:'S',reps:'12–15'},
-    {name:'Leg Press (high foot)',tier:'S',reps:'10–12'},
-    {name:'Leg Extension (controlled)',tier:'S',reps:'15–20'},
-    {name:'Hack Squat',tier:'S',reps:'10–12'},
-  ]},
-  {id:'day4',label:'DAY 4',sub:'CHEST + BACK',type:'chest-back',exercises:[
-    {name:'Incline Dumbbell Press',tier:'S+',reps:'8–10'},
-    {name:'Meadows Row',tier:'S+',reps:'10–12'},
-    {name:'Incline Machine Press',tier:'S',reps:'10–12'},
-    {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
-    {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
-    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
-    {name:'Dumbbell Fly',tier:'S',reps:'12–15'},
-    {name:'Cable Y Raise',tier:'A',reps:'15–20'},
-  ]},
-  {id:'day5',label:'DAY 5',sub:'ARMS BLAST',type:'arms',exercises:[
-    {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
-    {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
-    {name:'Preacher Curl',tier:'S',reps:'10–12'},
-    {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
-    {name:'Hammer Curl',tier:'S',reps:'12–15'},
-    {name:'Rope Pushdown',tier:'A',reps:'15–20'},
-    {name:'Incline DB Curl',tier:'S',reps:'10–12'},
-    {name:'Single Arm Pushdown',tier:'A',reps:'15–20'},
-  ]},
-  {id:'day6',label:'DAY 6',sub:'SHOULDERS + LEGS (GLUTE)',type:'shoulders-legs',exercises:[
-    {name:'Arnold Press',tier:'S',reps:'8–10'},
-    {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
-    {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
-    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
-    {name:'Cable Upright Row',tier:'S',reps:'12–15'},
-    {name:'Hip Thrust',tier:'S+',reps:'10–12'},
-    {name:'Romanian Deadlift',tier:'S',reps:'8–10'},
-    {name:'Leg Extension (controlled)',tier:'A',reps:'15–20'},
-  ]},
-  {id:'recap',label:'RECAP',sub:'',type:'recap',exercises:[]}
+const P=[
+ {id:'day1',n:'1',t:'CHEST',full:'CHEST + TRICEPS',ex:[
+  ['Incline Barbell Press','S+','6–8'],['Barbell Bench Press','S+','6–8'],
+  ['Machine Chest Press','S','10–12'],['Cable Pec Fly','S','12–15'],
+  ['EZ-Bar Skullcrusher','S','10–12'],['Overhead Cable Tri Ext','S','12–15'],
+  ['Rope Pushdown','A','15–20'],['Cable Crossover','S','12–15']]},
+ {id:'day2',n:'2',t:'BACK',full:'BACK + BICEPS',ex:[
+  ['Chest Supported Row','S+','8–10'],['Wide Grip Lat Pulldown','S','10–12'],
+  ['Single Arm Lat Pulldown','S','10–12'],['Close Grip Cable Row','S','10–12'],
+  ['Bayesian Cable Curl','S+','10–12'],['Preacher Curl','S','10–12'],
+  ['Hammer Curl','S','12–15'],['Rear Delt Cable Fly','S+','15–20']]},
+ {id:'day3',n:'3',t:'SHLDR',full:'SHOULDERS + LEGS (QUAD)',ex:[
+  ['Arnold Press','S','8–10'],['Machine Shoulder Press','S','8–10'],
+  ['Lean Away Lateral Raise','S+','15–20'],['Cable Lateral Raise','S','15–20'],
+  ['Cable Upright Row','S','12–15'],['Leg Press (high foot)','S','10–12'],
+  ['Leg Extension (controlled)','S','15–20'],['Hack Squat','S','10–12']]},
+ {id:'day4',n:'4',t:'CH/BACK',full:'CHEST + BACK',ex:[
+  ['Incline Dumbbell Press','S+','8–10'],['Meadows Row','S+','10–12'],
+  ['Incline Machine Press','S','10–12'],['Close Grip Cable Row','S','10–12'],
+  ['Cable Pec Fly','S','12–15'],['Rear Delt Cable Fly','S+','15–20'],
+  ['Dumbbell Fly','S','12–15'],['Cable Y Raise','A','15–20']]},
+ {id:'day5',n:'5',t:'ARMS',full:'ARMS BLAST',ex:[
+  ['Bayesian Cable Curl','S+','10–12'],['Overhead Cable Tri Ext','S','12–15'],
+  ['Preacher Curl','S','10–12'],['EZ-Bar Skullcrusher','S','10–12'],
+  ['Hammer Curl','S','12–15'],['Rope Pushdown','A','15–20'],
+  ['Incline DB Curl','S','10–12'],['Single Arm Pushdown','A','15–20']]},
+ {id:'day6',n:'6',t:'LEGS',full:'SHOULDERS + LEGS (GLUTE)',ex:[
+  ['Arnold Press','S','8–10'],['Machine Shoulder Press','S','8–10'],
+  ['Lean Away Lateral Raise','S+','15–20'],['Rear Delt Cable Fly','S+','15–20'],
+  ['Cable Upright Row','S','12–15'],['Hip Thrust','S+','10–12'],
+  ['Romanian Deadlift','S','8–10'],['Leg Extension (controlled)','A','15–20']]}
 ];
 
-function setSyncStatus(s,l){document.getElementById('syncDot').className='sync-dot '+s;document.getElementById('syncLabel').textContent=l;}
+const C=c=>D.cycles[`c${c}`]||(D.cycles[`c${c}`]={});
+const Dy=(c,d)=>{const x=C(c);return x[d]||(x[d]={done:false,note:''});};
+// Reads BOTH shapes: old 4-set arrays (takes the heaviest) and new single values.
+function getW(c,d,i){
+  const v=D.cycles?.[`c${c}`]?.[d]?.[`e${i}`];
+  if(Array.isArray(v)){const n=v.filter(Boolean).map(Number).filter(x=>!isNaN(x));
+    return n.length?String(Math.max(...n)):'';}
+  return v||'';
+}
+const setW=(c,d,i,v)=>{Dy(c,d);D.cycles[`c${c}`][d][`e${i}`]=v;save();};
+function lastW(d,i){for(let c=cur-1;c>=1;c--){const v=getW(c,d,i);if(v)return v;}return '';}
+function maxWk(){let m=1;Object.keys(D.cycles||{}).forEach(k=>{const n=+k.slice(1);if(n>m)m=n;});return m;}
+const unit=()=>D.unit||'kg';
 
-async function loadFromCloud(){
-  const ver=localStorage.getItem('ll_v6_version');
-  if(ver!==PROGRAM_VERSION){
-    localStorage.removeItem('ll_v6_backup');
-    cloudData={cycles:{},nameOverrides:{}};
-    try{
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(cloudData)});
-      localStorage.setItem('ll_v6_version',PROGRAM_VERSION);setSyncStatus('synced','READY ✓');
-    }catch(e){setSyncStatus('error','RESET FAILED');}
-    document.getElementById('loadingOverlay').style.display='none';renderAll(true);return;
-  }
-  const cached=localStorage.getItem('ll_v6_backup');
-  if(cached){
-    try{cloudData=JSON.parse(cached);if(!cloudData.cycles)cloudData.cycles={};if(!cloudData.nameOverrides)cloudData.nameOverrides={};}
-    catch(e){cloudData={cycles:{},nameOverrides:{}};}
-    document.getElementById('loadingOverlay').style.display='none';renderAll(true);setSyncStatus('syncing','SYNCING...');
-  }else{setSyncStatus('syncing','LOADING...');}
+// ---- name overrides ----
+const NO=()=>D.nameOverrides||(D.nameOverrides={});
+const exName=(d,i)=>NO()[`${d}_${i}`]||null;
+function setExName(d,i,v){if(v)NO()[`${d}_${i}`]=v;else delete NO()[`${d}_${i}`];save();}
+
+// ---- bonus exercises (per week, carried forward) ----
+function bonus(c,d){
+  const now=D.cycles?.[`c${c}`]?.[d]?.bonus||[];
+  if(c<=1)return now;
+  const prev=bonus(c-1,d);
+  const gone=D.cycles?.[`c${c}`]?.[d]?.bonusRemoved||[];
+  const names=now.map(b=>b.name);
+  return [...now,...prev.filter(b=>!gone.includes(b.name)&&!names.includes(b.name))
+    .map(b=>({name:b.name,w:''}))];
+}
+function setBonus(c,d,a){Dy(c,d);D.cycles[`c${c}`][d].bonus=a;save();}
+function bonusW(c,d,name){return (D.cycles?.[`c${c}`]?.[d]?.bonus||[]).find(b=>b.name===name)?.w||'';}
+function setBonusW(c,d,name,v){
+  Dy(c,d);const a=D.cycles[`c${c}`][d].bonus||[];
+  const e=a.find(b=>b.name===name);
+  if(e)e.w=v;else a.push({name,w:v});
+  D.cycles[`c${c}`][d].bonus=a;save();
+}
+function lastBonusW(d,name){for(let c=cur-1;c>=1;c--){const v=bonusW(c,d,name);if(v)return v;}return '';}
+function delBonus(d,name){
+  Dy(cur,d);const dd=D.cycles[`c${cur}`][d];
+  dd.bonus=(dd.bonus||[]).filter(b=>b.name!==name);
+  const g=dd.bonusRemoved||[];if(!g.includes(name))g.push(name);
+  dd.bonusRemoved=g;save();render();
+}
+
+// ---- supersets (pairs) ----
+const SS=(c,d)=>D.cycles?.[`c${c}`]?.[d]?.ss||[];
+function setSS(c,d,a){Dy(c,d);D.cycles[`c${c}`][d].ss=a;save();}
+const paired=(d,k)=>SS(cur,d).some(p=>p.includes(k));
+function toggleLink(k){
+  const d=P[day].id,a=SS(cur,d).slice();
+  const has=a.find(p=>p.includes(k));
+  if(has){setSS(cur,d,a.filter(p=>p!==has));linkFrom=null;render();return;}
+  if(linkFrom===null){linkFrom=k;render();return;}
+  if(linkFrom!==k){a.push([linkFrom,k]);setSS(cur,d,a);}
+  linkFrom=null;render();
+}
+
+// ---- ordering ----
+function order(d){const s=NO()[`ord_${d}`];return s?JSON.parse(s):null;}
+function setOrder(d,a){NO()[`ord_${d}`]=JSON.stringify(a);save();}
+function items(){
+  const d=P[day];
+  const base=d.ex.map((e,i)=>({k:`prog_${i}`,i,e}));
+  const bon=bonus(cur,d.id).map(b=>({k:`bon_${b.name}`,bonus:b}));
+  const all=[...base,...bon];
+  const o=order(d.id);
+  if(!o)return all;
+  const m={};all.forEach(x=>m[x.k]=x);
+  const out=[];o.forEach(k=>{if(m[k]){out.push(m[k]);delete m[k];}});
+  Object.values(m).forEach(x=>out.push(x));
+  return out;
+}
+function move(k,dir){
+  const d=P[day].id,all=items().map(x=>x.k);
+  let o=(order(d)||[]).filter(x=>all.includes(x));
+  all.forEach(x=>{if(!o.includes(x))o.push(x);});
+  const p=o.indexOf(k);if(p<0)return;
+  const n=p+dir;if(n<0||n>=o.length)return;
+  o.splice(p,1);o.splice(n,0,k);
+  setOrder(d,o);render();
+}
+
+function status(ok,txt){const e=document.getElementById('save');
+  e.className='saved'+(ok?' ok':'');document.getElementById('savetxt').textContent=txt;}
+function save(){clearTimeout(timer);timer=setTimeout(push,1200);}
+async function push(){
+  status(false,'Saving');
+  localStorage.setItem('ll_v6_backup',JSON.stringify(D));
+  try{await fetch(`https://api.jsonbin.io/v3/b/${BIN}`,{method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':KEY},body:JSON.stringify(D)});
+    status(true,'Saved');}catch(e){status(false,'Offline');}
+}
+async function load(){
+  const c=localStorage.getItem('ll_v6_backup');
+  if(c){try{D=JSON.parse(c);if(!D.cycles)D.cycles={};}catch(e){D={cycles:{}};}
+    document.getElementById('load').style.display='none';openLatest();render();}
   try{
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
-    const data=await res.json();
-    const fresh=data.record||{cycles:{},nameOverrides:{}};
-    if(!fresh.cycles)fresh.cycles={};if(!fresh.nameOverrides)fresh.nameOverrides={};
-    cloudData=fresh;localStorage.setItem('ll_v6_backup',JSON.stringify(cloudData));
-    setSyncStatus('synced','SYNCED');document.getElementById('loadingOverlay').style.display='none';renderAll(true);
-  }catch(e){
-    setSyncStatus('error','OFFLINE');
-    if(!cached){cloudData={cycles:{},nameOverrides:{}};document.getElementById('loadingOverlay').style.display='none';renderAll(true);}
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${BIN}/latest`,{headers:{'X-Master-Key':KEY}});
+    const j=await r.json();
+    if(j.record&&j.record.cycles)D=j.record; else if(!c)D={cycles:{}};
+    localStorage.setItem('ll_v6_backup',JSON.stringify(D));
+    status(true,'Saved');
+  }catch(e){status(false,'Offline');}
+  document.getElementById('load').style.display='none';
+  openLatest();render();
+}
+function openLatest(){
+  const m=maxWk();if(m>cur)cur=m;
+  for(let i=P.length-1;i>=0;i--){
+    const d=P[i];if(d.ex.some((_,j)=>getW(cur,d.id,j))){
+      day=(D.cycles?.[`c${cur}`]?.[d.id]?.done&&i<P.length-1)?i+1:i;return;}
   }
+  day=0;
 }
-
-async function saveToCloud(){
-  setSyncStatus('syncing','SAVING...');
-  localStorage.setItem('ll_v6_backup',JSON.stringify(cloudData));
-  try{
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(cloudData)});
-    setSyncStatus('synced','SAVED ✓');
-  }catch(e){setSyncStatus('error','SAVE FAILED');}
-}
-function debouncedSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveToCloud,1500);}
-function ensureDay(c,d){if(!cloudData.cycles[`c${c}`])cloudData.cycles[`c${c}`]={};if(!cloudData.cycles[`c${c}`][d])cloudData.cycles[`c${c}`][d]={};}
-function getSet(c,d,e,s){const sets=cloudData?.cycles?.[`c${c}`]?.[d]?.[`e${e}`];if(Array.isArray(sets))return sets[s]||'';return '';}
-function setSet(c,d,e,s,v){ensureDay(c,d);let arr=cloudData.cycles[`c${c}`][d][`e${e}`];if(!Array.isArray(arr))arr=['','','',''];arr[s]=v;cloudData.cycles[`c${c}`][d][`e${e}`]=arr;debouncedSave();}
-function getExName(dayId,ei){return cloudData?.nameOverrides?.[`${dayId}_${ei}`]||null;}
-function setExName(dayId,ei,name){if(!cloudData.nameOverrides)cloudData.nameOverrides={};if(name)cloudData.nameOverrides[`${dayId}_${ei}`]=name;else delete cloudData.nameOverrides[`${dayId}_${ei}`];debouncedSave();}
-function getUnit(c,dayId){const s=cloudData?.cycles?.[`c${c}`]?.[dayId]?.unit;if(s)return s;for(let i=c-1;i>=1;i--){const p=cloudData?.cycles?.[`c${i}`]?.[dayId]?.unit;if(p)return p;}return 'kg';}
-function setUnit(c,dayId,unit){ensureDay(c,dayId);cloudData.cycles[`c${c}`][dayId].unit=unit;debouncedSave();}
-function getBonusExercises(c,d){
-  const thisCycle=cloudData?.cycles?.[`c${c}`]?.[d]?.bonus||[];
-  if(c<=1)return thisCycle;
-  const prevBonus=cloudData?.cycles?.[`c${c-1}`]?.[d]?.bonus||[];
-  const removed=cloudData?.cycles?.[`c${c}`]?.[d]?.bonusRemoved||[];
-  const thisNames=thisCycle.map(b=>b.name);
-  const carried=prevBonus.filter(b=>!removed.includes(b.name)&&!thisNames.includes(b.name)).map(b=>({...b,sets:['','','',''],carried:true,prevSets:b.sets}));
-  return [...thisCycle,...carried];
-}
-function saveBonusExercises(c,d,arr){ensureDay(c,d);cloudData.cycles[`c${c}`][d].bonus=arr;debouncedSave();}
-function getNotes(c,d){return cloudData?.cycles?.[`c${c}`]?.[d]?.notes||'';}
-function setNotes(c,d,v){ensureDay(c,d);cloudData.cycles[`c${c}`][d].notes=v;debouncedSave();}
-function getAI(c){return cloudData?.cycles?.[`c${c}`]?.ai||'';}
-function setAI(c,v){if(!cloudData.cycles[`c${c}`])cloudData.cycles[`c${c}`]={};cloudData.cycles[`c${c}`].ai=v;debouncedSave();}
-function isSessionDone(c,dayId){return !!cloudData?.cycles?.[`c${c}`]?.[dayId]?.done;}
-function markSessionDone(dayId,di){ensureDay(currentCycle,dayId);cloudData.cycles[`c${currentCycle}`][dayId].done=true;debouncedSave();const btn=document.getElementById(`finish-btn-${di}`);if(btn){btn.textContent='✓ DONE';btn.style.borderColor='var(--accent)';btn.style.color='var(--accent)';}}
-function getSupersets(c,dayId){return cloudData?.cycles?.[`c${c}`]?.[dayId]?.supersets||[];}
-function saveSupersets(c,dayId,arr){ensureDay(c,dayId);cloudData.cycles[`c${c}`][dayId].supersets=arr;debouncedSave();}
-function getUnifiedOrder(dayId){const k=`unifiedorder_${dayId}`;const s=cloudData?.nameOverrides?.[k];return s?JSON.parse(s):null;}
-function saveUnifiedOrder(dayId,order){if(!cloudData.nameOverrides)cloudData.nameOverrides={};cloudData.nameOverrides[`unifiedorder_${dayId}`]=JSON.stringify(order);debouncedSave();}
-
-function getAllDayItems(day){
-  const items=[];let ei=0;
-  (day.exercises||[]).forEach(ex=>{items.push({type:'program',ei,ex});ei++;});
-  (day.finisher||[]).forEach(ex=>{items.push({type:'finisher',ei,ex});ei++;});
-  return items;
-}
-function itemKey(item){if(item.type==='bonus')return`bon_${item.name}`;return`prog_${item.ei}`;}
-function getExercises(day){if(!day||day.type==='recap')return[];return[...(day.exercises||[]),...(day.finisher||[])];}
-function getOrderedDayItems(day){
-  const baseItems=getAllDayItems(day);
-  const bonus=getBonusExercises(currentCycle,day.id);
-  const bonusItems=bonus.map((bex,idx)=>({type:'bonus',idx,name:bex.name,bex}));
-  const allItems=[...baseItems,...bonusItems];
-  const order=getUnifiedOrder(day.id);
-  if(!order)return allItems;
-  const map={};allItems.forEach(item=>{map[itemKey(item)]=item;});
-  const ordered=[];
-  order.forEach(k=>{if(map[k]){ordered.push(map[k]);delete map[k];}});
-  Object.values(map).forEach(item=>ordered.push(item));
-  return ordered;
-}
-function isItemPaired(dayId,item){
-  const key=item.type==='bonus'?`bonus_${item.idx}`:`ex_${item.ei}`;
-  return getSupersets(currentCycle,dayId).some(ss=>ss.includes(key));
-}
-
-function changeCycle(dir){const n=currentCycle+dir;if(n<1)return;currentCycle=n;document.getElementById('cycleLabel').textContent=`CYCLE ${currentCycle}`;renderAll(false);}
-function switchTab(idx){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));document.querySelectorAll('.day-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));}
-function renderAndStay(di){renderAll(false);switchTab(di);}
-
-function findMostRecentDayIdx(){
-  const cycleKeys=Object.keys(cloudData.cycles||{});
-  let maxCycle=1;cycleKeys.forEach(k=>{const n=parseInt(k.replace('c',''));if(!isNaN(n)&&n>maxCycle)maxCycle=n;});
-  for(let c=maxCycle;c>=1;c--){
-    let lastDataDayIdx=-1,lastDoneDayIdx=-1;
-    for(let di=0;di<DAYS.length-1;di++){
-      const day=DAYS[di];if(day.type==='recap')continue;
-      const exercises=getExercises(day);
-      const hasData=exercises.some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
-      const done=isSessionDone(c,day.id);
-      if(hasData)lastDataDayIdx=di;if(hasData&&done)lastDoneDayIdx=di;
-    }
-    if(lastDataDayIdx>=0){
-      if(c!==currentCycle){currentCycle=c;document.getElementById('cycleLabel').textContent=`CYCLE ${currentCycle}`;}
-      if(lastDoneDayIdx===lastDataDayIdx){const nx=lastDataDayIdx+1;return nx<DAYS.length-1?nx:lastDataDayIdx;}
-      return lastDataDayIdx;
-    }
-  }
-  return 0;
-}
-
-let supersetSelectingDi=null,supersetSelectingEi=null,supersetSelectingIsBonus=false;
-function toggleLink(dayId,di,ei,isBonus){
-  const key=isBonus?`bonus_${ei}`:`ex_${ei}`;
-  const supersets=getSupersets(currentCycle,dayId);
-  const existing=supersets.find(ss=>ss.includes(key));
-  if(existing){saveSupersets(currentCycle,dayId,supersets.filter(ss=>ss!==existing));supersetSelectingDi=null;supersetSelectingEi=null;supersetSelectingIsBonus=false;renderAndStay(di);return;}
-  if(supersetSelectingDi===null){
-    supersetSelectingDi=di;supersetSelectingEi=ei;supersetSelectingIsBonus=isBonus;
-    const btn=document.getElementById(isBonus?`linkbtn_bonus_${di}_${ei}`:`linkbtn_${di}_${ei}`);
-    if(btn)btn.classList.add('selecting');
-  }else{
-    const firstKey=supersetSelectingIsBonus?`bonus_${supersetSelectingEi}`:`ex_${supersetSelectingEi}`;
-    if(firstKey!==key){supersets.push([firstKey,key]);saveSupersets(currentCycle,dayId,supersets);}
-    supersetSelectingDi=null;supersetSelectingEi=null;supersetSelectingIsBonus=false;renderAndStay(di);
-  }
-}
-
-function moveUnifiedItem(dayId,di,key,direction){
-  const day=DAYS.find(d=>d.id===dayId);
-  const allItems=getOrderedDayItems(day);
-  const allKeys=allItems.map(itemKey);
-  let order=getUnifiedOrder(dayId)||[];
-  const merged=[...order.filter(k=>allKeys.includes(k))];
-  allKeys.forEach(k=>{if(!merged.includes(k))merged.push(k);});
-  const pos=merged.indexOf(key);if(pos===-1)return;
-  const newPos=pos+direction;if(newPos<0||newPos>=merged.length)return;
-  merged.splice(pos,1);merged.splice(newPos,0,key);
-  saveUnifiedOrder(dayId,merged);renderAndStay(di);
-}
-
-function tierBadge(tier){const cls=tier==='S+'?'tier-sp':tier==='S'?'tier-s':'tier-a';return`<span class="tier-badge ${cls}">${tier}</span>`;}
-
-function buildUnifiedRow(di,item,dayId,unit){
-  const isBonus=item.type==='bonus';
-  const ei=isBonus?item.idx:item.ei;
-  const ex=isBonus?null:item.ex;
-  const bex=isBonus?item.bex:null;
-  const key=itemKey(item);
-  const paired=isItemPaired(dayId,item);
-  const linkLabel=paired?'UNLINK':'LINK';
-  const linkClass=paired?'link-btn linked':'link-btn';
-  const rowClass=paired?'exercise-row superset-row':(isBonus?'exercise-row bonus':'exercise-row');
-  const reps=isBonus?'':ex.reps;
-  let nameHtml,badgeHtml,editBtnHtml,deleteBtnHtml='';
-  if(isBonus){
-    const isCarried=!!bex.carried;
-    const carriedBadge=isCarried?`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);border:1px solid var(--blue);padding:1px 5px;margin-left:4px;">↑</span>`:'';
-    badgeHtml=paired?'<span class="superset-badge">SS</span>':'<span class="tier-badge tier-a">+</span>';
-    nameHtml=`<span class="exercise-name bonus-name" id="bonus_exname_${di}_${ei}">${bex.name}</span>${carriedBadge}`;
-    editBtnHtml=!isCarried?`<button class="edit-btn" id="bonus_edit_${di}_${ei}" onclick="startEditBonusName(${di},${ei},'${dayId}')">✎</button><input class="name-edit-input" id="bonus_name_${di}_${ei}" type="text" maxlength="40"><button class="name-confirm-btn" id="bonus_confirm_${di}_${ei}" onclick="confirmBonusName(${di},${ei},'${dayId}')">✓</button>`:'';
-    deleteBtnHtml=`<button class="delete-btn" onclick="deleteBonusExercise('${dayId}',${di},'${bex.name}',${isCarried})">✕</button>`;
-  }else{
-    const customName=getExName(dayId,ei);const displayName=customName||ex.name;
-    badgeHtml=paired?'<span class="superset-badge">SS</span>':tierBadge(ex.tier);
-    nameHtml=`<span class="exercise-name${customName?' custom':''}" id="exname_${di}_${ei}">${displayName}</span>`;
-    editBtnHtml=`<button class="edit-btn" id="exedit_${di}_${ei}" onclick="startEditName(${di},${ei},'${dayId}')">✎</button><input class="name-edit-input" id="exinput_${di}_${ei}" type="text" maxlength="40"><button class="name-confirm-btn" id="exconfirm_${di}_${ei}" onclick="confirmEditName(${di},${ei},'${dayId}')">✓</button>`;
-  }
-  const linkOnclick=isBonus?`toggleLink('${dayId}',${di},${ei},true)`:`toggleLink('${dayId}',${di},${ei},false)`;
-  const linkBtnId=isBonus?`linkbtn_bonus_${di}_${ei}`:`linkbtn_${di}_${ei}`;
-  const prevRow=(()=>{
-    const prevWeights=Array.from({length:NUM_SETS},(_,s)=>currentCycle>1?getSet(currentCycle-1,dayId,ei,s):'');
-    return prevWeights.some(v=>v)?`<div class="prev-weights">LAST: ${prevWeights.map(v=>v||'—').join(' · ')}</div>`:'';
-  })();
-  const setBoxes=Array.from({length:NUM_SETS},(_,s)=>`<div class="set-wrap"><div class="set-label">S${s+1}</div><input type="number" class="set-input" id="${isBonus?`binp_${di}_${ei}_${s}`:`inp_${di}_${ei}_${s}`}" placeholder="—" min="0" step="2.5"></div>`).join('');
-  return`<div class="${rowClass}" id="exrow_${di}_${ei}"><div class="exercise-top"><div class="exercise-name-wrap"><div class="reorder-btns"><button class="reorder-btn" onclick="moveUnifiedItem('${dayId}',${di},'${key}',-1)">▲</button><button class="reorder-btn" onclick="moveUnifiedItem('${dayId}',${di},'${key}',1)">▼</button></div>${badgeHtml}${nameHtml}${editBtnHtml}</div><div style="display:flex;align-items:center;gap:8px;"><button class="${linkClass}" id="${linkBtnId}" onclick="${linkOnclick}">${linkLabel}</button>${reps?`<div class="exercise-meta">${reps}</div>`:''}${deleteBtnHtml}</div></div>${prevRow}<div class="sets-row">${setBoxes}<div class="unit unit-label-${di}">${unit}</div></div></div>`;
-}
-
-function buildDay(day,di){
-  const unit=getUnit(currentCycle,day.id);
-  const orderedItems=getOrderedDayItems(day);
-  const customSupersets=getSupersets(currentCycle,day.id);
-  let bodyHtml='';const rendered=new Set();
-  orderedItems.forEach(item=>{
-    const key=itemKey(item);if(rendered.has(key))return;
-    if(isItemPaired(day.id,item)){
-      const itemSSKey=item.type==='bonus'?`bonus_${item.idx}`:`ex_${item.ei}`;
-      const pairGroup=customSupersets.find(ss=>ss.includes(itemSSKey));
-      const partnerKey=pairGroup?pairGroup.find(k=>k!==itemSSKey):null;
-      let partnerItem=null;
-      if(partnerKey){if(partnerKey.startsWith('bonus_')){const pIdx=Number(partnerKey.replace('bonus_',''));partnerItem=orderedItems.find(it=>it.type==='bonus'&&it.idx===pIdx);}else{const pEi=Number(partnerKey.replace('ex_',''));partnerItem=orderedItems.find(it=>it.type!=='bonus'&&it.ei===pEi);}}
-      if(partnerItem){rendered.add(key);rendered.add(itemKey(partnerItem));bodyHtml+=`<div class="superset-group"><div class="superset-label">◈ LINKED PAIR</div>`;bodyHtml+=buildUnifiedRow(di,item,day.id,unit);bodyHtml+=buildUnifiedRow(di,partnerItem,day.id,unit);bodyHtml+=`</div>`;return;}
-    }
-    rendered.add(key);bodyHtml+=buildUnifiedRow(di,item,day.id,unit);
+function tog(){
+  const from=unit(),to=from==='kg'?'lbs':'kg',f=to==='lbs'?2.2046:1/2.2046;
+  Object.keys(D.cycles||{}).forEach(ck=>{
+    const cy=D.cycles[ck];if(!cy)return;
+    Object.keys(cy).forEach(dk=>{
+      const dd=cy[dk];if(!dd||typeof dd!=='object')return;
+      Object.keys(dd).forEach(k=>{
+        if(!/^e\d+$/.test(k))return;
+        const v=dd[k];
+        if(Array.isArray(v)){dd[k]=v.map(x=>x?String(Math.round(Number(x)*f*2)/2):x);}
+        else if(v){dd[k]=String(Math.round(Number(v)*f*2)/2);}
+      });
+      if(Array.isArray(dd.bonus))dd.bonus.forEach(b=>{
+        if(b&&b.w)b.w=String(Math.round(Number(b.w)*f*2)/2);});
+    });
   });
-  const totalEx=getExercises(day).length;
-  return`<div class="day-header"><span>${day.label}</span></div><div class="day-subheader">${day.sub}</div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);">UNIT: <span style="color:var(--accent)">${unit.toUpperCase()}</span></div>
-      <button id="unit-toggle-${di}" onclick="toggleUnit('${day.id}',${di})" style="background:transparent;border:1px solid var(--muted);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--muted)';this.style.color='var(--muted2)'">${unit==='kg'?'Switch to LBS':'Switch to KG'}</button>
+  D.unit=to;save();render();
+}
+function render(){
+  document.getElementById('cyc').textContent='WEEK '+cur;
+  document.getElementById('wkprev').disabled=cur<=1;
+  document.getElementById('unitbtn').innerHTML=unit()==='kg'?'<b>KG</b> / LBS':'KG / <b>LBS</b>';
+  document.getElementById('days').innerHTML=P.map((d,i)=>{
+    const done=D.cycles?.[`c${cur}`]?.[d.id]?.done;
+    return`<div class="day${i===day?' on':''}${done?' done':''}" onclick="go(${i})">
+      <div class="n">${d.n}</div><div class="l">${d.t}</div></div>`;}).join('');
+
+  const d=P[day],u=unit();
+  const done=D.cycles?.[`c${cur}`]?.[d.id]?.done;
+  const note=D.cycles?.[`c${cur}`]?.[d.id]?.note||'';
+  const list=items();
+  let n=0,tot=list.length;
+  list.forEach(x=>{const v=x.bonus?bonusW(cur,d.id,x.bonus.name):getW(cur,d.id,x.i);if(v)n++;});
+
+  // group linked pairs that sit next to each other in the order
+  let html='',seen=new Set();
+  list.forEach(x=>{
+    if(seen.has(x.k))return;
+    const pr=SS(cur,d.id).find(p=>p.includes(x.k));
+    if(pr){
+      const ok=pr.find(z=>z!==x.k);
+      const other=list.find(z=>z.k===ok);
+      if(other){seen.add(x.k);seen.add(ok);
+        html+=`<div class="pairwrap"><div class="pairlbl">◈ LINKED</div>${card(x,d,u)}${card(other,d,u)}</div>`;
+        return;}
+    }
+    seen.add(x.k);html+=card(x,d,u);
+  });
+
+  document.getElementById('body').innerHTML=`
+    <div class="dayname">DAY ${d.n}</div>
+    <div class="daysub">${d.full}</div>
+    <div class="bar"><div class="fill" style="width:${tot?n/tot*100:0}%"></div></div>
+    <div class="count">${n} of ${tot} logged</div>
+    ${html}
+    <button class="addbtn" onclick="addEx()">+ Add exercise</button>
+    <textarea class="notes" placeholder="Session notes…" oninput="nt(this.value)">${note}</textarea>
+    <button class="fin${done?' done':''}" onclick="fin()">${done?'✓ Session finished':'Finish session'}</button>
+    ${allDone()&&cur===maxWk()?`<button class="next" onclick="newWk()">Start Week ${cur+1} →</button>`:''}
+    <button class="copy" onclick="exp()">⬆ Copy for Claude</button>`;
+}
+
+function card(x,d,u){
+  const isB=!!x.bonus;
+  const cust=isB?false:!!exName(d.id,x.i);
+  const name=isB?x.bonus.name:(exName(d.id,x.i)||x.e[0]);
+  const w=isB?bonusW(cur,d.id,x.bonus.name):getW(cur,d.id,x.i);
+  const lw=isB?lastBonusW(d.id,x.bonus.name):lastW(d.id,x.i);
+  const sug=!w&&lw, val=w||lw;
+  const pr=paired(d.id,x.k), sel=linkFrom===x.k;
+  const badge=isB?`<span class="tier t-a">+</span>`
+    :`<span class="tier ${x.e[1]==='S+'?'t-sp':x.e[1]==='S'?'t-s':'t-a'}">${x.e[1]}</span>`;
+  const meta=isB?'log heaviest':`${x.e[2]} reps · 4 sets · log heaviest`;
+  const set=isB?`setBonusW(cur,'${d.id}',${JSON.stringify(x.bonus.name)},this.value)`
+               :`w(${x.i},this.value)`;
+  return`<div class="ex${w?' filled':''}${sug?' sug':''}${pr?' pair':''}${isB?' bonus':''}" id="c_${x.k}">
+    <div class="arr">
+      <button onclick="move('${x.k}',-1)">▲</button>
+      <button onclick="move('${x.k}',1)">▼</button></div>
+    <div class="exmain">
+      <div class="namewrap">
+        <span class="exname${cust?' custom':''}" id="n_${x.k}" onclick="ren('${x.k}')">${badge}${name}</span>
+        <button class="pen" id="p_${x.k}" onclick="ren('${x.k}')">✎</button>
+        <input class="nameinp" id="i_${x.k}" maxlength="40"
+          onkeydown="if(event.key==='Enter')renOk('${x.k}')">
+        <button class="nameok" id="k_${x.k}" onclick="renOk('${x.k}')">✓</button>
+      </div>
+      <div class="exreps">${meta}</div>
+      ${sug?`<div class="sugtag">Suggested from last week</div>`
+           :lw?`<div class="exlast">Last: <b>${lw} ${u}</b></div>`:''}
+
     </div>
-    <div class="exercise-grid">${bodyHtml}</div>
-    <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}',${di})">+ Add Exercise</button>
-    <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
-    <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
-    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-      <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>
-      <button class="finish-btn" id="finish-btn-${di}" onclick="markSessionDone('${day.id}',${di})">FINISH SESSION</button>
-    </div>`;
-}
-
-function buildRecap(){
-  const savedAI=getAI(currentCycle);
-  const cards=DAYS.filter(d=>d.type!=='recap').map(day=>{
-    const exercises=getExercises(day);const unit=getUnit(currentCycle,day.id);
-    return exercises.map((ex,ei)=>{
-      const customName=getExName(day.id,ei);const displayName=customName||ex.name;
-      const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));const hasAny=sets.some(v=>v);
-      const setDisplay=sets.map(v=>v?`<div class="recap-set">${v}<span class="rs-unit">${unit}</span></div>`:`<div class="recap-set empty">·</div>`).join('');
-      return`<div class="recap-card" style="${!hasAny?'opacity:.35':''}"><div class="day-label">${day.label}</div><div class="ex-name">${displayName}</div><div class="recap-sets">${setDisplay}</div></div>`;
-    }).join('');
-  }).join('');
-  const aiHtml=savedAI
-    ?`<div class="ai-box"><div class="ai-label">◈ AI Coach — Cycle ${currentCycle}</div><div class="ai-content" id="aiContent">${savedAI}</div></div>`
-    :`<div class="ai-box"><div class="ai-label">◈ AI Coach</div><div class="ai-content" id="aiContent"><p style="color:var(--muted)">Hit Generate to get coaching notes.</p></div></div>`;
-  return`<div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
-    <div class="recap-section"><div class="section-label">Logged Weights</div><div class="recap-grid">${cards}</div></div>
-    <div class="recap-section">
-      <div class="export-box"><div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude.</div><button class="btn btn-copy" onclick="exportCycle()">⬆ Copy for Claude</button></div>
-      <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied!</span>
+    <div class="right">
+      <div style="display:flex;gap:6px;">
+        <button class="tool lk${sel?' sel':''}" style="flex:1;" onclick="toggleLink('${x.k}')">${pr?'Unlink':sel?'Pick…':'Link'}</button>
+        ${isB?`<button class="tool del" onclick="delBonus('${d.id}',${JSON.stringify(x.bonus.name)})">✕</button>`:''}
+      </div>
+      <div class="wbox">
+        <input class="winp" type="number" inputmode="decimal" step="2.5" placeholder="—"
+          value="${val}" oninput="${set};mark('${x.k}',this.value)">
+        <span class="u">${u}</span>
+      </div>
     </div>
-    <div class="recap-section"><div class="section-label">AI Coaching Analysis</div>${aiHtml}
-      <div class="btn-row" style="margin-top:14px;"><button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Cycle ${currentCycle} Recap</button></div>
-    </div>`;
+    ${sug?`<button class="ok" onclick="okv('${x.k}','${lw}')">✓</button>`:''}
+  </div>`;
 }
 
-function renderAll(smartOpen=false){
-  const openIdx=smartOpen?findMostRecentDayIdx():0;
-  document.getElementById('tabBar').innerHTML=DAYS.map((d,i)=>`<button class="tab ${d.type}${i===openIdx?' active':''}" onclick="switchTab(${i})">${d.label}</button>`).join('');
-  const container=document.getElementById('panels');container.innerHTML='';
-  DAYS.forEach((day,di)=>{const panel=document.createElement('div');panel.className='day-panel'+(di===openIdx?' active':'');panel.innerHTML=day.type==='recap'?buildRecap():buildDay(day,di);container.appendChild(panel);});
-  DAYS.forEach((day,di)=>{
-    if(day.type==='recap')return;
-    const exercises=getExercises(day);
-    exercises.forEach((ex,ei)=>{
-      const inputEl=document.getElementById(`exinput_${di}_${ei}`);
-      if(inputEl)inputEl.addEventListener('keydown',e=>{if(e.key==='Enter')confirmEditName(di,ei,day.id);});
-      for(let s=0;s<NUM_SETS;s++){
-        const inp=document.getElementById(`inp_${di}_${ei}_${s}`);if(!inp)continue;
-        const val=getSet(currentCycle,day.id,ei,s);const prevVal=currentCycle>1?getSet(currentCycle-1,day.id,ei,s):'';
-        inp.value=val;
-        if(val){inp.classList.add('has-value');inp.style.color='var(--accent)';}else if(prevVal){inp.style.color='var(--muted2)';}
-        inp.addEventListener('focus',()=>{if(!inp.value)inp.style.color='var(--text)';});
-        inp.addEventListener('blur',()=>{if(!inp.value&&prevVal)inp.style.color='var(--muted2)';});
-        inp.addEventListener('input',()=>{setSet(currentCycle,day.id,ei,s,inp.value);inp.classList.toggle('has-value',!!inp.value);inp.style.color=inp.value?'var(--accent)':(prevVal?'var(--muted2)':'var(--text)');updateProgress(di);});
-      }
-    });
-    const bonus=getBonusExercises(currentCycle,day.id);
-    bonus.forEach((bex,bi)=>{
-      const nameInp=document.getElementById(`bonus_name_${di}_${bi}`);
-      if(nameInp)nameInp.addEventListener('keydown',e=>{if(e.key==='Enter')confirmBonusName(di,bi,day.id);});
-      for(let s=0;s<NUM_SETS;s++){
-        const inp=document.getElementById(`binp_${di}_${bi}_${s}`);if(!inp)continue;
-        inp.value=bex.sets[s]||'';if(inp.value){inp.classList.add('has-value');inp.style.color='var(--accent)';}
-        inp.addEventListener('input',()=>{
-          ensureDay(currentCycle,day.id);let saved=cloudData.cycles[`c${currentCycle}`][day.id].bonus||[];
-          const existing=saved.find(b=>b.name===bex.name);
-          if(existing){existing.sets[s]=inp.value;}else{const ne={name:bex.name,sets:['','','','']};ne.sets[s]=inp.value;saved.push(ne);cloudData.cycles[`c${currentCycle}`][day.id].bonus=saved;}
-          debouncedSave();inp.classList.toggle('has-value',!!inp.value);inp.style.color=inp.value?'var(--accent)':'var(--text)';updateProgress(di);
-        });
-      }
-    });
-    const notes=document.getElementById(`notes_${di}`);
-    if(notes){notes.value=getNotes(currentCycle,day.id);notes.addEventListener('input',()=>setNotes(currentCycle,day.id,notes.value));}
-    const fb=document.getElementById(`finish-btn-${di}`);
-    if(fb&&isSessionDone(currentCycle,day.id)){fb.textContent='✓ DONE';fb.style.borderColor='var(--accent)';fb.style.color='var(--accent)';}
-    updateProgress(di);
-  });
+function mark(k,v){
+  const row=document.getElementById('c_'+k);if(!row)return;
+  row.classList.toggle('filled',!!v);
+  if(v){row.classList.remove('sug');
+    const b=row.querySelector('.ok');if(b)b.remove();
+    const t=row.querySelector('.sugtag');if(t)t.remove();}
+  const d=P[day];let n=0;const list=items();
+  list.forEach(x=>{const val=x.bonus?bonusW(cur,d.id,x.bonus.name):getW(cur,d.id,x.i);if(val)n++;});
+  document.querySelector('.fill').style.width=(list.length?n/list.length*100:0)+'%';
+  document.querySelector('.count').textContent=`${n} of ${list.length} logged`;
 }
-
-function updateProgress(di){
-  const day=DAYS[di];if(!day||day.type==='recap')return;
-  const exercises=getExercises(day);let n=0;
-  exercises.forEach((_,ei)=>{for(let s=0;s<NUM_SETS;s++){if(getSet(currentCycle,day.id,ei,s)){n++;break;}}});
-  const pct=Math.round(n/exercises.length*100);
-  const bar=document.getElementById(`prog_${di}`);const cnt=document.getElementById(`cnt_${di}`);
-  if(bar)bar.style.width=pct+'%';if(cnt)cnt.textContent=`${n} / ${exercises.length} logged`;
+function okv(k,v){
+  const x=items().find(z=>z.k===k);if(!x)return;
+  if(x.bonus)setBonusW(cur,P[day].id,x.bonus.name,v);else setW(cur,P[day].id,x.i,v);
+  render();
 }
-
-function toggleUnit(dayId,di){
-  const current=getUnit(currentCycle,dayId);const next=current==='lbs'?'kg':'lbs';
-  setUnit(currentCycle,dayId,next);
-  document.querySelectorAll(`.unit-label-${di}`).forEach(el=>el.textContent=next);
-  const day=DAYS[di];if(!day)return;
-  getExercises(day).forEach((ex,ei)=>{
-    for(let s=0;s<NUM_SETS;s++){const inp=document.getElementById(`inp_${di}_${ei}_${s}`);if(!inp||!inp.value)continue;
-      const num=parseFloat(inp.value);if(isNaN(num))continue;
-      const converted=next==='kg'?(num/2.2046).toFixed(1):(num*2.2046).toFixed(1);
-      inp.value=converted;setSet(currentCycle,dayId,ei,s,converted);}
-  });
-  const btn=document.getElementById(`unit-toggle-${di}`);if(btn)btn.textContent=next==='kg'?'Switch to LBS':'Switch to KG';
+function ed(){edit=!edit;linkFrom=null;render();}
+function ren(k){
+  const n=document.getElementById('n_'+k),i=document.getElementById('i_'+k),
+        p=document.getElementById('p_'+k),ok=document.getElementById('k_'+k);
+  if(!n||!i)return;
+  const x=items().find(z=>z.k===k);if(!x)return;
+  i.value=x.bonus?x.bonus.name:(exName(P[day].id,x.i)||x.e[0]);
+  n.style.display='none';p.style.display='none';
+  i.style.display='block';ok.style.display='block';
+  i.focus();i.select();
 }
-
-function startEditName(di,ei,dayId){const n=document.getElementById(`exname_${di}_${ei}`);const i=document.getElementById(`exinput_${di}_${ei}`);const c=document.getElementById(`exconfirm_${di}_${ei}`);const b=document.getElementById(`exedit_${di}_${ei}`);i.value=n.textContent;n.style.display='none';if(b)b.style.display='none';i.style.display='block';c.style.display='block';i.focus();i.select();}
-function confirmEditName(di,ei,dayId){const n=document.getElementById(`exname_${di}_${ei}`);const i=document.getElementById(`exinput_${di}_${ei}`);const c=document.getElementById(`exconfirm_${di}_${ei}`);const b=document.getElementById(`exedit_${di}_${ei}`);const newName=i.value.trim();const defaultName=DAYS[di].exercises[ei]?.name||'';if(newName&&newName!==defaultName){n.textContent=newName;n.classList.add('custom');setExName(dayId,ei,newName);}else{n.textContent=defaultName;n.classList.remove('custom');setExName(dayId,ei,null);}n.style.display='block';if(b)b.style.display='block';i.style.display='none';c.style.display='none';}
-function startEditBonusName(di,bi,dayId){const n=document.getElementById(`bonus_exname_${di}_${bi}`);const i=document.getElementById(`bonus_name_${di}_${bi}`);const c=document.getElementById(`bonus_confirm_${di}_${bi}`);const b=document.getElementById(`bonus_edit_${di}_${bi}`);i.value=n.textContent;n.style.display='none';if(b)b.style.display='none';i.style.display='block';c.style.display='block';i.focus();i.select();}
-function confirmBonusName(di,bi,dayId){const n=document.getElementById(`bonus_exname_${di}_${bi}`);const i=document.getElementById(`bonus_name_${di}_${bi}`);const c=document.getElementById(`bonus_confirm_${di}_${bi}`);const b=document.getElementById(`bonus_edit_${di}_${bi}`);const newName=i.value.trim()||'New Exercise';n.textContent=newName;n.style.display='block';if(b)b.style.display='block';i.style.display='none';c.style.display='none';const bonus=getBonusExercises(currentCycle,dayId);if(bonus[bi]){bonus[bi].name=newName;saveBonusExercises(currentCycle,dayId,bonus);}}
-function addBonusExercise(dayId,di){const bonus=getBonusExercises(currentCycle,dayId);bonus.push({name:'New Exercise',sets:['','','','']});saveBonusExercises(currentCycle,dayId,bonus);renderAll(false);switchTab(di);const bi=bonus.length-1;const inp=document.getElementById(`bonus_name_${di}_${bi}`);if(inp){inp.style.display='block';inp.focus();inp.select();}const nameEl=document.getElementById(`bonus_exname_${di}_${bi}`);if(nameEl)nameEl.style.display='none';const confirmEl=document.getElementById(`bonus_confirm_${di}_${bi}`);if(confirmEl)confirmEl.style.display='block';const editBtn=document.getElementById(`bonus_edit_${di}_${bi}`);if(editBtn)editBtn.style.display='none';}
-function deleteBonusExercise(dayId,di,bonusName,isCarried){
-  if(isCarried){ensureDay(currentCycle,dayId);const removed=cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved||[];if(!removed.includes(bonusName))removed.push(bonusName);cloudData.cycles[`c${currentCycle}`][dayId].bonusRemoved=removed;cloudData.cycles[`c${currentCycle}`][dayId].bonus=(cloudData.cycles[`c${currentCycle}`][dayId].bonus||[]).filter(b=>b.name!==bonusName);debouncedSave();renderAndStay(di);return;}
-  ensureDay(currentCycle,dayId);cloudData.cycles[`c${currentCycle}`][dayId].bonus=(cloudData.cycles[`c${currentCycle}`][dayId].bonus||[]).filter(b=>b.name!==bonusName);debouncedSave();renderAndStay(di);
-}
-
-function exportCycle(){
-  let maxCycle=0;Object.keys(cloudData.cycles||{}).forEach(k=>{const n=parseInt(k.replace('c',''));if(!isNaN(n)&&n>maxCycle)maxCycle=n;});
-  let text=`LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\nCurrent Cycle: ${currentCycle} | Total: ${maxCycle}\nGoals: Lean bulk. Chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
-  for(let c=1;c<=maxCycle;c++){
-    let hasData=false;
-    DAYS.filter(d=>d.type!=='recap').forEach(day=>{if(getExercises(day).some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)))hasData=true;});
-    if(!hasData)continue;
-    text+=`── CYCLE ${c} ──\n`;
-    DAYS.filter(d=>d.type!=='recap').forEach(day=>{
-      const exercises=getExercises(day);const unit=getUnit(c,day.id);const notes=getNotes(c,day.id);
-      let hasD=exercises.some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v));
-      if(!hasD&&!notes)return;
-      text+=`${day.label} [${unit.toUpperCase()}]\n`;
-      exercises.forEach((ex,ei)=>{const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s));if(!sets.some(v=>v))return;text+=`  ${getExName(day.id,ei)||ex.name}: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(' | ')}\n`;});
-      if(notes)text+=`  Notes: ${notes}\n`;
-    });text+='\n';
+function renOk(k){
+  const d=P[day],i=document.getElementById('i_'+k);
+  const x=items().find(z=>z.k===k);if(!x||!i)return;
+  const nv=i.value.trim();
+  if(x.bonus){
+    if(nv&&nv!==x.bonus.name){
+      const a=(D.cycles?.[`c${cur}`]?.[d.id]?.bonus||[]).slice();
+      const e=a.find(b=>b.name===x.bonus.name);
+      if(e)e.name=nv;else a.push({name:nv,w:''});
+      setBonus(cur,d.id,a);
+    }
+  }else{
+    setExName(d.id,x.i,(!nv||nv===x.e[0])?null:nv);
   }
-  text+=`── PROGRESSION ──\n`;
-  DAYS.filter(d=>d.type!=='recap').forEach(day=>{
-    getExercises(day).forEach((ex,ei)=>{
-      const history=[];for(let c=1;c<=maxCycle;c++){const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).filter(Boolean);if(sets.length)history.push(`C${c}:${Math.max(...sets.map(Number))}`);}
-      if(history.length>1)text+=`  ${getExName(day.id,ei)||ex.name}: ${history.join(' → ')}\n`;
+  render();
+}
+function addEx(){
+  const d=P[day].id;
+  const a=(D.cycles?.[`c${cur}`]?.[d]?.bonus||[]).slice();
+  let nm='New Exercise',i=2;
+  while(a.some(b=>b.name===nm))nm='New Exercise '+(i++);
+  a.push({name:nm,w:''});
+  setBonus(cur,d,a);render();
+  ren('bon_'+nm);   // open inline editor immediately, as the old app did
+}
+function allDone(){return P.every(d=>D.cycles?.[`c${cur}`]?.[d.id]?.done);}
+function go(i){day=i;linkFrom=null;render();window.scrollTo({top:0,behavior:'smooth'});}
+function w(i,v){setW(cur,P[day].id,i,v);}
+function nt(v){Dy(cur,P[day].id).note=v;D.cycles[`c${cur}`][P[day].id].note=v;save();}
+function fin(){const k=P[day].id;Dy(cur,k);D.cycles[`c${cur}`][k].done=!D.cycles[`c${cur}`][k].done;save();render();}
+function wk(dir){const n=cur+dir;if(n<1)return;cur=n;render();window.scrollTo({top:0});}
+function newWk(){cur=maxWk()+1;C(cur);day=0;save();render();window.scrollTo({top:0});}
+function exp(){
+  const m=maxWk(),u=unit();
+  let t=`LIFTLOG — TRAINING HISTORY\nWeek ${cur} of ${m} · ${u.toUpperCase()} · heaviest set logged\n\n`;
+  for(let c=1;c<=m;c++){
+    let any=false;
+    P.forEach(d=>{if(d.ex.some((_,i)=>getW(c,d.id,i)))any=true;
+      if((D.cycles?.[`c${c}`]?.[d.id]?.bonus||[]).some(b=>b.w))any=true;});
+    if(!any)continue;
+    t+=`── WEEK ${c} ──\n`;
+    P.forEach(d=>{
+      const rows=[];
+      d.ex.forEach((e,i)=>{const v=getW(c,d.id,i);if(!v)return;
+        const nm=exName(d.id,i);
+        rows.push(`  ${nm?`${nm} (sub for ${e[0]})`:e[0]} [${e[1]}]: ${v}${u}`);});
+      (D.cycles?.[`c${c}`]?.[d.id]?.bonus||[]).forEach(b=>{
+        if(b.w)rows.push(`  ${b.name} [added]: ${b.w}${u}`);});
+      const nt=D.cycles?.[`c${c}`]?.[d.id]?.note;
+      if(!rows.length&&!nt)return;
+      t+=`${d.full}\n${rows.join('\n')}\n`;if(nt)t+=`  Notes: ${nt}\n`;
     });
-  });
-  text+=`\nPaste into Claude and say "cycle check-in".`;
-  navigator.clipboard.writeText(text).then(()=>{const el=document.getElementById('exportFlash');if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}}).catch(()=>{prompt('Copy this:',text);});
+    t+='\n';
+  }
+  t+=`── PROGRESSION ──\n`;
+  P.forEach(d=>d.ex.forEach((e,i)=>{
+    const h=[];for(let c=1;c<=m;c++){const v=getW(c,d.id,i);if(v)h.push(`W${c}:${v}`);}
+    if(h.length>1)t+=`  ${exName(d.id,i)||e[0]}: ${h.join(' → ')}\n`;
+  }));
+  t+=`\nPaste into Claude and say "cycle check-in".`;
+  navigator.clipboard.writeText(t).then(()=>alert('Copied!')).catch(()=>prompt('Copy:',t));
 }
-
-async function generateRecap(){
-  const btn=document.getElementById('genBtn');const content=document.getElementById('aiContent');
-  btn.disabled=true;btn.innerHTML='...';
-  let prompt=`Expert strength coach. Analyze this training cycle.\nGoals: Lean bulk. Chest, shoulder width, rear delts, bicep size, quad rebuild. Knee recovering.\n\nCycle ${currentCycle}:\n\n`;
-  DAYS.filter(d=>d.type!=='recap').forEach(day=>{
-    const exercises=getExercises(day);const unit=getUnit(currentCycle,day.id);
-    prompt+=`${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
-    exercises.forEach((ex,ei)=>{const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));if(!sets.some(v=>v))return;prompt+=`  ${getExName(day.id,ei)||ex.name} [${ex.tier}]: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;});
-    const n=getNotes(currentCycle,day.id);if(n)prompt+=`  Notes: ${n}\n`;prompt+='\n';
-  });
-  prompt+=`Provide: 1. Overview 2. Wins 3. Next Cycle Targets 4. Watch Points. HTML <p> and <strong> only.`;
-  try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:prompt}]})});
-    const data=await res.json();const text=data.content?.map(b=>b.text||'').join('')||'Error.';
-    content.innerHTML=text;setAI(currentCycle,text);
-  }catch(e){content.innerHTML='<p style="color:var(--accent2)">Connection error.</p>';}
-  btn.disabled=false;btn.textContent=`Regenerate Cycle ${currentCycle} Recap`;
-}
-
-loadFromCloud();
+load();
 </script>
 </body>
 </html>
