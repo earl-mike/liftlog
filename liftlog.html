@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiftLog — Travel</title>
+<title>LiftLog</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--border:#222;--accent:#4fc3f7;--accent2:#ff6b35;--blue:#4fc3f7;--purple:#b388ff;--green:#69f0ae;--text:#f0f0f0;--muted:#555;--muted2:#888;}
+:root{--bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--border:#222;--accent:#c8ff00;--accent2:#ff6b35;--blue:#4fc3f7;--purple:#b388ff;--green:#69f0ae;--text:#f0f0f0;--muted:#555;--muted2:#888;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:20px;}
 header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1;color:var(--blue);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1;color:var(--accent);}
 .logo span{color:var(--text);}
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
 .cycle-nav{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted2);}
@@ -24,9 +24,13 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .tabs{display:flex;gap:2px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
 .tab{background:var(--surface);border:1px solid var(--border);color:var(--muted2);padding:8px 12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
-.tab.active{color:#000;font-weight:500;background:var(--blue);border-color:var(--blue);}
-.tab.lower.active{background:var(--green);border-color:var(--green);}
-.tab.arms-shoulders.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.tab.active{color:#000;font-weight:500;}
+.tab.chest.active{background:var(--accent2);border-color:var(--accent2);}
+.tab.back.active{background:var(--blue);border-color:var(--blue);}
+.tab.shoulders.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.tab.chest-back.active{background:var(--accent);border-color:var(--accent);}
+.tab.arms.active{background:var(--green);border-color:var(--green);}
+.tab.shoulders-legs.active{background:var(--purple);border-color:var(--purple);color:#fff;}
 .tab.recap.active{background:var(--muted2);border-color:var(--muted2);}
 .day-panel{display:none;}
 .day-panel.active{display:block;}
@@ -37,8 +41,8 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
 .superset-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:2px;margin-bottom:5px;}
 .tier-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:2px;flex-shrink:0;font-weight:500;}
 .tier-sp{background:#ff6b3522;color:var(--accent2);border:1px solid var(--accent2);}
-.tier-s{background:#4fc3f715;color:var(--blue);border:1px solid #4fc3f744;}
-.tier-a{background:#69f0ae15;color:var(--green);border:1px solid #69f0ae44;}
+.tier-s{background:#c8ff0015;color:var(--accent);border:1px solid #c8ff0044;}
+.tier-a{background:#4fc3f715;color:var(--blue);border:1px solid #4fc3f744;}
 .superset-badge{font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;background:#b388ff22;color:var(--purple);border:1px solid var(--purple);border-radius:2px;flex-shrink:0;}
 .exercise-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
 .exercise-row{background:var(--surface);border:1px solid var(--border);padding:10px 14px;}
@@ -110,9 +114,9 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
 .flash-msg{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);opacity:0;}
 .flash-msg.show{opacity:1;}
 .loading-overlay{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;}
-.load-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;color:var(--blue);}
+.load-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;color:var(--accent);}
 .dot-loader{display:inline-flex;gap:5px;align-items:center;}
-.dot-loader span{width:5px;height:5px;background:var(--blue);border-radius:50%;animation:blink 1.2s infinite;}
+.dot-loader span{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite;}
 .dot-loader span:nth-child(2){animation-delay:.2s;}
 .dot-loader span:nth-child(3){animation-delay:.4s;}
 @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
@@ -120,11 +124,11 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="load-logo">TRAVEL</div>
+  <div class="load-logo">LIFT<span style="color:#f0f0f0">LOG</span></div>
   <div class="dot-loader"><span></span><span></span><span></span></div>
 </div>
 <header>
-  <div class="logo">TRAVEL<span> MODE</span></div>
+  <div class="logo">LIFT<span>LOG</span></div>
   <div class="header-right">
     <div class="cycle-nav">
       <button onclick="changeCycle(-1)">&#8249;</button>
@@ -141,97 +145,103 @@ header{display:flex;align-items:flex-end;justify-content:space-between;margin-bo
 <div id="panels"></div>
 <script>
 const API_KEY='$2a$10$O7oW0lYtp956/on9QP2vn.QZyrXAPrVj/ubAanzM02gjSdb9Tu2NK';
-const BIN_ID='6a5203bef5f4af5e298028d3';
+const BIN_ID='69cc5e04aaba882197b1af4d';
 const NUM_SETS=4;
-const PROGRAM_VERSION='tv3';
+const PROGRAM_VERSION='v6';
 let cloudData={cycles:{},nameOverrides:{}};
 let saveTimer=null;
 let currentCycle=1;
 
 const DAYS=[
-  {id:'t1',label:'DAY 1',sub:'CHEST + BACK',type:'chest',exercises:[
-    {name:'DB Incline Press',tier:'S+',reps:'10–12'},
-    {name:'DB Flat Press',tier:'S',reps:'10–12'},
-    {name:'DB Chest Fly',tier:'S',reps:'12–15'},
-    {name:'Single Arm DB Row',tier:'S+',reps:'10–12'},
-    {name:'DB Chest Supported Row',tier:'S+',reps:'10–12'},
-    {name:'Renegade Row',tier:'S',reps:'10–12'},
-    {name:'DB Rear Delt Fly',tier:'S+',reps:'12–15'},
-    {name:'DB Pullover',tier:'S',reps:'12–15'},
+  {id:'day1',label:'DAY 1',sub:'CHEST + TRICEPS',type:'chest',exercises:[
+    {name:'Incline Barbell Press',tier:'S+',reps:'6–8'},
+    {name:'Barbell Bench Press',tier:'S+',reps:'6–8'},
+    {name:'Machine Chest Press',tier:'S',reps:'10–12'},
+    {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
+    {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
+    {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+    {name:'Rope Pushdown',tier:'A',reps:'15–20'},
+    {name:'Cable Crossover',tier:'S',reps:'12–15'},
   ]},
-  {id:'t2',label:'DAY 2',sub:'LOWER + DELTS + ARMS',type:'lower',exercises:[
-    {name:'DB Bulgarian Split Squat',tier:'S',reps:'10–12'},
-    {name:'DB Romanian Deadlift',tier:'S',reps:'10–12'},
-    {name:'DB Reverse Lunge',tier:'S',reps:'10–12'},
-    {name:'Seated DB Calf Raise',tier:'A',reps:'15–20'},
-    {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
-    {name:'Lean Away DB Lateral Raise',tier:'S+',reps:'12–15'},
-    {name:'DB Curl',tier:'S+',reps:'10–12'},
-    {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
+  {id:'day2',label:'DAY 2',sub:'BACK + BICEPS',type:'back',exercises:[
+    {name:'Chest Supported Row',tier:'S+',reps:'8–10'},
+    {name:'Wide Grip Lat Pulldown',tier:'S',reps:'10–12'},
+    {name:'Single Arm Lat Pulldown',tier:'S',reps:'10–12'},
+    {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
+    {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
+    {name:'Preacher Curl',tier:'S',reps:'10–12'},
+    {name:'Hammer Curl',tier:'S',reps:'12–15'},
+    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
   ]},
-  {id:'t3',label:'DAY 3',sub:'CHEST + BACK + ARMS',type:'chest',exercises:[
-    {name:'DB Incline Press',tier:'S',reps:'10–12'},
-    {name:'DB Incline Fly',tier:'S',reps:'12–15'},
-    {name:'Single Arm DB Row',tier:'S+',reps:'10–12'},
-    {name:'DB Chest Supported Row',tier:'S',reps:'10–12'},
-    {name:'DB Hammer Curl',tier:'S',reps:'10–12'},
-    {name:'DB Incline Curl',tier:'S',reps:'10–12'},
-    {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
-    {name:'DB Skullcrusher',tier:'S',reps:'12–15'},
+  {id:'day3',label:'DAY 3',sub:'SHOULDERS + LEGS (QUAD)',type:'shoulders',exercises:[
+    {name:'Arnold Press',tier:'S',reps:'8–10'},
+    {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+    {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
+    {name:'Cable Lateral Raise',tier:'S',reps:'15–20'},
+    {name:'Cable Upright Row',tier:'S',reps:'12–15'},
+    {name:'Leg Press (high foot)',tier:'S',reps:'10–12'},
+    {name:'Leg Extension (controlled)',tier:'S',reps:'15–20'},
+    {name:'Hack Squat',tier:'S',reps:'10–12'},
   ]},
-  {id:'t4',label:'DAY 4',sub:'LOWER + DELTS',type:'lower',exercises:[
-    {name:'DB Bulgarian Split Squat',tier:'S',reps:'10–12'},
-    {name:'DB Single Leg RDL',tier:'S+',reps:'10–12'},
-    {name:'DB Sumo Squat',tier:'S',reps:'12–15'},
-    {name:'Seated DB Calf Raise',tier:'A',reps:'15–20'},
-    {name:'DB Arnold Press',tier:'S',reps:'10–12'},
-    {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
-    {name:'DB Rear Delt Fly',tier:'S+',reps:'12–15'},
-    {name:'DB Skullcrusher',tier:'S',reps:'12–15'},
+  {id:'day4',label:'DAY 4',sub:'CHEST + BACK',type:'chest-back',exercises:[
+    {name:'Incline Dumbbell Press',tier:'S+',reps:'8–10'},
+    {name:'Meadows Row',tier:'S+',reps:'10–12'},
+    {name:'Incline Machine Press',tier:'S',reps:'10–12'},
+    {name:'Close Grip Cable Row',tier:'S',reps:'10–12'},
+    {name:'Cable Pec Fly',tier:'S',reps:'12–15'},
+    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+    {name:'Dumbbell Fly',tier:'S',reps:'12–15'},
+    {name:'Cable Y Raise',tier:'A',reps:'15–20'},
   ]},
-  {id:'t5',label:'DAY 5',sub:'DELTS + ARMS BLAST',type:'arms-shoulders',exercises:[
-    {name:'DB Arnold Press',tier:'S',reps:'10–12'},
-    {name:'DB Shoulder Press',tier:'S',reps:'10–12'},
-    {name:'DB Lateral Raise',tier:'S',reps:'12–15'},
-    {name:'DB Incline Rear Delt Fly',tier:'S+',reps:'12–15'},
-    {name:'DB Curl',tier:'S+',reps:'10–12'},
-    {name:'DB Preacher Curl',tier:'S',reps:'10–12'},
-    {name:'DB Hammer Curl',tier:'S',reps:'12–15'},
-    {name:'DB Overhead Tri Ext',tier:'S',reps:'12–15'},
+  {id:'day5',label:'DAY 5',sub:'ARMS BLAST',type:'arms',exercises:[
+    {name:'Bayesian Cable Curl',tier:'S+',reps:'10–12'},
+    {name:'Overhead Cable Tri Ext',tier:'S',reps:'12–15'},
+    {name:'Preacher Curl',tier:'S',reps:'10–12'},
+    {name:'EZ-Bar Skullcrusher',tier:'S',reps:'10–12'},
+    {name:'Hammer Curl',tier:'S',reps:'12–15'},
+    {name:'Rope Pushdown',tier:'A',reps:'15–20'},
+    {name:'Incline DB Curl',tier:'S',reps:'10–12'},
+    {name:'Single Arm Pushdown',tier:'A',reps:'15–20'},
   ]},
-  {id:'trecap',label:'RECAP',sub:'',type:'recap',exercises:[]}
+  {id:'day6',label:'DAY 6',sub:'SHOULDERS + LEGS (GLUTE)',type:'shoulders-legs',exercises:[
+    {name:'Arnold Press',tier:'S',reps:'8–10'},
+    {name:'Machine Shoulder Press',tier:'S',reps:'8–10'},
+    {name:'Lean Away Lateral Raise',tier:'S+',reps:'15–20'},
+    {name:'Rear Delt Cable Fly',tier:'S+',reps:'15–20'},
+    {name:'Cable Upright Row',tier:'S',reps:'12–15'},
+    {name:'Hip Thrust',tier:'S+',reps:'10–12'},
+    {name:'Romanian Deadlift',tier:'S',reps:'8–10'},
+    {name:'Leg Extension (controlled)',tier:'A',reps:'15–20'},
+  ]},
+  {id:'recap',label:'RECAP',sub:'',type:'recap',exercises:[]}
 ];
 
 function setSyncStatus(s,l){document.getElementById('syncDot').className='sync-dot '+s;document.getElementById('syncLabel').textContent=l;}
 
 async function loadFromCloud(){
-  const ver=localStorage.getItem('ll_tv_version');
+  const ver=localStorage.getItem('ll_v6_version');
   if(ver!==PROGRAM_VERSION){
-    localStorage.removeItem('ll_tv_backup');
+    localStorage.removeItem('ll_v6_backup');
     cloudData={cycles:{},nameOverrides:{}};
     try{
       await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(cloudData)});
-      localStorage.setItem('ll_tv_version',PROGRAM_VERSION);
-      setSyncStatus('synced','READY ✓');
+      localStorage.setItem('ll_v6_version',PROGRAM_VERSION);setSyncStatus('synced','READY ✓');
     }catch(e){setSyncStatus('error','RESET FAILED');}
-    document.getElementById('loadingOverlay').style.display='none';
-    renderAll(true);return;
+    document.getElementById('loadingOverlay').style.display='none';renderAll(true);return;
   }
-  const cached=localStorage.getItem('ll_tv_backup');
+  const cached=localStorage.getItem('ll_v6_backup');
   if(cached){
     try{cloudData=JSON.parse(cached);if(!cloudData.cycles)cloudData.cycles={};if(!cloudData.nameOverrides)cloudData.nameOverrides={};}
     catch(e){cloudData={cycles:{},nameOverrides:{}};}
-    document.getElementById('loadingOverlay').style.display='none';
-    renderAll(true);setSyncStatus('syncing','SYNCING...');
+    document.getElementById('loadingOverlay').style.display='none';renderAll(true);setSyncStatus('syncing','SYNCING...');
   }else{setSyncStatus('syncing','LOADING...');}
   try{
     const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
     const data=await res.json();
     const fresh=data.record||{cycles:{},nameOverrides:{}};
     if(!fresh.cycles)fresh.cycles={};if(!fresh.nameOverrides)fresh.nameOverrides={};
-    cloudData=fresh;localStorage.setItem('ll_tv_backup',JSON.stringify(cloudData));
-    setSyncStatus('synced','SYNCED');
-    document.getElementById('loadingOverlay').style.display='none';renderAll(true);
+    cloudData=fresh;localStorage.setItem('ll_v6_backup',JSON.stringify(cloudData));
+    setSyncStatus('synced','SYNCED');document.getElementById('loadingOverlay').style.display='none';renderAll(true);
   }catch(e){
     setSyncStatus('error','OFFLINE');
     if(!cached){cloudData={cycles:{},nameOverrides:{}};document.getElementById('loadingOverlay').style.display='none';renderAll(true);}
@@ -240,7 +250,7 @@ async function loadFromCloud(){
 
 async function saveToCloud(){
   setSyncStatus('syncing','SAVING...');
-  localStorage.setItem('ll_tv_backup',JSON.stringify(cloudData));
+  localStorage.setItem('ll_v6_backup',JSON.stringify(cloudData));
   try{
     await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(cloudData)});
     setSyncStatus('synced','SAVED ✓');
@@ -406,13 +416,7 @@ function buildDay(day,di){
       const partnerKey=pairGroup?pairGroup.find(k=>k!==itemSSKey):null;
       let partnerItem=null;
       if(partnerKey){if(partnerKey.startsWith('bonus_')){const pIdx=Number(partnerKey.replace('bonus_',''));partnerItem=orderedItems.find(it=>it.type==='bonus'&&it.idx===pIdx);}else{const pEi=Number(partnerKey.replace('ex_',''));partnerItem=orderedItems.find(it=>it.type!=='bonus'&&it.ei===pEi);}}
-      if(partnerItem){
-        rendered.add(key);rendered.add(itemKey(partnerItem));
-        bodyHtml+=`<div class="superset-group"><div class="superset-label">◈ LINKED PAIR</div>`;
-        bodyHtml+=buildUnifiedRow(di,item,day.id,unit);
-        bodyHtml+=buildUnifiedRow(di,partnerItem,day.id,unit);
-        bodyHtml+=`</div>`;return;
-      }
+      if(partnerItem){rendered.add(key);rendered.add(itemKey(partnerItem));bodyHtml+=`<div class="superset-group"><div class="superset-label">◈ LINKED PAIR</div>`;bodyHtml+=buildUnifiedRow(di,item,day.id,unit);bodyHtml+=buildUnifiedRow(di,partnerItem,day.id,unit);bodyHtml+=`</div>`;return;}
     }
     rendered.add(key);bodyHtml+=buildUnifiedRow(di,item,day.id,unit);
   });
@@ -426,9 +430,9 @@ function buildDay(day,di){
     <button class="add-exercise-btn" onclick="addBonusExercise('${day.id}',${di})">+ Add Exercise</button>
     <div class="progress-bar-wrap"><div class="progress-bar" id="prog_${di}" style="width:0%"></div></div>
     <div class="logged-count" id="cnt_${di}">0 / ${totalEx} logged</div>
-    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes..."></textarea>
+    <textarea class="notes-area" id="notes_${di}" placeholder="Session notes — PRs, swaps, instructions for next cycle..."></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-      <div class="autosave-note">◈ AUTO-SAVES</div>
+      <div class="autosave-note">◈ AUTO-SAVES TO CLOUD AS YOU TYPE</div>
       <button class="finish-btn" id="finish-btn-${di}" onclick="markSessionDone('${day.id}',${di})">FINISH SESSION</button>
     </div>`;
 }
@@ -450,11 +454,11 @@ function buildRecap(){
   return`<div class="day-header"><span>CYCLE ${currentCycle} RECAP</span></div>
     <div class="recap-section"><div class="section-label">Logged Weights</div><div class="recap-grid">${cards}</div></div>
     <div class="recap-section">
-      <div class="export-box"><div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste in.</div><button class="btn btn-copy" onclick="exportCycle()">⬆ Copy for Claude</button></div>
+      <div class="export-box"><div class="export-box-text"><strong>↑ Share with Claude</strong><br>Copy your cycle and paste into Claude.</div><button class="btn btn-copy" onclick="exportCycle()">⬆ Copy for Claude</button></div>
       <span class="flash-msg" id="exportFlash" style="display:block;margin-bottom:12px;">✓ Copied!</span>
     </div>
-    <div class="recap-section"><div class="section-label">AI Analysis</div>${aiHtml}
-      <div class="btn-row" style="margin-top:14px;"><button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Recap</button></div>
+    <div class="recap-section"><div class="section-label">AI Coaching Analysis</div>${aiHtml}
+      <div class="btn-row" style="margin-top:14px;"><button class="btn btn-outline" id="genBtn" onclick="generateRecap()">Generate Cycle ${currentCycle} Recap</button></div>
     </div>`;
 }
 
@@ -537,7 +541,7 @@ function deleteBonusExercise(dayId,di,bonusName,isCarried){
 
 function exportCycle(){
   let maxCycle=0;Object.keys(cloudData.cycles||{}).forEach(k=>{const n=parseInt(k.replace('c',''));if(!isNaN(n)&&n>maxCycle)maxCycle=n;});
-  let text=`TRAVEL — FULL HISTORY\n${'='.repeat(30)}\nCycle: ${currentCycle} | Total: ${maxCycle}\n\n`;
+  let text=`LIFTLOG — FULL TRAINING HISTORY\n${'='.repeat(36)}\nCurrent Cycle: ${currentCycle} | Total: ${maxCycle}\nGoals: Lean bulk. Chest, shoulder width, rear delts, bicep size, quad rebuild.\n\n`;
   for(let c=1;c<=maxCycle;c++){
     let hasData=false;
     DAYS.filter(d=>d.type!=='recap').forEach(day=>{if(getExercises(day).some((_,ei)=>Array.from({length:NUM_SETS},(_,s)=>getSet(c,day.id,ei,s)).some(v=>v)))hasData=true;});
@@ -566,11 +570,11 @@ function exportCycle(){
 async function generateRecap(){
   const btn=document.getElementById('genBtn');const content=document.getElementById('aiContent');
   btn.disabled=true;btn.innerHTML='...';
-  let prompt=`Expert strength coach. Analyze this travel training cycle.\nGoals: Maintain muscle, pump, stay lean while traveling. Dumbbells only.\n\nCycle ${currentCycle}:\n\n`;
+  let prompt=`Expert strength coach. Analyze this training cycle.\nGoals: Lean bulk. Chest, shoulder width, rear delts, bicep size, quad rebuild. Knee recovering.\n\nCycle ${currentCycle}:\n\n`;
   DAYS.filter(d=>d.type!=='recap').forEach(day=>{
     const exercises=getExercises(day);const unit=getUnit(currentCycle,day.id);
     prompt+=`${day.label} (${day.sub}) [${unit.toUpperCase()}]:\n`;
-    exercises.forEach((ex,ei)=>{const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));if(!sets.some(v=>v))return;prompt+=`  ${getExName(day.id,ei)||ex.name}: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;});
+    exercises.forEach((ex,ei)=>{const sets=Array.from({length:NUM_SETS},(_,s)=>getSet(currentCycle,day.id,ei,s));if(!sets.some(v=>v))return;prompt+=`  ${getExName(day.id,ei)||ex.name} [${ex.tier}]: ${sets.map((v,s)=>v?`S${s+1}:${v}${unit}`:'').filter(Boolean).join(', ')}\n`;});
     const n=getNotes(currentCycle,day.id);if(n)prompt+=`  Notes: ${n}\n`;prompt+='\n';
   });
   prompt+=`Provide: 1. Overview 2. Wins 3. Next Cycle Targets 4. Watch Points. HTML <p> and <strong> only.`;
@@ -579,7 +583,7 @@ async function generateRecap(){
     const data=await res.json();const text=data.content?.map(b=>b.text||'').join('')||'Error.';
     content.innerHTML=text;setAI(currentCycle,text);
   }catch(e){content.innerHTML='<p style="color:var(--accent2)">Connection error.</p>';}
-  btn.disabled=false;btn.textContent='Regenerate Recap';
+  btn.disabled=false;btn.textContent=`Regenerate Cycle ${currentCycle} Recap`;
 }
 
 loadFromCloud();
