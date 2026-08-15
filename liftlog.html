@@ -90,7 +90,7 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;padd
   font-size:9px;padding:3px 7px;cursor:pointer;line-height:1;}
 .arr button:active{background:var(--lime);color:#000;}
 .tools{display:flex;gap:6px;margin-top:9px;}
-.right{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex-shrink:0;}
+.right{display:flex;flex-direction:row;align-items:center;gap:8px;flex-shrink:0;}
 .tool{background:var(--card2);border:1px solid var(--line);border-radius:7px;color:var(--dim2);
   font-size:11px;padding:5px 9px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .tool.lk{border-color:#b388ff;color:#b388ff;}
@@ -376,10 +376,8 @@ function card(x,d,u){
 
     </div>
     <div class="right">
-      <div style="display:flex;gap:6px;">
-        <button class="tool lk${sel?' sel':''}" style="flex:1;" onclick="toggleLink('${x.k}')">${pr?'Unlink':sel?'Pick…':'Link'}</button>
-        ${isB?`<button class="tool del" onclick="delBonus('${d.id}',${JSON.stringify(x.bonus.name)})">✕</button>`:''}
-      </div>
+      <button class="tool lk${sel?' sel':''}" onclick="toggleLink('${x.k}')">${pr?'Unlink':sel?'Pick…':'Link'}</button>
+      ${isB?`<button class="tool del" onclick="delBonus('${d.id}',${JSON.stringify(x.bonus.name)})">✕</button>`:''}
       <div class="wbox">
         <input class="winp" type="number" inputmode="decimal" step="2.5" placeholder="—"
           value="${val}" oninput="${set};mark('${x.k}',this.value)">
