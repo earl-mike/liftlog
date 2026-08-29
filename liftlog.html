@@ -136,31 +136,36 @@ const BIN='69cc5e04aaba882197b1af4d';
 let D={cycles:{}},cur=1,day=0,timer=null,edit=false,linkFrom=null;
 
 const P=[
- {id:'day1',n:'1',t:'CH/BACK',full:'CHEST + BACK · SUPERSETS',ex:[
-  ['Incline Barbell Press','S+','6–8'],['Chest Supported Row','S+','8–10'],
-  ['Machine Chest Press','S','10–12'],['Wide Grip Lat Pulldown','S','10–12'],
-  ['Cable Pec Fly','S','12–15'],['Close Grip Cable Row','S','10–12'],
-  ['Cable Crossover','S','12–15'],['Straight Arm Pulldown','S','12–15']]},
- {id:'day2',n:'2',t:'DELT/ARM',full:'DELTS + ARMS',ex:[
-  ['Machine Shoulder Press','S','8–10'],['Lean Away Lateral Raise','S+','15–20'],
-  ['Cable Lateral Raise','S','15–20'],['Rear Delt Cable Fly','S+','15–20'],
-  ['Bayesian Cable Curl','S+','10–12'],['Overhead Cable Tri Ext','S','12–15'],
-  ['Preacher Curl','S','10–12'],['EZ-Bar Skullcrusher','S','10–12']]},
- {id:'day3',n:'3',t:'LEGS',full:'LEGS · FULL',ex:[
-  ['Hack Squat','S+','8–10'],['Romanian Deadlift','S+','8–10'],
-  ['Leg Press (high foot)','S','10–12'],['Hip Thrust','S+','10–12'],
-  ['Lying Leg Curl','S','10–12'],['Leg Extension (controlled)','S','15–20'],
-  ['Standing Calf Raise','A','15–20'],['Seated Calf Raise','A','15–20']]},
- {id:'day4',n:'4',t:'CH/BACK',full:'CHEST + BACK · SUPERSETS',ex:[
-  ['Incline Dumbbell Press','S+','8–10'],['Meadows Row','S+','10–12'],
-  ['Incline Machine Press','S','10–12'],['Single Arm Lat Pulldown','S','10–12'],
-  ['Dumbbell Fly','S','12–15'],['Chest Supported Row','S+','10–12'],
-  ['Dips','S+','8–12'],['Cable Y Raise','A','15–20']]},
- {id:'day5',n:'5',t:'DELT/ARM',full:'DELTS + ARMS',ex:[
-  ['Arnold Press','S','8–10'],['Cable Lateral Raise','S','15–20'],
-  ['Lean Away Lateral Raise','S+','15–20'],['Rear Delt Cable Fly','S+','15–20'],
-  ['Incline DB Curl','S','10–12'],['Rope Pushdown','A','15–20'],
-  ['Hammer Curl','S','12–15'],['Single Arm Pushdown','A','15–20']]}
+ {id:'day1',n:'1',t:'CHEST',full:'CHEST + TRICEPS',ex:[
+  ['Barbell Bench Press','S+','6–8'],['Incline Dumbbell Press','S','8–10'],
+  ['Machine Chest Press','S','10–12'],['Bottom Up Cable Fly','A','12–15'],
+  ['EZ-Bar Skullcrusher','S','10–12'],['Overhead Cable Tri Ext','S','12–15'],
+  ['Rope Pushdown','A','15–20']]},
+ {id:'day2',n:'2',t:'BACK',full:'BACK + BICEPS',ex:[
+  ['Chest Supported Row','S+','8–10'],['Single Arm Lat Pulldown','S','10–12'],
+  ['Neutral Grip Lat Pulldown','S','10–12'],['Single Arm Cable Row','S','10–12'],
+  ['Bayesian Cable Curl','S+','10–12'],['Preacher Curl','S','10–12'],
+  ['Hammer Curl','S','12–15']]},
+ {id:'day3',n:'3',t:'SHLDR',full:'SHOULDERS + UPPER BACK',ex:[
+  ['Dumbbell Shoulder Press','S','8–10'],['Lean Away Lateral Raise','S+','15–20'],
+  ['Cable Lateral Raise','S','15–20'],['Cable Upright Row','S','12–15'],
+  ['Rear Delt Cable Fly','S+','15–20'],['Face Pull','S+','15–20'],
+  ['Cable Y Raise','A','15–20']]},
+ {id:'day4',n:'4',t:'CHEST',full:'CHEST + TRICEPS',ex:[
+  ['Incline Barbell Press','S+','6–8'],['Incline Machine Press','S','10–12'],
+  ['Cable Pec Fly','S','12–15'],['Bottom Up Cable Fly','A','12–15'],
+  ['Overhead Cable Tri Ext','S','12–15'],['EZ-Bar Skullcrusher','S','10–12'],
+  ['Single Arm Pushdown','A','15–20']]},
+ {id:'day5',n:'5',t:'BACK',full:'BACK + BICEPS',ex:[
+  ['Close Grip Cable Row','S+','10–12'],['Wide Grip Lat Pulldown','S','10–12'],
+  ['Chest Supported Row','S+','8–10'],['Cable Straight Arm Pulldown','S','12–15'],
+  ['Bayesian Cable Curl','S+','10–12'],['Incline DB Curl','S','10–12'],
+  ['Preacher Curl','S','10–12']]},
+ {id:'day6',n:'6',t:'LEGS',full:'LEGS + LATERAL DELTS',ex:[
+  ['Front Squat','S+','5–8'],['Leg Press (high foot)','S','10–12'],
+  ['Hip Thrust','S+','10–12'],['Bulgarian Split Squat','S','10–12'],
+  ['Leg Extension (controlled)','S','15–20'],
+  ['Lean Away Lateral Raise','S+','15–20'],['Cable Lateral Raise','S','15–20']]}
 ];
 
 
